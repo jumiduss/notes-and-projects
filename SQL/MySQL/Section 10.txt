@@ -1,0 +1,95 @@
+Data Types
+
+    1. String / Text  
+        
+        CHAR - Fixed length is set on creation.
+            Faster than VARCHAR if text length is predictable.
+        
+        VARCHAR - Varies based on the length of the string you are storing.
+            Faster than CHAR for text of variable length.
+
+    2. Numeric
+
+        INTEGER or INT
+            TINYINT -> -128 to 127 -> 255 unsigned-> 1 Bytes
+            SMALLINT -> -32768 to 32767 -> 65535 unsigned -> 2 Bytes
+            MEDIUMINT -> -8388608 to 8388607 -> 16777215 unsigned -> 3 Bytes
+            INTEGER = INT -> -2147483648 to 2147483647 -> 4294967295 unsigned -> 4 Bytes
+            BIGINT -> -2^63 to ((2^63) - 1) -> ((2^64) - 1) unsigned -> 8 Bytes
+
+        DECIMAL
+            Can specify number of digits pre and post decimal.
+            DECIMAL(5,2) is equivalent to 12345.12
+        
+        FLOAT
+            Faster than decimal.
+            Stores numbers into 4 Bytes.
+            Loses Precision around 7 digits.
+
+        DOUBLE
+            Faster than decimal.
+            Stores numbers into 8 Bytes.
+            Loses precision at around 15 digits.
+
+    Dates and Times
+
+        DATE
+            For values with a date but no time.
+            Format = 'YYYY-MM-DD'
+
+            CURRENT_DATE() = CURRENT_DATE = CURDATE()
+        
+        TIME
+            For values with a time but no date.
+            Format = 'HH:MM:SS'
+            CURRENT_TIME() = CURRENT_TIME = CURTIME()
+        
+        DATETIME
+            For values with a date and a time. 
+            Format = 'YYYY-MM-DD HH:MM:SS'
+            CURRENT_TIMESTAMP() = NOW()
+        
+        Common DATETIME or DATE or TIME functions:
+            DAY - day number.
+            DAYOFWEEK - day number in reference to week. 1 = Sunday.
+            WEEKOFYEAR - week number in reference to year.
+            DAYOFYEAR - day number in reference to year. 
+            MONTHNAME - english name of month. 
+            MONTH - month number.
+            YEAR -  year number.
+            SECOND - second number.
+            MINUTE - minute number.
+            HOUR - hour number.
+
+        DATE_FORMAT
+            A special formatting string for dates.
+
+            Special Characters, all special characters begin with %
+
+                a - Sun, Mon, ...
+                b - Jan, Feb, ...
+                c - Month 0, 1, ..., 12
+                D - 0th, 1st, 2nd, ...
+                d - Day of Month 00, 01, ...
+                e - Day of Month 0, 1, ...
+                f - Microseconds 000000, ..., 999999
+                H - Hour 00, 01, ..., 23
+                h - Hour 01, 02, ..., 12
+                I - Hour 01, 02, ..., 12
+                i - Minutes, 00, 01, ..., 59
+                j - Day of Year, 001, 002, ..., 366
+                k - Hour 0, 1, ..., 23
+                l - Hour 1, 2, ..., 12
+                M - Month January, February, ..., December
+                m - Month 01, 02, ..., 12
+                p - AM or PM
+                r - Time 12-Hour hh:mm:ss AM/PM
+                S - 
+                s
+                Y
+                U
+                u
+                V
+
+
+

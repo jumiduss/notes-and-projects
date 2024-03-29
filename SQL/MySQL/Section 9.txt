@@ -1,0 +1,107 @@
+Aggregate Functions
+
+    COUNT
+        SELECT COUNT(*) FROM table_name;
+            Counts the number of rows returned from this query.
+    
+        SELECT COUNT(DISTINCT column_name) FROM table_name;
+            Counts are based number of unique references in the selected column.
+
+    GROUP BY
+
+        This summarizes or aggregates identical data into single rows.
+
+        SELECT column_name FROM table_name GROUP BY column_name;
+
+        If we performed this on our books table, and focused on the author_lname column:
+            It would return a set of single instances of each author_lname.
+            These are actually multiple rows grouped by author_lname,
+                so they contain more information that just singular row data.
+
+            SELECT author_lname, COUNT(*) FROM books GROUP BY author_lname;
+                Returns the number of instances *every* author_lname is used within the table.
+
+            SELECT author_lname FROM books GROUP BY author_lname
+        
+        General column format:
+            First. Group by some column chosen in select.
+            Second. Some Aggregate function like COUNT, MIN, MAX, etc..
+
+
+    MIN and MAX
+
+        COUNTS and returns the minimum or maximum number of instances of your query.
+
+        SELECT MAX(pages) FROM books;
+            returns the value of the biggest value in the column pages.
+        
+        SELECT MIN(author_lname) FROM books;
+            returns the name of the least occurring name in author_lname.
+
+    Sub Queries With MIN and MAX
+
+        SELECT column_name FROM table_name
+            WHERE column_name = (
+                SELECT MIN(column_name) FROM table);
+    
+    Grouping By Multiple Columns 
+
+        SELECT column_name, COUNT(*) FROM table_name
+            GROUP BY column_name_1, column_name_2, ... ;
+
+            Groups by column_name_1, 
+                then groups those sub groups by column_name_2,
+                    then groups those sub groups by column_.....
+            
+            Alias' can also be grouped.
+
+    Grouping with MIN and MAX
+
+        SELECT column_name_1, column_name_2, MAX(column_name_3)
+        FROM table
+        GROUP BY column_name_1, column_name_2;
+
+        SELECT column_name_1, COUNT(*), MAX(column_name_2), MIN(column_name_3)
+        FROM table_name GROUP BY column_name_1;
+    
+    SUM
+
+        Adds number type columns together.
+
+        Using it with GROUP BY
+
+            SELECT author_lname, SUM(pages) FROM books GROUP BY author_lname;
+
+        Cannot sum non number items. It will give warnings.
+    
+    AVG
+
+        The average of the number type column.
+
+Exercises:
+
+1. Print the number of books inside the database.
+
+    SELECT COUNT(title) FROM books; 
+
+2. Print how many books were released each year.
+
+    SELECT released_year, COUNT(*) FROM books GROUP BY released_year;
+
+3. Print how much stock of each book we have.
+
+    SELECT SUM(stock_quantity) FROM books;
+
+4. Find the average released_year for each author.
+
+    SELECT CONCAT(author_fname, ' ', author_lname) AS author_full, AVG(released_year) AS 'year_avg' FROM books GROUP BY author_full ORDER BY year_avg;
+    or
+    SELECT author_fname, AVG(released_year) AS 'year_avg' FROM books GROUP BY author_lname, author_fname ORDER BY year_avg;
+
+5. For each year, find the number of books, and the number of average pages for the books in that year.
+
+    SELECT released_year AS 'year', COUNT(title) AS '# books', AVG(pages) AS 'avg pages' FROM books GROUP BY year ORDER BY year; 
+
+NOTE:
+    Lecturer used COUNT(*) instead of COUNT(title).
+    In this example table, both produce the same results.

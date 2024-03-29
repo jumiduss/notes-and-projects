@@ -1,0 +1,129 @@
+Logging In
+    mysql -u root -p
+    "enter your password"
+        terminal is now within the mysql shell environment.
+        
+    Always end SQL statements with semi-colons.
+
+Tables
+
+    Columns
+        A relational database contains a set of tables.
+        Tables contain a structured set of data.
+        Data is organized by column under a group.
+        Column headers specify how the data is organized within the column.
+        Column data can have it's type specified.
+    
+    Rows
+        The data for a specific object.
+    
+    Type of Data that can be stored in tables.
+        Numeric
+            INT
+            SMALLINT
+            TINYINT
+            MEDIUMINT
+            BIGINT
+                Integers are whole numbers
+            DECIMAL
+            NUMERIC
+            FLOAT
+            DOUBLE
+            BIT
+        String
+            CHAR
+            VARCHAR
+                Variable length.
+            BINARY
+            VARBINARY
+            BLOB
+            TINYBLOB
+            MEDIUMBLOB
+            LONGBLOB
+            TEXT
+            TINYTEXT
+            MEDIUMTEXT
+            LONGTEXT
+            ENUM
+        Date
+            DATE
+
+Twitter Example:
+    Draw a Tweets Table
+    The columns must include:
+        A username (max 15 chars)
+        The tweet content (max 140 chars)
+        Number of favorites
+
+    Code:
+    CREATE TABLE cats
+    (
+        name VARCHAR(15),
+        tweet VARCHAR(140),
+        likes INT,
+    );
+
+Pastries Example:
+    Goals:
+        Create database with columns: name, quantity.
+        Inspect your table.
+        Delete your table.
+    
+    SELECT DATABASE_NAME;
+    CREATE TABLE pastries
+    (
+        name VARCHAR(50),
+        quantity INT,
+    );
+    SHOW pastries;
+    DROP TABLE pastries;
+
+
+Codes
+
+    CREATE DATABASE <database_name>;
+        NOTE, <name> is the courses shorthand for a variable input the student should enter.
+        
+        Don't use spaces in a database name.
+
+        You can use underscores or first letter capitalizations.
+
+        All caps commands are common, but not required.
+
+    CREATE TABLE <table_name> (column_information);
+        Creates a table with the name supplied.
+        Can add columns with the format:
+            (
+                column_name column_type(*args),
+                column_name_2 column_type_2(*args),
+                ...
+            );
+
+    
+    NOTE::::: DROP doesn't confirm deletion!
+    DROP DATABASE <database_name>;
+        Removes a database from the set.
+    
+    DROP TABLE <table_name>;
+        
+    USE <existing_database_name>;
+        Selects the database that you will be working on.
+        
+        SELECT database();
+            Shows which database is currently selected.
+
+    SHOW DATABASES; 
+        Prints a copy of all databases to the console.
+
+    SHOW TABLES;
+        Once a database is selected, show all data tables from that database.
+    
+    SHOW COLUMNS FROM <table_name>;
+        Shows The column information from a specific table.
+
+        Can also use:
+            DESC <table_name>;
+
+    --
+        The comment for SQL
+    

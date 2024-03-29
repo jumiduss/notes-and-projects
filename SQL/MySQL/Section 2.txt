@@ -1,0 +1,29 @@
+Database vs Database Management System
+
+A database is an organized collection of data
+    ex: MySQL, SQLite
+A database management system that talks to the database for us.
+    ex: PostgreSQL, Oracle Database
+
+
+SQL
+
+    SQL - Structured Query Language
+
+        The language we used to write interactions to a database.
+
+        Multiple relational database managers use SQL as their language.
+            MySQL
+            SQLite
+            PostgreSQL
+            Oracle
+            etc...
+
+        There do exist small differences between versions outside of the SQL standard. 
+        Differences in database managers are the features offered, not the language itself. (most times)
+
+
+MySQL Workbench
+
+    Allows us to write, save, and execute files when ready.
+    

@@ -1,0 +1,174 @@
+NOTE:
+An underscore in a function name is called a separator.
+    ex: CONCAT_WS
+
+
+
+Starting database:
+CREATE DATABASE book_shop;
+USE book_shop;
+
+Starting table:
+CREATE TABLE books ( 
+    book_id INT AUTO_INCREMENT, 
+    title VARCHAR(100), 
+    author_fname VARCHAR(100), 
+    author_lname VARCHAR(100), 
+    released_year INT, 
+    stock_quantity INT, 
+    pages INT, 
+    PRIMARY KEY(book_id)
+);
+SHOW COLUMNS FROM books;
+
+Important String Functions:
+
+    CONCAT
+            
+        SELECT CONCAT(column_name_1, column_name_2, ...) FROM table_name;
+
+        SELECT CONCAT_WS(<value>, column_name_1, column_name_2, ...) FROM table_name;
+
+    SUBSTRING or SUBSTR
+
+        SELECT SUBSTRING(<string/column>, <starting_index + 1>, <length (including the first character)>)
+            Like slicing in python, but start position is index+1.
+            If you don't provide a length, it assumes the length is to the end.
+            Negative number in the starting index counts backwards from the last character. 
+            
+            Can also use SUBSTR as a shorthand for SUBSTRING.
+        
+    Compound Commands
+
+        SELECT CONCAT( SUBSTR(title, 1, 10), '...') FROM books;
+
+        SELECT CONCAT( SUBSTR(title, 1, 10), '...') AS short_title FROM books;
+
+    REPLACE
+
+        SELECT REPLACE(
+            'operate_on_this_string_name',
+            'what_we_are_replacing_within_string',
+            'replace_occurrences_with_this_string'
+            ) AS column_header_name
+            FROM table_name;
+    
+    REVERSE
+
+        SELECT REVERSE('string_to_reverse');
+        Note: Can't reverse NULL types.
+    
+    CHAR_LENGTH
+
+        Gives the length of a string as an integer.
+
+        SELECT CHAR_LENGTH('string_to_count');
+    
+    LENGTH
+
+        Gives the length of a string measured in bytes.
+
+        SELECT LENGTH('string_to_count');
+    
+    UPPER
+
+        Uppercase all CHAR in string.
+
+        SELECT UPPER('string_to_count');
+    
+    LOWER
+
+        Lowercase all CHAR in string.
+
+        SELECT LOWER('string_to_count');
+
+    INSERT
+
+        Inserts one string at an index in another string.
+
+        SELECT INSERT(
+            'start_string', 
+            index_to_start, 
+            length_of_replacement_characters,
+            'string_to_insert'
+            );
+
+    LEFT
+
+        Returns set of characters some length from index 1 (aka 0->1).
+        
+        SELECT LEFT('start_string', number_of_char_to_return);
+    
+    REPEAT
+
+        Repeats a string some number of times.
+
+        SELECT REPEAT('start_string', number_of_repeats);
+    
+    TRIM
+
+        By default, removes whitespace around a string.
+
+        SELECT TRIM('   start_string    '); -- returns 'start_string'
+    
+        Can also trim specific strings / characters on specific sides of the string.
+
+            SELECT TRIM(LEADING '.' FROM '.......start_string..'); -- returns start_string..
+            SELECT TRIM(BOTH '.' FROM '.......start_string..'); --  returns start_string
+            SELECT TRIM(TRAILING '.' FROM '.......start_string..'); --  returns .......start_string
+    
+Exercises: 
+1. How would you reverse the string order and make all characters uppercase for the following string?
+    "Why does my cat look at me with such hatred?"
+
+    SELECT UPPER(REVERSE('Why does my cat look at me with such hatred?'))
+
+2. Without running, what does this code return?
+    SELECT
+    REPLACE
+    (
+    CONCAT('I', ' ', 'like', ' ', 'cats'),
+    ' ',
+    '-'
+    );
+
+    returns "I-like-cats"
+
+3. Replace spaces in the field 'title' with '->'.
+
+    SELECT REPLACE(title, ' ', '->') FROM table_name;
+    SELECT * FROM table_name;
+
+4. Print the l_name and backwards from our books table.
+
+    SELECT 
+    author_lname AS forwards,
+    REVERSE(author_lname) AS backwards
+    FROM books;
+
+5. Print the first and last name of authors in the books table, 
+    with a space between, 
+    in one column,
+    with column header 'full name in caps.'
+
+    SELECT CONCAT(UPPER(author_fname), ' ', UPPER(author_lname)) AS 'full name in caps' FROM books;
+
+6. From the books table, print the book's: title, 'was released in', and year.
+
+    SELECT CONCAT(title, ' was released in ', released_year, '.') AS 'blurb' FROM books;
+
+7. From the books table, print the title in one column, 
+    and the character count in another with column header character count.'
+    
+    SELECT title, CHAR_LENGTH(title) AS 'character count' FROM books;
+
+8. From the books table, return three columns specified by:
+    header='short title', data='<title-length-10>...'
+    header='author', data='<author_fname>,<author_lname>'
+    header='quantity' data='<stock_quantity> in stock'
+
+    SELECT
+    CONCAT(LEFT(title, 10), '...') AS 'short title',
+    CONCAT(author_lname, ',', author_fname) AS 'author',
+    CONCAT(stock_quantity, ' in stock') AS 'quantity'
+    FROM books;

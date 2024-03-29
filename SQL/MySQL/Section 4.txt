@@ -1,0 +1,82 @@
+
+Inserting data into tables
+
+    INSERT INTO table_name(column_name_1, column_name_2, ...)
+    VALUES (value_column_1, value_column_2, ...);
+
+    Is a one line command that can be broken up on multiple.
+    In this case, line 1 specifies the columns to add this row data to.
+    Line 2 specifies the values of that data for this row.
+    The order matters.
+
+Viewing data from a table
+    
+    SELECT * FROM table_name;
+        Selects all data from the table with the name table_name. 
+
+Inserting multiple rows of data into a table
+
+    INSERT INTO table_name(column_name_1, column_name_2, ...)
+    VALUES (value_1_column_1, value_1_column_2, ...),
+    (value_2_column_1, value_2_column_2, ...),
+    (...),
+    ...,
+    (...);
+
+The NULL column property
+
+    NULL YES
+        The column's data is not required for the row. 
+
+    NOT NULL
+        The column's data cannot be the value NULL
+    
+    Adding the not null column property.
+
+        CREATE TABLE table_name (
+            column_name_1 VARCHAR(100) NOT NULL,
+            column_name_2 INT NOT NULL,
+            ...
+        );
+
+CHAR Literals
+
+    \ denotes that the following character is a literal in the string.
+
+    You can use single quotes in double quotes, and double quotes in single quotes.
+
+Default Values
+
+    If no value is given, use this instead of NULL.
+    ...
+    (
+        column_name_1 VARCHAR(100) DEFAULT 'value_1',
+        ...
+    )
+
+Primary Keys
+
+    Primary Keys are unique identifiers for rows that separate rows from one another.
+
+    (
+        column_name_1 INT NOT NULL PRIMARY KEY,
+        ...
+    )
+    or use
+    (
+        column_name_1 INT,
+        ...,
+        PRIMARY KEY (column_name_1)
+    )
+
+Auto Increment Primary Keys
+
+    While adding rows of data, this property automatically increments the primary key value.
+        You can still explicitly set a row's primary key value. 
+
+    (
+        column_name_1 INT AUTO_INCREMENT,
+        ...,
+        PRIMARY KEY (cat_id)
+    );
+

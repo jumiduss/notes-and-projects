@@ -1,0 +1,103 @@
+CRUD Challenge
+
+1. Create a new database: shirts_db
+2. Create a new table: shirts
+3. Create table columns:
+    shirt_id - Primary Key - Integer
+    article - Characters
+    color - Characters
+    shirt_size - Characters - VARCHAR
+    last_worn - Integer
+4. Import batch data in one go.
+data:
+    ('t-shirt', 'white', 'S', 10),
+    ('t-shirt', 'green', 'S', 200),
+    ('polo shirt', 'black', 'M', 10),
+    ('tank top', 'blue', 'S', 50),
+    ('t-shirt', 'pink', 'S', 0),
+    ('polo shirt', 'red', 'M', 5),
+    ('tank top', 'white', 'S', 200),
+    ('tank top', 'blue', 'M', 15)
+5. Add in one shirt with the data:
+    color purple
+    type polo shirt
+    size M
+    last worn 50 days ago
+6. Query all shirts and return their article and color.
+7. Query all medium shirts and return all properties except shirt_id.
+8. Update all polo shirts to size L.
+9. Update the last shirt last worn 15 days ago, to last worn 0.
+10. Update all white shirts to size XS and color Off White
+11. Delete all shirts worn over 200 days ago
+12. Delete all tank tops
+13. Delete all shirts
+14. Drop the whole table
+
+CODE
+
+
+1.
+mariadb -u jd -p
+<enters password>
+
+CREATE DATABASE shirts_db;
+
+2 & 3.
+CREATE TABLE shirts (
+    shirt_id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    article NOT NULL VARCHAR(15),
+    color NOT NULL VARCHAR(15),
+    shirt_size NOT NULL VARCHAR(6),
+    last_worn NOT NULL INT
+);
+
+4.
+INSERT INTO shirts(article, color, shirt_size, last_worn)
+VALUES ('t-shirt', 'white', 'S', 10),
+('t-shirt', 'green', 'S', 200),
+('polo shirt', 'black', 'M', 10),
+('tank top', 'blue', 'S', 50),
+('t-shirt', 'pink', 'S', 0),
+('polo shirt', 'red', 'M', 5),
+('tank top', 'white', 'S', 200),
+('tank top', 'blue', 'M', 15);
+
+SELECT * FROM shirts; -- to verify import is good.
+
+5.
+INSERT INTO shirts(article, color, shirt_size, last_worn) VALUES ('polo shirt', 'purple', 'M', 50);
+SELECT * FROM shirts; -- to verify import is good.
+
+6.
+SELECT article, color FROM shirts;
+
+7.
+SELECT article, color, shirt_size, last_worn FROM shirts WHERE shirt_size='M';
+
+8.
+UPDATE shirts SET shirt_size='L' WHERE article='polo shirt';
+SELECT * FROM shirts; -- to verify import is good.
+
+9.
+UPDATE shirts SET last_worn=0 WHERE last_worn=15;
+SELECT * FROM shirts; -- to verify import is good.
+
+10.
+UPDATE shirts SET shirt_size='XS', color='off white' WHERE color='white';
+SELECT * FROM shirts; -- to verify import is good.
+
+11.
+DELETE FROM shirts WHERE last_worn=200;
+SELECT * FROM shirts; -- to verify import is good.
+
+12.
+DELETE FROM shirts WHERE article='tank top';
+SELECT * FROM shirts; -- to verify import is good.
+
+13.
+DELETE FROM shirts;
+SELECT * FROM shirts; -- to verify import is good.
+
+14.
+DROP shirts;
+SHOW TABLES; -- to verify table has been dropped.

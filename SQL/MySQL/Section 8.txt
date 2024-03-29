@@ -1,0 +1,115 @@
+Refining Selections with Functions
+
+    DISTINCT
+
+        SELECT DISTINCT column_name FROM table_name;
+
+        Selects a mathematical set of the column's data. 
+            AKA - unique values only.
+
+        DISTINCT can also precede other functions.
+
+        SELECT DISTINCT column_name_1, column_name_2, ... FROM table_name; 
+
+    ORDER BY
+
+        SELECT column_name 
+            FROM table_name 
+            ORDER BY column_name;
+
+        SELECT column_name 
+            FROM table_name 
+            ORDER BY column_name DESC;
+            
+            Orders by default into an ascending list. Tag on DESC to the function call
+                if you want to order by descending values.
+
+        SELECT column_name_1, column_name_2, ... 
+            FROM table_name 
+            ORDER BY not_in_other_column_name_list;
+        
+            You can also order by columns not selected to be returned.
+
+        SELECT column_name_1, column_name_2, ... 
+            FROM table_name 
+            ORDER BY 2;
+
+            You can order by the index number (aka index - 1) of the list of columns.
+            In this case, the returned data would be ordered by column_name_2.
+
+        SELECT column_name_1, column_name_2, ... 
+            FROM table_name 
+            ORDER BY order_column_name_1, order_column_name_2, ...;
+            
+            You can also sort by multiple columns, starting from most to least important.
+
+        SELECT CONCAT(column_name_1, column_name_2, ...) AS 'alias_name' FROM table_name ORDER BY alias_name;
+            
+            You can also order by an alias's name. 
+
+        SELECT column_name_1, column_name_2
+            FROM books
+            ORDER BY order_column_name_1 DESC LIMIT 5;
+
+            Using limit returns up to the specified amount of row data.
+                You can also slice from two ends.
+            
+            SELECT column_name FROM table_name ORDER BY column_name 
+                LIMIT starting_index_position, number_to_return_including_index;
+
+                This returns the index position 3, and includes itself plus the next row.
+                In the books table, the first table row under column released_year contains a NULL
+                    value, and it's index position is not considered when slicing.
+        
+    LIKE
+
+        %    
+            Percentage signs in SQL act as wildcards inside of quotations.
+
+            ... WHERE column_name LIKE '%string_values%';
+                This searches for anything before or after string_values.
+        _
+            Underscores specifies exactly how many characters the searched string should be.
+
+            SELECT * FROM table_name WHERE column_name LIKE '____'; 
+                Returns all rows where column_name has a string value of 4 characters. 
+
+        You can mix and match the underscores and percentages.
+
+        You have to escape wildcard characters % and _ with a backslash (\).
+
+
+Exercises:
+
+1. Return all of the book titles that contain the word "stories".
+
+    SELECT title FROM books WHERE title LIKE '%stories%';
+
+2. Return the name of the longest book, and it's number of pages.
+
+    SELECT title, pages FROM books ORDER BY pages DESC LIMIT 1;
+
+3. Print a summary containing the title and year for the three most recent books.
+
+    SELECT CONCAT(title, ' - ', released_year) FROM books ORDER BY released_year DESC LIMIT 3;
+
+4. Find all books with an author_lname that contains a space, and return the book title and last name of that author.
+
+    SELECT title, author_lname FROM books WHERE author_lname LIKE '% %';
+
+5. Find the three books with the lowest stock, and return their title, released_year, and stock_quantity.
+
+    SELECT title, released_year, stock_quantity FROM books ORDER BY stock_quantity LIMIT 3;
+
+6. Print the title and author_lname sorted by the author_lname then title.
+
+    SELECT title, author_lname FROM books ORDER BY author_lname, title;
+
+7. Print column 'yell' with data formatted by 'my favorite author is <author_fname> <author_lname>!', 
+    with all characters uppercase, sorted by last name.
+
+    SELECT UPPER(
+        CONCAT(
+            'my favorite author is ',author_fname, ' ', author_lname, '!')) 
+    FROM books 
+    ORDER BY author_lname;

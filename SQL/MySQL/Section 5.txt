@@ -1,0 +1,43 @@
+CRUD
+
+    Create - Sections 2, 3
+    Read - This section
+    Update
+    Delete
+
+Read
+
+    How we view the data within our tables / database.
+    
+    SELECT column_name_1, column_name_2, ...  FROM table_name;
+        SELECT explicitly specifies which data to use.
+    
+    SELECT * FROM table_name WHERE column_name=value;
+        WHERE pulls all rows that fit the supplied conditions.
+
+    SELECT column_name_1 AS alias_name_1, column_name_2 AS alias_name_2, ...  FROM table_name;
+        AS creates an alias for a specific search.
+        This alias replaces the column name in the query result.
+
+Update
+
+    How we update existing rows within the table.
+
+    UPDATE table_name SET column_name_1=value_1, column_name_2=value_2, ...
+    WHERE column_3=value_3, ... ;
+    
+    The updated information to the rows that fit the query.
+
+    NOTE::::::::::::
+        BEFORE UPDATING OR DELETING, TEST YOUR CODE FIRST.
+
+DELETE
+    
+    How we clear table data.
+
+    DELETE FROM table_name;
+        Empties all content within the table.
+    
+    DELETE FROM table_name WHERE search_criteria ... ;
+
+    
