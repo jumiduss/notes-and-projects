@@ -1,0 +1,79 @@
+1. Make sure you have python updated
+2. Make sure trio is updated
+3. Test if you can import trio.
+
+to assign a function as asynchronous, you write async before it's definition
+ex:
+    async def function_name():
+        do_something
+
+To call an async function, you must use await before the function call.
+ex:
+    async def print_double(x):
+        print(await async_double(x))
+
+Only async functions can call other async functions.
+    Runs into a chicken and egg problem.
+
+ex:
+    import trio 
+
+    async def async_double(x):
+        return 2 * x
+    
+    trio.run(async_double, 3)
+
+ex:
+    import trio
+
+    async def double_sleep(x):
+        await trio.sleep(2 * x)
+    
+    trio.run(double_sleep, 3)
+
+Better example of how to use trio:
+    trio.run -> async function -> ... -> [async function] -> trio.whatever
+
+ex: This breaks from not having an await statement, but hides the error.
+    import time
+    import trio
+
+    async def broken_double_sleep(x):
+        print("*yawn* Going to sleep")
+        start_time = time.perf_counter()
+
+        trio.sleep(2 * x)
+
+        sleep_time = time.perf_counter() - start_time
+        print(f"Woke up after {sleep_time:.2f} seconds, feeling well rested!")
+
+    trio.run(broken_double_sleep, 3)
+
+
+Better way to create this:
+ex:
+    import trio
+
+    async def child1():
+        print("   child1: started! sleeping now...")
+        await trio.sleep(1)
+        print("   child1: exiting!")
+    
+    async def child2():
+        print("   child2: started! sleeping now...")
+        await trio.sleep(1)
+        print("   child2: exiting!")
+    
+    async def parent():
+        print("parent: started!")
+        async with trio.open_nursery() as nursery:
+            print("parent: spawning child1...")
+            nursery.start_soon(child1)
+
+            print("parent: spawning child2...")
+            nursery.start_soon(child2)
+
+            print("parent: waiting for children to finish...")
+        print("parent: all done!")
+
+    trio.run(parent)

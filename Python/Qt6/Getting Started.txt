@@ -1,0 +1,5 @@
+QApplication holds the Qt event loop
+
+One QApplication instance is required
+Your application sits and waits in the event loop for an action to occur, then QApplication.exec_()
+Events are put into a queue 
