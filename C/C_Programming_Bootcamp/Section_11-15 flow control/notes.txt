@@ -1,0 +1,60 @@
+Section 11-15
+
+If Statements
+    if (conditions)
+        do_something;
+    else:
+        do_something_else;
+
+Conditionals
+    Greater/Less Than or //equal to, or equal, or not equal to
+        con1 < con2, con3 > con4, con5 >= con6, con7 >= con8,con9 == con10, con11 != con12 
+
+    If an if condition has more than 1 statement following it, you must include it within {}
+    if (condition) do_something;
+    if (condition)
+    {
+        do_something;
+        do_something_else;
+    }
+
+Logical Operators
+    Can only result in True or False
+    && = AND
+    || = OR
+     ! = NOT
+
+Switch Case
+    if
+    else if
+    etc....
+    else
+
+    to ->
+
+    switch(var)
+    {
+        case a:
+            do_something;
+            break;
+        case b:
+            do_something;
+            break;
+        etc....
+        default:
+            do_something_else;
+            break;
+    }
+
+Ternary Operators
+    if ()
+        ....
+    else
+        .....
+
+    to ->
+
+    result_var = (var1 conditional var2)?var1:var2
+    min        = (num1 >           num2)?num2:num1
+                                        if true, if false
+

@@ -1,0 +1,87 @@
+Section 6-10
+
+C Program Structure
+    Imports
+    Main
+
+Import header files:
+    #include <header.h>
+
+    Main headers to include with C programs
+    <stdio.h>
+
+Main Loop
+
+    int main()
+    {
+        // Code
+        return
+    }
+
+Printing a String with a Newline
+    int main()
+    {
+        printf("String \n");
+        return 0;
+    }
+
+Comments in C are two back slashes
+    //
+
+Formatting strings
+
+    printf("Text to write %d is a integer in decimal", 123123123);
+    printf("Text to write %f.1 is a float", 12312.3123); // floating point with one digit after decimal
+    printf("%d",3+5); // you can also perform calculations before the format
+
+Operators are similar to python 
+*, /, +, -, %
+
+Define a integer variable
+
+    int a;
+    a = 10
+
+    variable type names
+    int - integers
+    float - 32 bit
+    double - 64 bit
+    
+    f type names
+    d - int
+    f - float
+    lf - double
+    x - lowercase hexadecimal
+    X - uppercase hexadecimal
+    b - binary
+
+    Chars can be stores as digits in any numbering system
+Accept user input as a variable
+    int a;
+    scanf("%d", a); scanf reads a user input, the string specifies the type of input accepted
+
+Casting Variables
+    Variables keep their type cast during operations regardless of the variable the output is set to
+    ex_|
+    int a=5,b=2;
+    double result;
+    result = a/b; // result = 2.0000 because operation was performed on two int variables
+
+    If even one of the variables was a float or double, the result would be a float/double 2.5
+    You can also inline edit variable types. Continue from the example above,
+    result = (double)a / b;
+
+    You cannot convert variables to incompatible types without causing an error
+        double a = 4.2981;
+        int b = (int)a; - error 
+
+Swapping
+    If you have two variables, swapping the values between each variable needs to use a swap operation.
+
+    int a=10,b=20,temp;
+    // swapping a and b
+    temp = a;
+    a = b;
+    b = temp;
+
+Sequence

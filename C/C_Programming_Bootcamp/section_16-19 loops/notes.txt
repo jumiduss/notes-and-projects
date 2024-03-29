@@ -1,0 +1,23 @@
+While Loops
+    While condition is satisfied, perform these tasks.
+
+    while condition is x
+    {
+        do_something;
+    }
+
+Do While Loops
+    Run the loop body once, then while the condition holds, repeat the loop body.
+
+    do {
+        do_something;
+    }while{condition is x};
+
+For Loops
+    for every index in range, perform these actions
+    Specify the statement, the loop condition, and the update method
+
+    for(int i=start; while i cond; i steps like;)
+    {
+        do_something;
+    }
