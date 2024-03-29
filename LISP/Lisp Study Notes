@@ -1,0 +1,345 @@
+Functional Paradigm
+    Focus in lisp is on high level abstraction
+        aka cares less about programming details
+    
+    Erros stop program execution 
+
+    Functions can be evaluated recursively - Most nested executes first
+        (+ 33 (* 2.3 4) 9)
+    
+    Function parameters can span multiple lines as long as they are closed
+
+
+Syntax
+    Uniform representation of instructions and data using a single
+        and general format - a list
+
+    ANYTHING that does something in a program is a function
+    ANYTHING that is after the function, and before the parenthesis
+        is a parameter
+    The parenthesis determine the start and end of the function
+    EVERY list is going to return something
+    The only thing that seperates the functionId from the parameters
+        is the white space
+    Function IDs are case IN-SENSITIVE
+
+    LISP - List Processing
+    It uses an interpreter to procress the code
+    No compiler
+    Automatic memory management
+    can use "compile lisp online" to run all code
+
+    LISP preserves proper significant figures
+
+    LISP stays as simple as possible with division
+        ex_| 
+            (/ 3 5)
+            3/5     ; This is returned
+            (/ 3.0 5)
+            0.6     ; This is returned
+
+
+
+
+    ex_ Form|
+        (functionId param1 param2 ....)
+
+    ex_ Direct|
+        ( * 4 2.3 )   ;   multiply 4 by 2.3 and return the result
+
+        ( + 3 2 8 6 ) ;   add 3+2+8+6 and return the result
+
+        (subseq "Hello, World" 2 9) ; Takes string from second to ninth position
+        "llo, Wo"   : output of subseq
+
+        ( print "Hello World" )  ; this returns the thing it is printing
+        "Hello World" ; 
+        
+        ( print ( sqrt 2 ) )    ; this prints to console
+    
+
+Atomic Expressions
+
+    -3      ; Minus 3 is an additive inverse, not subtraction
+    616321646264853216849616784613264794513841  ;
+        You can have VERY long integers that force other languages
+            to error out 
+    #C(3.2 2)   ; The complex number 3.2 + 2i
+    2/3     ; The fraction 2/3 not division
+    -3.2e25 ; The notation -3.2 * 10^25
+
+    ;   semi colon opens a comment
+    #\g     ; Force characters by starting with #\, this is char g
+    #\{     ; The char {
+    #\\     ; The char \
+    #\tab   ;etc
+    #\space
+    #\newline
+    #\backspace
+    #\escape
+
+    "Hello, World!"     ; one atomic element
+    "It's a glorious day"; one atomic element
+    "He said \"No Way\" and then he left."  ; forcing the 
+        function character as the character only inside a quote
+    
+    t or T ; true
+    nil or NIL ; false
+    
+    print
+        when used multiple times within a function, only the last print statement
+            is returned
+
+Expanding Functional Expressions
+    1+    
+        Increments all parameters by 1 
+    string-upcase
+        returns all letters in upper-case
+    reverse
+        reverses the order of the parameter's string
+    length
+        returns the length of the parameter
+    sqrt
+        takes the square root
+        using -1.0 as a parameter returns C#(0 1.0)
+    log
+        logrithmic function
+    =
+        equals predicate
+    /=
+        not equals predicate
+    >
+        greater-than predicate
+    <
+        less-than predicate
+    <=
+        less-than OR equal predicate
+    >=
+        greater-than OR equal predicate
+    numberp
+        is object a number predicate
+    oodp
+        is object an odd number predicate
+    and
+        and predicate
+    not 
+        not predicate
+    if
+        function for predicates
+        When you don't specify else, the result of the if when NIL is NIL 
+    
+Fixed Parameter Functions
+    (subseq stringToUse fromIndex toIndex_optional)
+
+
+LISP Object Sets
+    List - Everything is a list in LISP
+        Functions - Does something 
+            Predicate - A function that returns a boolean value
+                Primitive Data
+
+Control Structures
+    Macros - aka Special Forms - evaluable lists that are not functions
+        if (statement) (T code) (NIL code) ;  is a special form
+        
+        (setf varName value)    ;   used to set variables to a name
+
+        ex_For Loop|
+            (setf bag 2)
+            (dotimes (x 3) (setf bag (* bag bag)))
+    
+    You can only use variables after being defined (Top down)
+Data Structures
+
+    arrays - all elements are the same type
+    lists - a array of elements of any type
+
+    Structures or Classes - Think Objects, but classes don't exist in LISP
+        linked lists
+        trees
+        stacks
+    
+    REMEMBER - The only data structure in LISP is a list
+    
+    To tell LISP that a list is JUST a list, with NO function, add a single quote before
+    ex_|
+        (function item1 items2 ..... )
+        '(item1 item2 ..... )
+    
+        ; interpreter responds with the full list of all-upper-case list items 
+            unless you use double quotes to define list item as string
+
+    quote function
+        This tells the interpreter that everything after it is information
+
+    Defining a variable as a list
+        (setf varName '(item1 item2 ....))
+    
+    Defining List Tiers
+        (quote (what is (going on) here?))    ; 4 list items in quote 
+
+    Defining a tree
+        (quote (+ 4 (* 3 2 9)))
+
+Calling Items in Data Structures
+    
+    Functions
+        first
+            returns the first item in a list
+        rest
+            returns everything but the first item
+            old name for rest is cdr (Content of the Decrement Register)
+        append
+            hoots multiple lists together
+        cons
+            takes an item and a list, and returns a new list with the item in front of the old list
+        dolist (var listToIterOver optionalReturnVal)
+            expr1
+            expr2
+            ..... 
+            Puts the list items into the variable one iteration per element in list.
+        progn   ; used as {} in newer languages
+            (if (> 3 2) (progn ()  ; if t
+                            ()
+                            ())
+                        ())        ; if nil 
+        (dotimes (varName high-val optional-return-val) ; like a for loop
+            expr1       ;optional returns anything you want to record
+            expr2       ;   after the function finishes
+            .....)
+Vairbales
+    setf x
+        sets global variables
+    let
+        used locally within the function
+        each element after let is itself a list
+            in example below, ((x 3)) x = 3 only exists within let and x=4 doesn't exist
+                to add more local variables, add within second parenthesis set
+                ex_| (let ((x 3) (y 4) (x 5)) (doSomething1... ) ..... )
+        ex_|
+        (setf x 4)      ; x is declared globally
+        (let ((x 3))    ; x is declared locally
+            (print x)
+            (setf x 9)
+            (print x)
+            (+ x x)
+        )
+
+Functions
+    Created using a macro
+        The function macro returns the value of the last expression
+    Form of function macro - Note, you can put no parameters and 
+                                set the expression as the result of the function.
+                                    the name of the function is returned for
+                                        confirmation of it's creation
+        (defun function-name-symbol
+            (param1 param2 ..... )
+            expr1
+            expr2
+            .....
+        )
+
+
+
+Test Yourself 1
+    Turn this into LISP 
+
+        public static doule factorial (double n) {
+            double sum = 1;
+            four (double i=;i < n; i++) {
+                sum = sum * (1 + i);
+            }
+            return sum;
+        }
+
+        public static void main(String [] args) {
+            System.out.println(factorial(1000)+"");
+        }
+
+    My Attempt - Result: Exactly like instructor code besides spacing
+        ; defining the function
+            (defun factorial (n)
+                (let ((sum 1)) 
+                    (dotimes (index n sum)
+                        (setf sum (* sum (+ 1 index))) )))
+        ; calling function with a print statement
+            (print (factorial 12))
+
+Test Yourself 2
+    Turn this into LISP 
+
+        public static double factorial (double n) {
+            if (n<=1) {
+                return 1;
+            }
+            else{
+                return n * factorial (n-1);
+            }
+        }
+
+        public static void main (String [] (args)) {
+            System.out.println(factorial(1000)+"")
+        }
+
+    My Attempt - Result: Exactly Like Instructor
+
+        ; defining the function
+            (defun factorial (n)
+                (if (<= n 1) 
+                    1 
+                    (* n (factorial (- n 1)))
+                )
+            )
+        ; calling function with a print statement
+            (print (factorial 12))
+
+
+
+
+Questions
+1. Create a function that receives a list and returns the lowest value in that list
+2. Create a function that receives a list and an integer and returns true if the number exists in the list
+3. Create a function that receives a list and returns true if the list contains a palindrome
+4. create a variable in LISP that stores the board of a tic tac toe game
+    like_|
+         x E x
+         o x o
+         E x E
+5. Create a function that receives the variable with the tic tac toe and returns true if there is an empty space
+6. The following list represents a tree 
+    '(a (b () () ) (c (d () () ) (e () ()) ) )
+    Create a function (recursive) that traverses the tree and prints all the elements as ABCDE
+7. What is printed by the following code?
+    (setf route '(boston cambridge lincoln concord))
+    print (first (rest route))
+8. What is the output of the following code?
+    (let ((x '(1,2)) (y '(9 10))) (print (+ (first x) (first y)) ) )
+9. What is printed by the following code?
+    (defun fun(n)
+        (if (= n 0) () (fun (-n 1)) )
+        n
+    )
+    (print (fun 5))
+10. What is the equivalent code in C++ for the following LISP statement
+    (if (< 1 2) (+ 3 4) (- 5 6) )
+
+Solve 5 of the following:
+1. A function test-min that returns the lower value in a List of numbers
+(test-min L)
+2. A function test-average that returns the average of all values in a List of numbers
+(test-average L)
+3. A function test-fibonacci that prints the first n elements of the fibonacci series
+(test-fibonacci n)
+4. A recursive function that returns the leftmost even element in a list of numbers
+(test-even L)
+5. A function that that traverses a list and returns how many of it's elements are 0
+(test-count-zeros L)
+6. A recursive function that returns the Nth member of a list L (assuming that the elements are numbered as integers from 0 to n)
+(test-get n L)
+7. A recursive function that returns non-NIL if x is a member of the list L
+(test-is-in-list x L)
+
+Answers
+
+
+

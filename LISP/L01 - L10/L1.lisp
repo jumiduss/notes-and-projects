@@ -1,0 +1,5 @@
+(defun my-last (instrum) 
+    (if (= (list-length instrum) 1)
+        (print instrum)
+        (my-last (cdr instrum))))
+(my-last '(a b c d))

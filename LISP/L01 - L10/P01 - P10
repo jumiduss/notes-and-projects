@@ -1,0 +1,33 @@
+P01:
+    Find the last box of a list.
+    Input: (my-last '(a b c d))
+    Expected Output: (D)
+P02:
+    Find the last but one box of a list.
+    Input: (my-but-last '(a b c d))
+    Expected Output: (C D)
+P03:
+    Find the K'th element of a list.
+    Note: The first element in the list is number 1.
+    Input: (element-at '(a b c d) 3)
+    Expected Output: C
+P06:
+    Find out of this list is a palindrome
+    Input: (a b c d d c b a) (a b c d)
+    Expected Output: T , NIL
+P07:
+    Find the last but one box of a list
+    Input: 
+    Expected Output: 
+P08:
+    Find the last but one box of a list
+    Input: 
+    Expected Output: 
+P09:
+    Find the last but one box of a list
+    Input: 
+    Expected Output: 
+P10:
+    Find the last but one box of a list
+    Input: 
+    Expected Output: 
