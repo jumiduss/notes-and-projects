@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Django Level 2</title>
+    <link rel="stylesheet" href="{% static "/first_app/css/mystyle.css" %}" />
+  </head>
+  <body>
+    <h1>Hi, welcome to Django Level 2</h1>
+    <h2>Here are your access records:</h2>
+    <div class="djangtwo">
+      {% if user %}
+      <table>
+        <thead>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email Address</th>
+        </thead>
+        {% for acc in user %}
+        <tr>
+          <td>{{ acc.fname }}</td>
+          <td>{{ acc.lname }}</td>
+          <td>{{ acc.email }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+        <p>NO ACCESS RECORDS FOUND!</p>
+      {% endif %}  
+    </div>
+  </body>
+</html>
