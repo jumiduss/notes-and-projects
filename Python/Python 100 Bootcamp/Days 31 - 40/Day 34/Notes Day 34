@@ -1,0 +1,18 @@
+Defining a Data Type:
+    You can define a datatype for variables and arguments
+    Is related to Type Hints by showing the dev hints on what to expect
+    
+    ex_ Defining an argument data type as a class |
+    from file_name import Class_Name
+    class New_Class:
+        def __init__(self, argument_name:Class_Name):
+    
+    ex_ Defining variable datatype |
+    age: int
+
+    ex_ Defining function return's datatype |
+    def function_name(arg:datatype) -> bool:
+        if arg ....:
+            return True
+        else:
+            return False

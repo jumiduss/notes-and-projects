@@ -1,0 +1,5 @@
+Creating an environment variable (like for API keys)
+
+in the environment:
+export VARIABLE_NAME=value
+retrieve with os.environ.get("VARIABLE_NAME")

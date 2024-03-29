@@ -1,0 +1,19 @@
+"{\"message\":\"Success. Let's visit https://pixe.la/@jumiduss , it is your profile page!\",\"isSuccess\":true}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"
+
+"{\"message\":\"Request body is empty.\",\"isSuccess\":false}"
+
+"{\"message\":\"Request body is empty.\",\"isSuccess\":false}"
+
+"{\"message\":\"Success.\",\"isSuccess\":true}"

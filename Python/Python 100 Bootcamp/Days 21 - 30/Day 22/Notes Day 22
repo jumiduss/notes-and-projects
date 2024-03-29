@@ -1,0 +1,55 @@
+How would I structure the classes for the pong game shown on screen.
+    Classes: 
+        Class for the paddle
+        Class for the player
+        Class for the score number
+        Class for the Game
+        Class for the ball
+    Behavior:
+        The player class would inherit the paddle and score classes
+        The game inherits the ball, players, and displays a virtical line
+        The ball detects collision with paddles, maybe within game class/main
+        The game recognizes a paddle missing the ball
+        The game 
+
+How the instructor lays out the code
+
+    Create the screen
+    Create a paddle and move it
+    Create a second paddle
+    Create the ball and move it
+    Detect collision
+    Detect paddle collision
+    Detect missed paddle
+    Keep score
+
+Lecture 199 Project Requirements
+    Screen Background is Black
+    Screen Size is 600px  x 800px
+
+Lecture 200 Project Requirements
+    Create and move a paddle
+    width = 20
+    height = 100
+    x_pos = 350
+    y_pos = 0
+    color = white
+    Controlled with up and down arrows
+
+Lecture 201 Project Requirements
+    Create paddle class and add a second one 
+
+Lecture 202 Project Requirements
+    Create the ball 
+    Ball starts in the center
+    Ball moves up-right on start
+
+
+Lecture 203 Project Requirements
+    Figure out how to make the ball bounce off of objects
+
+
+Lecture 200 Project Requirements
+
+Lecture 200 Project Requirements
+

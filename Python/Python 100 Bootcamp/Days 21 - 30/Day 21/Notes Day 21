@@ -1,0 +1,14 @@
+Class Inheritance
+    To allow another class to inherit attributes and methods from another,
+        1. Import the first class into the second
+            class class2name(class1name): 
+        2. In the new class''s init, initialize the first, and import it''s variables
+            def __init__(self):
+                super().__init__
+        3. Import any methods wanted and build off existing
+            def method_name(self):
+                super().method_name()
+                
+String Slicing
+    [::] from the first to the last
+    [::-1] from the last to the first

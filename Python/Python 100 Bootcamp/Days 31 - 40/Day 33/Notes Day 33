@@ -1,0 +1,6 @@
+HTTP Response Meanings
+    1XX - Wait
+    2XX - Return
+    3XX - Not Permitted
+    4XX - Error on Client Side
+    5XX - Error on Server Side

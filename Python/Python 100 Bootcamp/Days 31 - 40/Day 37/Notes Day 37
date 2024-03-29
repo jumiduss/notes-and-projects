@@ -1,0 +1,43 @@
+Http Requests
+    Methods for obtaining information from a web server
+        Sends a request to the server through an API and receives a response
+    requests.get()
+        Asking for data
+        Receives the data or error
+    requests.post()
+        Sends data
+        Receives reception response
+    requests.put()
+        Sends update data
+        Receives status response
+    requests.delete()
+        Removes data from the server
+        Receives status response 
+
+Http Headers
+    Prefaces the request with relevant information like API key
+        It also protects our API keys?
+    ex_|
+        endpoint= "..."
+        user_params = {
+            ...
+        } 
+        headers = {
+            ...
+        }
+        response = requests.Method_Name(url=endpoint,json=user+params,headers=headers)
+
+Autofilling and Formatting Date
+    Using the datetime module, and module-class datetime with the string formatting method.
+    ex_|
+        from datetime import datetime
+        today = datetime.now()
+        today.strftime("%Y%m%d")
+        # returns yyyymmdd
+
+    Getting any date / time formatted
+    ex_|
+        from datetime import datetime
+        today = datetime(year=2024, month=1, day=20)
+        today.strftime("%Y%m%d")
+        # returns same format but older date

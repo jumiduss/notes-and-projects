@@ -1,0 +1,9 @@
+Capstone Project 1.
+I'm starting with no clues and will update this file if that changes
+
+Project Rules:
+Only moves forward with up key
+Cars random gen on y axis
+Cars move right to left
+at top of screen, turtle resets and score is added
+turtle collides with car game over
