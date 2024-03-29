@@ -1,0 +1,552 @@
+Using break, return, or excepts stop a loop at specific locations.
+
+While Loops
+    While the condition holds, continue to do this.
+
+For Loops
+    
+    Iterates through a collection 
+
+Collection
+
+    A container object with one or more organized items.
+    Each item is bound to a value. 
+
+    Collection Types:
+
+        tuple
+            Immutable sequence
+            Heterogeneous Data Type
+            Sequentially ordered
+            Subscript-able
+
+            Named Tuple
+                Tuple like collection with named fields.
+                    (Kinda looks like an inline class)
+                    Most of the time, dicts or classes are preferred.
+                ex:
+                    from collections import namedtuple
+                    CoffeeOrder - namedtuple("CoffeeOrder", ('item', 'addons', 'to_go'))
+
+                    order = CoffeeOrder('pumpkin spice latte',('whipped cream',), True)
+                    print(order.item)
+                    print(order[2])
+
+        list
+            Mutable sequence
+            Conventionally Homogeneous Data Type
+            Used for array, stack, queue.
+                If you want a dynamically sized array, look at array library.
+            Common Methods:
+                pop() - returns and removes a specified index, if unspecified returns and removes last item.
+                append() - adds a new item to the end of the list.
+                insert() - adds a new item to the indexed location.
+
+        deque
+            A sequence optimized for first/last items.
+
+            Common Methods
+                append()
+                popleft() - returns and removes first item.
+                appendleft() - adds new item to the beginning of the list.
+                pop()
+
+        set
+            Mutable
+            Unordered Collection
+            Unique Items
+            Hash-able Values 
+                The value never changes in it's lifetime.
+            Uses "{}" without keys
+            Supports "Set Mathematics" - aka math / logic operators.
+                | - the union of
+                & - the intersection of
+                - - the difference between
+                ^ - the symmetric difference between
+                < or <= - if a set is a subset of
+                > or >= - if a set is a superset of
+                -= - removes items from set, and returns the set.
+
+            Common Methods:
+                discard() - removes value from the set.
+                pop() - returns and removes arbitrary value from the set.
+                    arbitrary != random.
+                    pop() typically removes the first item, but no guarantee.
+
+            frozenset
+                Immutable version of a set.
+                Once created, cannot have items removed or added.
+
+        dict
+            Mutable collection of key value pairs.
+            The association is called a mapping.
+            Key's can be any type as long as they're hash-able.
+            Can be referenced as a hash-map or hash-table.
+
+            Using the try except statement on finding dict items is the preferred access method.
+                Usually when exceptions are rare.
+            Using an if else statement when an unknown amount of exceptions could be raised.
+
+            Common Methods:
+            del dict_name["key"] - removes key-value pair from the dictionary.
+
+            Default Dictionaries - Allows you to specify a default value to undefined keys.
+                Will generate a new key-value pair if you access undefined keys.
+            Ordered Dictionary - Extra functions for tracking and managing the order of key-value pairs.
+                This is optimized for reordering.
+            Counter - Designed to count hash-able objects.
+                The object is the key, the count is an integer.
+                AKA the multi-set.
+
+Unpacking Collections
+
+    Unpacking Collections assigns the item(s) of a collection to a name.
+    You have to know how many values you are unpacking to avoid exceptions.
+    
+    Single Underscore
+        Using an single underscore specifies that a list value should be ignored.
+        ex:
+        # Ignore the fourth value
+        i, v, x, _ = ("One", "Five", "Ten", "Fifty")
+
+    Starred Expressions
+        Catch multiple unpacked values. Like args and kwargs in class creation.
+    
+    Unpacking Dictionaries
+        By default, only the keys are unpacked.
+        values() - unpacks the values for each dictionary key.
+        items() - returns the key-value pair as a tuple.
+
+Structural Pattern Matching
+
+    Sequence Patterns use the same syntax as unpacking.
+        ex:
+        order = ['venti', 'nowhip','mocha latte','for here']
+        match order:
+            case('tall', *drink, 'for here')
+                drink = ' '.join(drink)
+            case ['grande', *drink, 'to go']
+                drink = ' '.join(drink)
+            case ('venti',*drink, 'for here'):
+                drink = ' '.join(drink)
+
+    A Mapping Pattern
+        ex:
+        order = {
+            'size':'venti',
+            'notes':'no whip',
+            'drink':'mocha latte',
+            'serve':'for here'
+        }
+
+        match order:
+            case {'size':'tall', 'serve': 'for here', 'drink': drink}:
+                ...
+            case {'size':'grande', 'serve':'to go', 'drink':drink}:
+                ...
+            case {'size':'venti', 'serve':'to go', 'drink':drink}:
+                ...
+        
+        Mapping with a catch all
+            Note, you can still access drink even without pattern matching it in the case line.
+
+        match order:
+            case {'size':'tall', 'serve': 'for here', **rest}:
+                drink = f"{rest['notes']} {rest['drink']}"
+                ...
+            case {'size':'grande', 'serve':'to go', **rest}:
+                drink = f"{rest['notes']} {rest['drink']}"
+                ...
+            case {'size':'venti', 'serve':'to go', **rest}:
+                drink = f"{rest['notes']} {rest['drink']}"
+                ...
+
+Accessing by Index or Key
+
+    Most collections are subscriptable
+    Subscriptable items have the methods:
+        __getitem__()
+        __setitem__()
+        __delitem__()
+
+        These accept a single integer argument to modify the item at the index.
+    
+Slice Notation
+
+    Allows you to specify the multiple items or ranges of items to modify.
+    Only tuple and list can be sliced.
+
+    Format of a Slice
+        [start:stop:step]
+        inclusive:exclusive
+        You MUST include the colon to slice.
+        All arguments are optional in slicing.
+        slice notation never returns an index error.
+
+        Start must reference an item that comes before stop.
+
+    Negative Indices 
+        Negative numbers are referenced from the last index of the list.
+        ex: [-1] refers to the object from the end to the end -1 index.
+    
+    Negative Steps
+    [::-1] - Returns the reverse list
+    [5:2:-1] - Returns index 5 to index 2 
+        NOTE: [2:5:-1] returns nothing
+
+    Copying With Slices
+        order_copy = order[:]
+        Creates a new shallow copy of the list.
+
+    Slice Objects
+        use the slice tuple to create a slice object
+        slice_name = slice(3,5,2) # the same as[3:5:2]
+
+    Slicing Custom Objects
+        You must create the three methods described in the "Accessing by Index or Key" section.
+    
+    islice
+        islice slices objects that aren't subscriptable.
+        Held within the itertools.islice() method.
+        ex:
+        from itertools import islice
+        
+        menu = {'drip': 1.95, 'cappuccino': 2.95, 'americano': 2.49}
+
+        menu = dict{islice(menu.items(), 0, 3, 2)}
+    
+The in Operator
+
+    Format
+        if a in b:
+            ...
+        if a not in b:
+            ...
+    You can add support for your class by creating the method __contains__.
+
+Checking Collection Length
+
+    len()
+    if name_name: - Checks if the collection is empty.
+
+Iteration
+
+    Iterable - any object whose items can be accessed one at a time.
+        To be iterable, an object must contain the __iter__() method which contains an objects iterator.
+            Returns the object itself.
+    Iterator - the object tha performs the actual iteration.
+        To be iterable, an object needs __next__() which advances objects to the next value.
+            Aka. advances to the next item.
+    
+    Manual Iteration
+        specials = ["pumpkin","caramel","mocha"]
+        special_1 = specials.__iter__() - pumpkin
+        special_2 = specials.__iter__() - caramel
+        special_3 = specials.__iter__() - mocha
+        item_a = special_1.__next__()   - caramel
+
+        Each iterator (special_1, ...) tracks it's position in the iterable separately.
+
+        If you next item outside of the collection, you'll raise a StopIteration 
+
+        ex:
+        while True:
+            try:
+                item = next(iterator)
+            except StopIteration:
+                break
+            else:
+                print(item)
+        ex:
+            for item in specials:
+                print(item)
+    Sorting Collections in Loops
+        To sort the list alphabetically before processing:
+        for _, drink in sorted(customers, key=lambda x: x[1]):
+            print(f"{drink}")
+    
+    Enumerating Loops
+        for number, (customer, Drink) in enumerate(customers, start=1):
+            print(f"{number}. {customer}: {drink}")
+    
+    Mutation in Loops
+
+        ex: Removing and processing items in a deque.
+
+            Suppose a deque collection
+            customers = ([("a","A"),("b","B"),...])
+
+            for customer, drink in customers:
+                print(f"Making {drink}...")
+                print(f"Order for {customer})
+                customers.popleft() 
+                # results in error
+
+            The problem is that we're mutating the collection while iterating over it.
+                This confuses the iterator.
+            
+            for customer, drink in customers.copy():
+                ...
+            
+            Making a copy of the original collection allows it to be iterable.
+                deque's are not iterable.
+                If wanting to slice the copied deque, use the fancy ([:]) notation.
+                This method isn't ideal.
+
+            while customers:
+                customer,drink = customers.popleft()
+                ...
+            
+            This allows use to use the deque as intended,
+                and continue while there are customers to process.
+
+        ex: Expanding or Reordering a Collection during Iteration
+            
+            Suppose a list collection
+            orders = ["A", "B", "C", ...]
+
+            for order in orders:
+                #do something to order
+                orders.append(order)
+            
+            This breaks the program by creating an infinite loop.
+            Doing:
+            new_orders = orders[:]
+            
+            before the loop creates an exact copy to iterate through,
+                then saves the results back to the original.
+
+    Loop Nesting
+        
+        Suppose two list collections
+        samples = ['a', 'b','c', ...]
+        guests = ["A","B","C", ...]
+
+        for sample in samples:
+            for guest in guests:
+                print(f"give {sample} to {guest}")
+        
+        This give one of each sample to every guest.
+        Issues:
+            Nested structures are less readable, and more easily mistyped.
+                A "Flatter" solution will almost always be preferred.
+            It's impossible to break out of nested loops.
+                Ways around this is to put nested loops inside a function,
+                    Then the iteration can be directly exited.
+                    These ways are workarounds and not real solutions.
+        
+        Before using nested loops, consider if there are any alternatives.
+            (From the example above)
+        
+        from itertools import product
+        
+        for sample, guest in product(samples,guests):
+            ... 
+    
+        itertools.product() combines two or more iterables into a single iterable.
+            This iterable is a collection of tuples with every possible combination of items.
+
+Iteration Tools
+
+    Built-in Tools
+        all() - returns True if every iterable evaluates to True.
+        any() - returns True if any item in the iterable evaluates to True.
+        enumerate() - returns a tuple of the index and iterable at that index.
+        max() - returns the largest item in the iterable.
+            Optionally accepts a key argument that specifies 
+                what part of a collection to sort.
+        min() - same as max but the minimum value.
+        range() - an iterable that returns a sequence of numbers formatted like a slice.
+        reverse() - iterates backwards through an iterable
+        sorted() - returns a list of containing all items in the iterable, sorted.
+            Optionally accepts a key argument like max().
+        sum() - returns the sum of all iterables, as long as they are numeric.
+            Optionally accepts start argument which gives an initial value to the sum.
+                (like n_0 in math sequences)
+    
+    Filter
+        Allows you to search for values in an iterable that fit a criteria.
+        ex:
+
+        Suppose list collection
+        orders = ['a','b','c', ...]
+        drip_orders = list(filter(lambda s: 'drip' in s, orders))
+        print(f'{len(drip_orders)} many orders for drip coffee.')
+        
+        The filter initializer is passed two arguments.
+            The Callable.
+                lambda s: 'drip' in s
+            The Iterable being filtered.
+                orders
+        The filter is then converted to a list
+
+        If the logic wasn't this simple, we would call a defined function,
+            not a lambda.
+    
+    Map
+        Passes every iterable to a callable as an argument.
+            Then passes the returned value back to it's current iterative value.
+        
+        ex:
+
+        Suppose list collection
+        orders = ['a','b','c', ...]
+
+        def brew(order):
+            print(f"Making {order} ...")
+            return order
+        
+        for order in map(brew, order):
+            print(f"One {order} is ready.")
+        
+        We created a map-iterable instance,
+            passed it a function,
+                initialized the orders collection as the iterable. 
+
+        Map can also be used with multiple iterables, 
+            with the current item of each being used as one argument of the callable.
+        
+        Once Map has run out of iterators, it completes.
+    
+    Zip
+        Combines multiple iterators together.
+            On each iteration it takes the next value for each iterable in turn,
+                and packs them together into a tuple.
+
+        Useful for dictionary creation from multiple lists.
+
+        ex:
+
+        Suppose two list collections
+        regulars = ['a','b','c', ...]
+        usuals = ["A","B","C", ...]
+
+        usual_orders = dict(zip(regulars, usuals))
+    
+    Itertools
+        Some Highlighted Tools from the Module:
+        
+        accumulate - repeatedly performs a two-argument function,
+            and uses the results of each call as the first argument of the next.
+            The current item in the iterable is the second term.
+            The default call is operator.add()
+        
+        chain - produces a list collection that contains each item from each iterable,
+            ordered by the order they were given.
+
+        combinations - produces tuples of every possible sequence of items from the iterable,
+            whose length is chosen by the second argument.
+        
+        dropwhile - drops (aka skips) items in an iterable as long as some expression holds True,
+            then returns every item after that.
+            ex:
+            dropwhile(lambda n:n!=42, [5,6,42,7,53]) # returns [42,7,53]
+        
+        filterfalse - same as filter, but the callable must return False to include an item.
+
+        islice - slices on non-subscriptable iterables. Just like slicing,
+            except it doesn't support negative values for (start,stop,step)
+
+        permutations - produces every possible permutation of items in the iterable as tuples,
+            with the specified number of items in each permutation.
+        
+        product - produces the Cartesian product of the iterables. Kinda like factoring.
+            ex:
+            product([1,2],[3,4])  # returns (1,3),(1,4),(2,3),(2,4)
+
+        starmap - like map except it passes each item as a starred argument.
+            ex:
+            starmap(func, [(1,2),(3,4)] ) # calls function with args 1,2 then func with args 3,4
+        
+        takewhile - the opposite of dropwhile. Takes items from the iterator, 
+            as long as they evaluate True, the are kept.
+
+Custom Iterable Classes
+
+    Often you will write two classes:
+        The iterable.
+        The iterator.
+    
+        Although, situations do arise where one class is sufficient for both.
+            One example arises in non-reproducible data, like data streamed over a network.
+    
+    ex:
+    class CafeQueue:
+        def __init__(self):
+            self._queue = []
+            self._orders = {}
+            self._togo = {}
+        
+        def __iter__(self):
+            return CafeQueueIterator(self)
+
+        def add_customer(self, customer, *orders, to_go=True):
+            self._queue.append(customer)
+            self._orders[customer] = tuple(orders)
+            self._togo[customer] = to_go
+        
+        def __len__(self):
+            return len(self._queue)
+
+        # For checking if a customer is in the queue.
+        def __contains__(self, customer):
+            return (customer in self._queue)
+
+    class CafeQueueIterator:
+    
+        def __init__(self, cafe_queue):
+            self._cafe = cafe_queue
+            
+            # The iterator keeps track of it's own position.
+            self._position = 0
+
+        def __next__(self):
+            try:
+                customer = self._cafe._queue[self._position]
+            except IndexError:
+                raise StopIteration
+            
+            orders = self._cafe._orders[customer]
+            togo = self._cafe._togo[customer]
+            self._position += 1
+
+            return (customer, orders, togo)
+
+        We iterate over all items in the iterable.
+        We raise a stop iteration once there are no more items.
+        If there is no stop iteration, we retrieve the information,
+            increment the iterator's position,
+            return the information.
+        We return a tuple packed with the elements of the iteration.
+
+        def __iter__(self):
+            return self
+
+        Must be defined and only needs to return self. 
+
+    
+    Now we combine the iterator and iterable.
+
+    queue = CafeQueue()
+    queue.add_customer("name", "drink_1", "drink_2", ..., "drink_n", to_go=False)
+    ... repeat adding customers...
+
+    # testing the collection by checking the length.
+    print(len(queue)) # prints number of orders
+    print('name' in queue) # prints if name is in queue
+
+    def brew(order):
+        """For handling each order without repeating code."""
+        print(f"Making {order}")
+        return order
+    
+    for customer, orders, to_go in queue:
+        for order in orders: brew(order)
+        if to_go:
+            print(f"Order for {customer}.")
+        else:
+            print(f"Takes order to {customer}.")
+
+    NOTE: this nested for loop is very simple, and so can be written as a flat statement.
+    We could have used map(brew, orders), but it doesn't work since
+        map doesn't print anything by default. 

@@ -1,0 +1,160 @@
+Repository Setup
+
+    Repositories use a VCS - Version Control System
+
+    Repositories need the following files to be created:
+        README 
+        LICENSE
+        .gitignore
+        a project directory
+    
+    Your code does NOT reside within the root repository directory
+
+Modules and Packages
+
+    Any python file, aka .py, is a module.
+        Modules are objects in addition to files. 
+        They can come from external file systems, compressed packages, etc...
+
+    A package is one or more modules within a directory, that contain an __init__.py file.
+        Packages are modules too, they just include a __path__ attribute.
+        Packages can be top-level-packages or sub-packages
+        
+        The init file is IMPORTANT. It's often empty, but useful for running certain code.
+        If you forget init, the package becomes an "implicit namespace package," that is not interchangeable with regular packages.
+
+PEP 8 and Naming
+
+    Modules need short, clear names in lower case letters.
+        Underscores can be used if it improves readability.
+
+    Packages also need short, clear names in lower case letters.
+        Underscores are discouraged from packages.
+
+    ex:
+        a good naming path:
+            omission/data/data_loader.py
+        a bad naming path:
+            omission/Data/DataLoader.py
+
+Importing Packages
+
+    When you import a module you are running it.
+    If there are any errors or performance issues in these modules, your program will be affected.
+    If you delete a module without checking its dependencies, importing a different module will fail with a ModuleNotFoundError
+
+    Absolute paths are relative to the root project directory. Look in the PEP 8 section for an example.
+    Relative imports are relative to the directory of the current module.
+        .     - from current directory
+        ..    - from first parent directory
+        ...   - from second parent directory
+        ....  - from fourth parent directory
+        etc.... 
+
+    Importing From Modules: Best Practices
+
+        DO:
+            Reference a namespace on every function call only for functions with few references.
+                import module_name
+            If you frequently use a function call, import it directly from the module.
+                from module_name import function_name
+            Nest modules/packages up to three tiers.
+            Always import with absolute paths, except when referencing a module in the same directory.
+
+        DO NOT:
+            Name new modules/functions the same as built-in functions.
+                ex. if you imported a user made function open(), it would supersede the built in python code.
+                If you are lucky, you wont use similar input variables and can quickly troubleshoot the debugger error.
+                Rename the import package if you know it's going to cause a conflict
+                ex.
+                    from module_name import function_name as f_nm
+            Do not import all.
+                You increase the change of importing conflicting functions/classes/methods
+        
+Entry Points
+
+    For Modules
+        __name__ is given to imported modules.
+            It's a fully qualified name, which is the name the import system uses.
+            When a module/package is directly executed, the __name__ entry point is set to the value of __main___
+
+        ex:
+        #top_lvl.pkg_1.awesome
+            def greet():
+                print("Hello World!")
+            
+            print("pkg_1 module was run,")
+
+        #pkg_2
+            from top_lvl.pkg_1 import awesome
+
+            print(__name__)         # prints to console __main__
+            print(awesome.__name__) # prints to console top_lvl.pkg_1.awesome
+
+        adding a check to awesome.py makes sure it isn't run on import
+
+            #top_lvl.pkg_1.awesome
+            def greet():
+                print("Hello World!")
+            
+            if __name__ == "__main__":
+                print("pkg_1 module was run,")
+
+    For Packages
+
+        __init__.py is the only one run on import.
+        __main__ is run only on package execution after __init__.py, and never during import.
+
+        All logic to start a package needs to be in the main() function.
+    
+    Controlling Imports
+    
+        __init__.py controls which modules are available for import.
+        init can be used to simplify the program the user is exposed.
+
+        import all doesn't work for packages by default.
+            you can although control what is given in a star import with
+                __all__ = ["pkg_1", "pkg_2". "pkg_3"]
+
+    For Programs
+
+        create a top level script file for the top level package of the same name.
+        write inside of it:
+            from omission.__main__ import main
+            main()
+
+        and run this top level script to start your top level package.
+
+Module Search Path
+
+    When you first start a python interpreter, the module search path is assembled in the order:
+        The directory of the module being executed, 
+        The system variable PYTHONPATH
+        The default path for the Python instance being used.
+    
+    You can view the module with:
+        import sys
+        print(sys.path)
+
+    Adding locations to the import list
+        In the virtual environment, add or extend the file:
+        lib/python3.x/site-packages/some_file_name.pth
+            #inside the file
+            /directory/to/use/for/new/pkgs
+        Each line must contain exactly one absolute path to be added.
+        You cannot remove or replace packages/modules installed BY the system or virtual environment because it appends new ones to those lists.
+        DO NOT edit the system path PYTHONPATH directly.
+
+How Imports Work
+
+    Finder locates the modules using a meta path finder stored in sys.meta_path
+        Built in importer finds and loads built in modules
+        The frozen importer finds and loads modules that have been converted to compiled bytecode.
+        The path-based finder looks through the file system for modules
+
+    You cannot globally shadow a built in module because it's imported at step 1.
+
+    Once a module has been run, a .pyc file is generated with cached bytecode.
+        The loader verifies the bytecode us up to date before loading it.
+
+    Python also can store a hash to check against the bytecode 

@@ -1,0 +1,7 @@
+Threading
+
+    A way to achieve concurrency, not useful for CPU-bound tasks.
+
+Parallelism
+
+    A way to deal with CPU-bound tasks.

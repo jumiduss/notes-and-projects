@@ -1,0 +1,347 @@
+Lines of code that end with a line break are called statements.
+Compound statements traverse multiple lines.
+
+input - waits for console input
+print - prints text to console
+pass - does nothing
+
+Comments and Doc-Strings
+
+"#" Comment
+"""(text here)""" Docstring
+    Either single or double quotes can be used for a docstring, but there must be three sets of them
+
+Variable Declarations
+
+    Define a variable before you use it,
+    Don't change the data type of the variable.
+    Constant variables are named with ALL_CAPS
+
+Variable Types
+
+    Integers - int
+    Floating-point - float
+        also  float("nan")  - an invalid number
+        or    float("-inf") - a number smaller than the smallest possible floats
+        or    float("inf")  - a number larger than the biggest possible float
+
+    Complex - a + hj where a and h are floating point numbers, and j stores the imaginary variable.
+    Decimal - stores the fixed point decimal numbers
+    Fraction - stores a 2-tuple for numerator and denominator, prints a/b
+
+    Operators
+        -        - unary / negative operand flips the sign of the term.
+        abs()    - absolute
+        divmod() - Returns tuple with (floor division of a//b, modulo of a%b) 
+        -        - subtraction between two terms
+        *        - multiplication
+        /        - division
+        //       - floor division (rounds down)
+        %        - modulo - remainder from division
+        **       - exponent
+        ()       - parenthesis - order of operation
+        
+        All operators can be combined with an equal sign (except absolute and parenthesis)
+
+    Bitwise Operators
+        &  - and
+        |  - or
+        ^  - xor
+        ~  - unary bitwise one's complement
+        << - bitwise shift left
+        >> - bitwise shift right
+
+    Math Module
+        For common functions and constants
+            math.pi , tau, e, inf, nan
+            math.radians , tan, cos, etc....
+            math.round
+
+Logic
+    Conditionals
+        If, elif, else
+    Comparison Operators
+        ==
+        !=
+        <
+        <=
+        >
+        >=
+    Boolean, None, Identity
+        True
+        False
+        None
+        if x
+        if x is
+        if not x
+        if x is not 
+
+        Warning
+            a=True
+            b=True
+            if a is b: # WILL NOT WORK
+                ...
+    Logical Operators
+    if a and b:
+         or
+         if (not a) and b
+    
+    Walrus Operator
+        := 
+        Allows assignment expressions
+            Assigns a value to a variable, and allows the immediate use of that variable
+
+        example:
+            if (eggs := 7+5) == 12:
+                print(f"We have a lot of eggs, {eggs} of them!")
+
+            print(eggs)
+
+            1. Evaluates 7+5 -> 12
+            2. Declares the variable
+            3. Evaluates the conditional
+            4. Eggs is now available outside the scope of the if statement
+
+    Ellipsis
+        Seldom used except for multidimensional arrays with NumPys
+            ...
+
+Strings
+
+    Quote Literals
+        "string" or 'string' or '''string''' or """string"""
+    Slash Literals
+        "/" is a character that forces a literal. ex:
+            "Shout "Cuidado, llamas!""
+            
+            If it could print without error, it would print
+                Shout
+            These force the take character to be taken as the literal.
+                "Shout /"Cuidado, llamas!/""
+
+        Another way to avoid this with single / double quotes, is to only use 2 tiers of quotes,
+            and uses only one of each character to enclose the text.
+        
+        "" ""  vs '" "' or "' '"
+    
+    Multiline Strings
+        Triple quotes define multiline Strings in the same spacing used in code.
+    
+    Raw Strings
+        Strings where all text is treated as literals.
+        
+        r"your string is here"
+
+        ALWAYS use raw strings for regex
+
+    Formatted Strings
+        Allows you to insert variables in a more concise manner. Denoted by f in front of the quote literal
+            print(f"")
+        ex:
+            in_stock = 0
+            print("This cheese shop has " + str(in_stock) + "types of cheese.")
+        vs:
+            print("This cheese shop has {in_stock} types of cheese.")
+
+        If you want to wrap an expression in {}, you must use 2x+1 brackets, where x the quantity wanted.
+        ex:
+            wanted text | Code
+            {Piece}       {{{Piece}}}       - 3 code sets for 1 print set
+            {{Piece}}     {{{{{Piece}}}}}   - 5 code sets for 2 print sets
+        
+        You CAN NOT use backslashes within an f-string expression.
+            To avoid annoyances, use triple quotes like so:
+                print(f"""{ord('"')}""")
+            or by evaluating before inserting into the f-string expression.
+                newline_ord = ord('\n')
+                print(f"{newline_ord}")
+        
+        You CAN NOT use a hash tag within the f-string (because it's the comment character....)
+
+        NOTE:
+            ord('') returns the unicode of a character within the quotes.
+
+    Format Specifications
+        Align
+            < - left align  
+            > - right align
+            ^ - center align
+            = - split digits with the sign aligned left and the ***numeric*** aligned right.
+        Sign
+            Controls when the sign is displayed with a numeric.
+            + - A sign on positive and negative numbers.
+            - - A sign only on negative numbers
+            SPACE - A space var (or a literal space char) is used to leave a leading space on positive numbers, and minus on negative numbers.
+        Alternative Form
+            Using the hash turns on "Alterative Form" which changes depending on the variable type -- see docs.
+        Leading Zeros
+            0 - causes zeros to be displayed, unless a fill character is specified for alignment.
+        Width
+            Width of the output character string.
+        Grouping
+            Controls if numbers should separate thousands with a comma or underscore.
+        Precision
+            A dot (.) followed by an int for decimal precision. Aka, how many sig figs after the zero.
+        Type
+        `   How numbers are displayed.
+
+            b - Binary
+            c - Character
+            d - Decimal
+            x - Hexadecimal
+            e - Exponent Notation
+            f - Fixed Point
+            g - General
+            ( more in documentation )
+    
+    String Templates
+        More limited than f-strings for formatting, but have specific use cases.
+
+        Import the library
+            from string import Template
+            
+            # Template variable declaration
+            s = Template("$greeting, $user!")
+
+            print(s.substitute(greeting="Hi", user="Jason"))
+        
+        To show a dollar sign, use two.
+
+        To substitute an expression as a part of a word, wrap it in curly braces {}
+            s = Template("A ${variable}ify subscription costs $$$price/mo.")
+                Three dollar signs are used because 2 are for the character, and 1 is for the price variable.
+        
+    String Conversation
+        Three Special Flags
+            These flags determine the function used to fetch a string representation.
+            !r - repr()  - returns canonical string representation, 
+                returns what str() does, except on objects additional information useful for debugging is included.
+            !a - ascii() - the same as repr(), but it returns a ASCII-compatible string literal.
+            !s - str()   - returns human readable representation of the value.
+                can be omitted most times since it is the default behavior.
+    
+    String Concatenation
+        +      - joins two surrounding strings together. 
+        join() - joins a group of strings together, the string in front of join is what's inserted between each object joined.
+            message = "".join((greeting, ", ", name, "!"))
+
+
+Functions
+    The function starts with a definition header, followed by the code to execute.
+        def tell_joke(joke_type): # header
+            if joke_type == "funny": # code 
+                print(joke_1)
+            elif joke_type == "lethal":
+                print(joke_2)
+            else:
+                print(joke_3)
+
+        # function call
+        tell_joke("funny")
+
+Classes and Objects
+    Uses a class keyword, followed by function definitions
+
+    __init__ runs at the creation of the class object.
+
+    class Joke:
+        def __init__(self, joke_type):
+            if joke_type == "funny": # code 
+                self.question = joke_1q
+                self.answer = joke_1a
+            elif joke_type == "lethal":
+                self.question = joke_2q
+                self.answer = joke_2a
+            else:
+                self.question = joke_3q
+                self.answer = joke_3a
+    
+    You can use the dot operator to call variables and functions specific to this instance of the class.
+
+Error Handling
+    Using try and except, you can attempt a piece of code and if it errors, deal with the error instead of breaking the program.
+
+        user_number = input("Enter a number:\n")
+
+        try:
+            num = int(user_number)
+        except ValueError:
+            print("You didn't enter a valid number.")
+            num = 0
+        
+        print(f"Your number squared is {num ** 2}")
+
+Collections
+    Lists 
+        Array-like collections. In CPython, they are variable length arrays, and not linked lists.
+        Enclosed in square brackets, separating items with commas.
+        Called to with list_name[index_integer] - slicing
+    
+    Tuple
+        Fixed length of immutable items. 
+        Used for fixed data sets.
+        Tuple literals are enclosed with double parenthesis. ((tuple_info))
+
+Loops
+    while    - continues to loop until conditional returns false - whole loop runs before checking.
+    for      - iterates over a range of values or lists. Is similar to a for-in or for-each loop.
+    
+    do while loops don't exist, but can be implement with a break conditional statement inside of a while loop.
+
+    range()  - provides a list of integers.
+    break    - the loops is exited.
+    continue - the program is sent to the start of the next loop cycle.
+
+Structural Pattern Matching
+    Literal Patterns
+        ex:
+        match lunch_order:
+            case "some_text":
+            ...
+            ...
+            case _: # If no previous match. This is called a wild card
+                ...
+    
+    OR Patterns
+        ex: 
+        ... 
+            case "some_text":
+                ...
+            case "some_text_a" | "some_text_b":
+            ...
+            case _:
+                ...
+    Capture Patterns:
+        Limited in "real" usages, but cool enough to try and implement.
+
+        Catches exception cases, otherwise returns "wild card."
+        ex:
+        match lunch_order:
+            case 'salad' | 'soup':
+                print("Eating Healthy")
+            case order:
+                print(f"Enjoy your {order})
+
+        If the second item in the sequence matches, the first is set to another variable.
+        ex:
+        match lunch_order:
+            case (flavor, 'ice cream'):
+                print(f"heres your....")
+
+        Variables must be qualified to be used for catch statements
+        ex:
+        match lunch_order:
+            case Special.TODAY:
+                print("Today's special is....")
+            case 'pizza':
+                ...
+            ...
+    Guard Statements
+        Stops splitting if pattern matches.
+        ex.
+        ...
+            ...
+            case ice_cream if 'ice cream' in ice_cream:
+                flavor = ice_cream.replace('ice_cream', '').strip()
+            ...
+    

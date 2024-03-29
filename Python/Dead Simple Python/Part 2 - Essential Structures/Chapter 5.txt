@@ -1,0 +1,266 @@
+Variables
+
+    Python documentation doesn't use the term variables, they use name and value instead.
+    Name - what is conventionally referred to as a variable.
+    Value - a particular instance of data stored in memory.
+    Variable - The combination of the name and value, and only used as such in this book.
+
+Variable Assignment
+    
+    The operation of binding a value to a name is called an assignment.
+
+    ex:
+        answer = 42
+        "answer" - the name is bound to the value "42" and can be used to referred to this value in memory.
+    
+
+    ex:
+        insight = answer
+        The name "insight" doesn't refer to a copy of the value "42", but to the same, original value used by "answer".
+        Both names are usable as variables, but insight is not bound to answer, but the value that answer is also bound.
+
+    An operator (like the math operators) compares identity.
+
+        The specific memory location that a name is bound.
+        It doesn't check if a name points to equivalent values, but if it points to the same value IN memory.
+
+    Python decides whether to make a new memory location, or bind to an existing one at the time of assignment.
+        Programmers have little influence on whether this happens.
+    
+    ex:
+        spam = 20
+        maps = spam
+        eggs = 20
+
+        If we compare using ==, 
+            spam == eggs # returns True
+            spam == maps # returns True
+        If we compare identities,
+            spam is maps # returns True
+            spam is eggs # Likely to return False
+        
+        Spam and Eggs are assigned to the same value in memory, but eggs is bound to a different, but equivalent value.
+        This is not consistent through multiple tests.
+        spam = 20
+        eggs = 20
+        spam is eggs # will return True or False without certainty
+
+    is - the operator that checks identity.
+    id() returns the integer representation of the identity of whatever is passed to it.
+
+Scope and Garbage Collection
+
+    Scope
+        Where the variable can be accessed from.
+        Global variables are accessible everywhere inside the program.
+        Local variables can only be accessed within a particular function or expression.
+    
+    Local Scope
+        Functions, lambda functions, and comprehensions define their own scope, and are the only structures that do so.
+        Modules and classes do not explicitly have their own scope, but they do have their own namespace.
+
+    Reference Counting Garbage Collection
+        Reference Count - How many references exist for for each value.
+        When there are no more references for a value, the value is removed from memory
+
+    Generational Garbage Collection
+        weakref creates a reference to a value without increasing that values reference count.
+
+    Functions
+        On exiting a function, variables assigned within the function and not returned are removed from memory.
+        If you store a function return to a variable, the value returned now exists outside of the function.
+
+    Interpreter Shutdown    
+        On interpreter shutdown, the interpreter releases all allocated resources
+        Using the module atexit may be necessary in high level projects to remove hard stored resources.
+    
+    Global Scope
+        When a name is defined within a module, but outside of any function, class, comprehension.
+
+        Using "global name_name" specifies which name you are referencing within functions.
+            A function's scope only accounts for variables passed in, or defined within the function.
+            You can access a global name without issue, but if you want to modify it, it must be defined within the function.
+
+        Global variables can be the cause of strange bugs(This doesn't apply to classes).
+            To avoid this:
+                Declare a global scope variable in the function.
+                Create a local variable off of the global to manipulate within the function.
+                Rebind the modified variable to the global.
+
+        nonlocal allows you to access variables outside of nested functions that aren't in the global scope. 
+        ex:
+        def order():
+            eggs = 12
+
+            def cook():
+                nonlocal eggs
+                if spam:
+                    print(spam)
+                if eggs:
+                    eggs -= 1
+                    print("...and eggs.")
+            cook()
+        order()
+
+    Scope Resolution
+        How python searches for a name within scopes.
+        "Lincoln Eats Grant's Breakfast"
+        Local
+        Enclosing function locals (aka via nonlocal)
+        Global
+        Built-in
+
+        Explicitly using the nonlocal and global keywords affects the search order.
+
+    Class
+        Classes don't directly factor scope resolution.
+        Names declared within a class are called attributes.
+
+Immutable Truth
+
+    Values are mutable or immutable.
+    Immutable types cannot be modified in place.
+        int, floats, str, tuple,
+        If you try to mutate any of these values, a new value will be created.
+        ex:
+            eggs = 12
+            carton = eggs
+            eggs += 1
+            eggs is carton # Returns False
+    Mutable
+        Can be modified in place.
+            lists
+        ex:
+            temps = [12,13,14]
+            highs = temps
+            temps += [81]
+            temps is highs # Returns True
+            print(temps)   # Prints [12,13,14,81] 
+            print(highs)   # Prints [12,13,14,81]
+        
+            Because the list is aliased to both names, any modification to the list value are visible to either.
+                The names are bound to the original value.
+
+Passing by Assignment
+    Neither the values or the names bound to them are moved.
+        Each value is bound to the parameter via assignment.
+    ex:
+        def greet(person):
+            print(f"Hello, {person}.")
+        my_name = "Jason"
+        greet(my_name)
+
+        One copy of "Jason" in memory bound to my_name.
+        When passing my_name to greet(name), it's equivalent to person=my_name
+        Assignment never makes a copy, so the value "Jason is now attached to the name "person".
+
+    ex:
+        def find_lowest(temperatures):
+            temperatures.sort()
+            print(temperatures[0])
+        
+        temps = [85,76,79,72,81]
+        find_lowest(temps) # prints 72
+        print(temps) # prints [72,76,79,81,85]
+
+        In this case, the value assigned to temperatures is mutable, and sorts the value that the name temps is assigned to.
+        To avoid this forcing an error, we must explicitly make a copy of the variable.
+        correction:
+        
+        def find_lowest(temperatures):
+            sorted_temps = sorted(temperatures)
+            print(sorted_temps[0])
+
+        This creates a new value by modifying the order of the passed in value.
+
+Collections and References
+
+    All collections use a mechanism, where individual items are references.
+    
+        ex:
+            board = [["-"] * 3] * 3
+
+            # If we try to make a move on the board:
+            board[1]0[0]
+            for row in board:
+                print(f"{row[0]} {row[1]} {row[2]}") 
+            #  X - - 
+            #  X - -
+            #  X - -
+            
+            Board was created by using one list three times, thus three aliases referencing one value.
+            # A fix that can be used.
+            board = [["-"] * 3 for _ in range(3)] # A list comprehension
+        
+
+    Tuples cannot be modified directly, but the items of tuples can have their references changes.
+        ex:
+            t1 = [100,95,120]
+            t2 = [45,30,10]
+            t3 = [200,35,190]
+
+            scores = (t1, t2, t3) 
+            print(scores[0]) # prints [100,95,200] 
+
+            t1[0] = 200
+            print(scores[0]) # prints [200,95,200]
+            # or you could also do
+            scores[0][0] = 400
+            print(scores[0]) # prints [400,95,200]
+
+    Shallow Copy
+
+        To ensure you bind a name to a copy of a mutable value.
+        Import copy if using one mutable value for multiple classes.
+        import copy
+
+        class Taco:
+            def __init__(self,toppings):
+                self.ingredients = copy.copy(toppings)
+            def add_sauce(self, sauce):
+                self.ingredients.append(sauce)
+
+    Deep Copy
+        ex: Making a copy of a class, and all mutable attributes belonging to it.
+        copy.deepcopy(class_instance_name)
+
+Coercion and Conversion
+
+    Coercion
+        Names do not have types, so we do not need to type cast.
+        print(42.5)  # Coerces to a string
+        x = 5 + 2.5  # Coerces to a float
+        y = 5 + True # Coerces to an int, is also bad practice
+
+    Conversion  
+        Explicitly converting the type of a name's value
+        a = "42"
+        b = float(a)
+
+Hungarian Notation
+
+    DO NOT USE HUNGARIAN NOTATION IN PYTHON
+    instead, use all lowercase words with underscore for names.
+
+Terminology Review
+
+    Alias (v.) Bind a mutable value to more than one name.
+    Assignment (n.) The act of binding a value to a name.
+    Bind(v.) To create a reference between a name and a value.
+    Coercion (n.) The act of implicitly casting a value from one type to another.
+    Conversion (n.) The act of explicitly casting a value from one type to another.
+    Copy (v.) To create a new value in memory from the same data as another value.
+    Data (n.) Information stored in a value. You may have copies of any given data stored in other values.
+    Deep Copy (v.) To both copy an object, AND all reference data to a new object and references.
+    Identity (n.) The memory location a name is bound. If two names share an identity, they are bound to the same location.
+    Immutable (adj.) Of, or, relating to a value that CANNOT be modified in place.
+    Mutable (adj.) Of, or , relating to a value that CAN be modified in place.
+    Name (n.) A reference to a value in memory. Names have scope, but not type.
+    Rebind (v.) To bind an existing name to a different value. (equivalent to "changing")
+    Reference (n.) The association between a name and a value.
+    Scope (n.) A property that defines what section of code a name is accessible from, such as from within a function or within a module.
+    Shallow Copy (v.) To copy an object to a new value, but not copy the data from values referenced within that object to new values.
+    Type (n.) A property that defines how a raw value is interpreted.
+    Value (n.) A unique copy of data in memory. Values have type but not scope.
+    Variable (n.) A combination of a name and the value the name refers to.
+    weakref (n.) A reference that does not increase the reference count on the value.

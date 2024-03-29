@@ -1,0 +1,87 @@
+Package - a collection of code
+Virtual Environment - sandbox for python packages needed for specific projects.
+
+    Creating a venv - conda create projEnv
+    Starting a venv - conda activate projEnv
+
+Package Manger - pip
+    !!!!!!!!!!!DON'T USE SUDO ON PIP!!!!!!!!!!
+        instead, install to local user directory.
+    System Wide Packages:
+        python3 -m pip "command"
+
+    Environment Packages:
+        pip install "command"
+    
+    Special Package Instructions:
+        pip install "PySide6>=6.1.2" since > or < mean something in unix systems, string literals are required.
+    
+    Upgrading Packages:
+        pip install --upgrade PySide6
+
+        or if you have requirements:
+            pip install --upgrade -r requirements.txt
+    
+    Removing Packages:
+        pip uninstall "package"
+
+    Find Packages:
+        pip search web scraping
+
+Packages and a Version Control Service (VCS)
+    VCS example - Git
+
+    Create virtual environments outside of your VCS scope
+    or 
+    untrack the environment directory
+
+    If using git
+        create a file in the root directory
+            .gitignore 
+        write code within:
+            venv/
+    
+
+File Encoding
+    Default is utf-8 since python 3.1
+
+    Specify a different encoding with:
+        # coding: latin-1
+    or
+        # This Python file uses the following encoding: latin-1
+    
+
+Using Environment Without Activating
+    venv/bin/pip install pylint
+    venv/bin/python
+
+    import pylint
+
+Other Useful Package Managers for Python
+    Pipenv
+    pip-tools
+    poetry
+
+Official Styling Guide
+    PEP 8
+
+Static Analyzers
+    Looks for code errors before running.
+    Ex. Pylint
+    Ex. Flake8
+        includes: PyFlakes, pycodestyle,mccabe
+    Ex. Mypy - for type annotations
+
+Auto Formatting Tools
+    autopep8 - fixes whitespace, and more!
+    Black - forces strict PEP 8 standard
+
+Python Interpreters
+    IDLE - comes with python
+    Emacs/Vim - old school editors
+    Pycharm - Most popular
+    VS Code - Second most popular
+    Sublime Text - very customizable
+    Spyder - Matlab adjacent editor
+    Eclipse + PyDev /LiClipse+
+    Eric Python IDE - oldest

@@ -1,0 +1,447 @@
+OOP - Object Oriented Programming
+
+    A Class is a blueprint for creating one or more objects, which are known as instances.
+    Objects, have member variables (attributes), and member functions (methods).
+
+    Classes are used for encapsulation:
+    1. The data and the functions that manipulate said data are bound into one unit.
+    2. The implementation of a class's behavior is kept out of the rest of the program.
+        AKA black box
+
+    If methods perform basic GET and SET tasks, they are "un-pythonic"
+    Two import relationships in OOP
+    1. Composition - "has a" relationship - the object contains other objects.
+    2. Inheritance - "is a"  relationship - a class inherits and builds on top of another class.
+
+Declaring a Class:
+
+    class ClassName:        # Doesn't inherit Another Object's Attributes
+    class ClassName(object) # Does inherit Another Object's Attributes
+
+    Initialization
+        def __init__(self, *args, **kwargs):
+            arg1 = 
+            ...
+        
+        Initializer must NEVER return a value via return, else it will raise a type error.
+
+    Constructor
+        The only method called by the class automatically.
+        Typically not needed unless you require specific control over the import process.
+        The first parameter of the constructor is always cls.
+        The constructor returns the class instance that gets created.
+        
+        ex:
+        def __new__(cls, *args, **kwargs):
+            return super().__new__(cls, *args, **kwargs)
+    
+    Finalizer
+        When a class has reached the end of it's life span and goes into garbage collection.
+        No other code except garbage collection should be contained within the finalizer.
+        del Always accepts a single parameter, self.
+        del must not return anything.
+
+        ex:
+            def __del__(self):
+                print(text)
+
+Attributes
+
+    All variables belonging to a class are called attributes.
+
+    Instance Attributes
+        Only exist on the instance itself, and is unique to this instance.
+    
+    Class Attributes
+        Exist on all classed objects instead of the instance.
+        Defined outside of and before any method.
+
+Scope-Naming Convention
+
+    No formal concept of data hiding exists in python, but we do have public and nonpublic attributes.
+    Controls if a variable can be accessed or modified externally.
+
+    Nonpublic
+        underscore preceding the name
+        _secrets
+    Public
+        not_secret
+
+    Name Mangling
+       Allowing rewriting of attributes or method names.
+       Set with double underscore preceding the name.
+
+    How to know which to use.
+        Ask, could changing this attribute externally cause unexpected or negative behavior.
+        Mangled names are rarely used unless to avoid name conflicts, 
+            or extra warning block to prevent external name access.
+    
+Methods
+    Two types exist, instance and class based methods.
+
+    Instance Methods
+        The standard method.
+        First parameter is self.
+    
+    Class Methods
+        For working with class attributes.
+        The preceding line is a function decorator
+            @classmethod
+        Class methods will always access class attributes first.
+        When calling a class method, it implicitly passes the cls parameter.
+
+    Static Methods
+        Accesses neither instance or class attributes.
+        Used when your class offers functionality not explicitly needed by the internal logic.
+    
+Properties
+
+    Allow you to write getters and setters that behave so it appears that you're directly accessing am attribute.
+    Properties are preferable to calling GET or SET commands
+
+    The Scenario
+    class SecretAgent:
+        _codeword = None
+
+        def __init__(self, codename):
+            self.codename = codename
+            self._secrets = []
+
+        def __del__(self):
+            print(f"Agent {self.codename} has been disavowed!")
+        
+        def remember(self, secret):
+            self._secrets.append(secret)
+
+        @classmethod
+        def inform(cls, codeword):
+            cls._codeword = codeword
+        
+        @staticmethod
+        def inquire(question):
+            print("I know nothing.")
+        
+        @classmethod
+        def _encrypt(cls, message, *, decrypt=False):
+            code = sum(ord(c) for c in cls._codeword)
+            if decrypt:
+                code = -code
+            return ''.join(chr(ord(m) + code) for m in message)
+    
+    Defining the Property
+        A property is made up of a getter, setter, and deleter.
+        A property might access or modify a nonpublic attribute, multiple attributes, or no attributes.
+
+        Defining three functions to make the property.
+
+        def _getsecret(self):
+            return self._secrets[-1] if self._secrets else None
+        
+        def _setsecret(self, value):
+            self._secrets.append(self._encrypt(value))
+
+        # A deleter doesn't NEED to be defined, but in this case we want the secrets to be cleared.
+        def _delsecret(self):
+            self._secrets = []
+        
+        Now we define the actual property.
+        secret = property(fget=_getsecret, fset=_setsecret, fdel=_delsecret)
+
+    Using the Property
+        mouse = SecretAgent("Mouse")
+        mouse.inform("Parmesano")
+
+        print(mouse.secret) # returns None
+        mouse.secret = "1234 main"
+        print(mouse.secret) # returns crazy letters
+        mouse.secret = "234-2341"
+        print(mouse.secret) # returns different crazy letters
+
+        print(mouse._secrets) # returns two values
+        del mouse.secret
+        print(mouse._secrets) # returns an empty list
+
+    One property is called to get, set, and delete an attribute.
+    All three functions do not need to be defined to use properties.
+        We just can't use whichever property is left undefined.
+    
+    Properties with Decorators
+        Rewriting the above code for decorators by using property().
+
+            secret = property()
+            @secret.getter
+            def secret(self):
+                return self._secrets[-1] if self._secrets else None
+            
+            @secret.setter
+            def secret(self):
+                return self._secrets.append(self._encrypt(value))
+            
+            @secret.deleter
+            def secret(self):
+                self._secrets = []
+
+        Rewriting the above code for decorators without using property().
+                This only works for the getter method. Setter and deleter MUST be defined the same way.
+            @property
+            def secret(self):
+                return self._secrets[-1] if self._secrets else None
+            
+            @secret.setter
+            def secret(self, value):
+                self._secrets.append(self._encrypt(value))
+            
+            @secret.deleter
+            def secret(self):
+                self._secrets = []
+
+    When to Avoid Properties
+        When they conceal important calculations or processing.
+        Long or complicated problems that warrant async or threads.
+
+Special Methods
+
+    aka Magic Methods, or Dunder Methods
+        Dunder Method means "d"ouble "under"score
+    __init__ is an example of a special method
+
+    Conversion Methods
+
+        __repr__()
+            Best Practice is to always define the __repr__ class.
+            This contains the canonical string representation of the class. 
+            This includes ALL data needed to create a copy of this class instance with the same content.
+            Python defines this automatically with poor resolution of the data inside the class.
+        
+        __str__()
+            Just like repr, but returns text in a human readable format.
+            Python defaults to repr if str is not defined.
+
+        __hash__()
+            Typically returns a has value, which is a unique integer representation of the data within the class instance.
+            Should only depend on the static values that NEVER change.
+            If you define hash, you should also define __eq__().
+
+        __bool__()
+            Returns true or false.
+            If not defined, returns based on len > 0.
+        
+        __ceil__()
+            Returns int numeric from rounding up a float to the nearest integer.
+
+        __complex__()
+            Returns a complex numeric value.
+        
+        __float__()
+            Returns a float numeric value.
+        
+        __floor__()
+            Returns an in numeric rounding down to the nearest integer.
+        
+        __format__()
+            Accepts a string representing the format specs, and returns the string formatted.
+        
+        __index__()
+            Returns the same value as __int__.
+            Must be defined in order to use.
+        
+        __int__()
+            Returns an integer numeric value.
+            Can be replaced with any other conversion method that outputs an integer. 
+        
+        __round__()
+            Returns an integer numeric rounding a non-whole numeric up or down to an integer.
+        
+        __trunc__()
+            Returns an integer numeric that drops the decimals of a float numeric.
+    
+    Comparison Methods
+        The same comparison methods used in conditional statements.
+        All compare the current name with the name in the parenthesis
+            __eq__() - ==
+            __ne__() - !=
+        The following can return "NotImplemented" if the comparator is not defined.
+            __lt__() - <
+            __gt__() - >
+            __le__() - <=
+            __ge__() - >=
+
+    Binary Operators
+    
+        Binary operators are two operand operations, aka a + b = c. 
+        Special Methods allow binary operators to be supported.
+        It's like defining a vector space.
+        Binary operators require two parameters to be defined, self and other.
+        
+        A second method, the reflection assignment operator, b - a. 
+            Python tries this when the original, __sub__ returns NotImplemented.
+        ex:
+            a.__sub__(b) returns NotImplemented, python tries __rsub__(b)
+        
+        A third method, the augmented assignment operator, a = a - b.
+            Python looks to the prior two first.
+        ex:
+            a.__sub__(b) returns NotImplemented, python tries
+
+        Defining Binary Operators - Unless stated, all methods have an r and i variation.
+            __add__() - +
+            __sub__() - - 
+            __mul__() - *
+            __matmul__() - @ - Matrix Multiplication
+            __truediv__() - /
+            __floordiv__() - //
+            __mod__() - %
+            __divmod__() - (quotient, remainder) - doesn't contain a i variation.
+            __pow__() - **
+            __lshift__() -- <<
+            __rshift__() -- >> 
+            __and_() -- and
+            __or__() -- or
+            __xor__() -- xor
+    
+    Unary Operators
+        __abs__() - abs()
+        __neg__() - ~
+        __pos__() - minus sign operator
+        __invert__() - positive sign operator
+
+    Making Call-ables
+        __call__()
+        Can accept any number of arguments and return anything.
+
+Class Decorators
+
+    Wrap class instances for:
+        Adding attributes.
+        Initializing another class containing an instance of the decorated class.
+        Performing some behavior immediately on the new object.
+
+    ex:
+    class CoffeeOrder:
+        def __init__(self, recipe, to_go=False):
+            self.recipe = recipe
+            self.to_go = to_go
+
+        def brew(self):
+            vessel = "in a paper cup" if self.to_go else "in a mug"
+            print("Brewing", *self.recipe.parts, vessel)
+    
+    class CoffeeRecipe:
+        def __init(self, parts):
+            self.parts = parts
+    
+    special = CoffeeRecipe(["double-shot", "grande", "no-whip", "mocha"])
+    order = CoffeeOrder(special, to_go=False)
+    order.brew() # prints "Brewing double-shot grande no-whip mocha in a mug"
+
+    Now implementing decorators to specify all orders as to go, or not.
+    import functools
+    def auto_order(to_go):
+        def decorator(cls):
+
+            @functools.wraps(cls)
+            def wrapper(*args, **kwargs):
+                recipe = cls(*args, **kwargs)
+                return (CoffeeOrder(recipe, to_go), recipe)
+            
+            return wrapper
+    
+    1. Accepts the to_go argument, so to_go is wrapped by the decorator.
+    2. The decorator is returned from the outermost function.
+    3. The effective name comes from the outermost function name.
+    4. After initializing the instance of the wrapper class, immediately use that instance to initialize the CoffeeOrder instance.
+    5. The CoffeeOrder instance returns a tuple of the CoffeeShackRecipe
+
+    @auto_order(to_go=True)
+    class CoffeeShackRecipe(CoffeeRecipe):
+        pass
+    order, recipe = CoffeeShackRecipe(["tall", "decaf", "cappuccino"])
+    order.brew()   # prints "Brewing tall decaf cappuccino in a paper cup"
+
+    CoffeeShackRecipe extends CoffeeRecipe without losing the ability to create new CoffeeRecipe.  
+
+Structural Pattern Matching
+
+    Matching objects in patterns by their attributes.
+    By Pattern - Matching an item.
+        
+        ex:
+            A class that represents a pizza.
+        Class Pizza:
+            def __init__(self, topping, second_topping=None):
+                self.first = topping
+                self.second = second_topping
+        order = Pizza("pepperoni", "mushrooms")
+
+        match order:
+            case Pizza(first='pepperoni', second='mushroom'):
+                print("ANSI standard pizza")
+            case Pizza(first='pineapple'):
+                print("Is this even pizza?")
+        
+        For each case, we specify the object we're expecting.
+
+    By Capture - Matching an item, then capturing the input values to case match.
+    ...
+        case Pizza(first='pineapple'):
+            print("Is this even pizza?")
+        case Pizza(first=first, second='cheese'):
+            print(f"Very cheese pizza with {first}.")
+        case Pizza(first=first, second=second):
+            print(f"Pizza with {first} and {second}.")
+
+
+    Simplifying Repetitive Pattern Matching
+    class Point:
+        __match_args__ = ('x_pos', 'y_pos', 'z_pos')
+        
+        def __init__(self, x, y, z):
+        self.x_pos = x
+        self.y_pos = y
+        self.z_pos = z
+
+    point = Point(0,123, 0)
+
+    match point:
+        case Point(0, 0, 0):
+            print("You are here.")
+        case Point(0, _, 0):
+            print("Look up!")
+    
+    __match_args__ is auto defined on data-classes.
+
+Functional Meets OOP
+
+    1. Every method should do one specific thing.
+    2. A method's implementation should never affect other methods, nor should it affect the behavior of the rest of the program.
+    3. Avoid side effects.
+        Methods should only directly mutate attributes belonging to it's class,
+            and only when expected.
+    4. Methods shouldn't have states other than the attributes of the class it resides.
+
+When To Use Classes
+
+    Classes aren't modules.
+        Classes bundle data with methods responsible for accessing, and modifying that data.
+        Do the attributes make sense as a cohesive object?
+        Does the data describe the the thing your object is trying to represent?
+        Do the methods directly relate to the class attributes?
+    
+        A House has a Sink, but the attributes and behavior of the KitchenSink belong to their own class instance, that resides in the house.
+    
+    Single Responsibility
+        A class should have a single, well-defined responsibility.
+        A function "does" something, a class "is" something
+
+    Sharing State
+        Classes allow you to share static classes.
+        These share states across multiple modules in your program.
+        Static classes are cleaner than globals, easier to write and maintain than singletons. 
+
+    Are They Right For Me
+        Classes are for Encapsulation
+        Modules organize things by purpose and category.
+        Functions perform tasks with provided data (arguments) and return values.
+        Collections store cohesive sets fo data, which are accessed predictably.
+        Classes define objects, which contain attributes and related behaviors (methods).
+        

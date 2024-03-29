@@ -1,0 +1,399 @@
+Lazy Evaluation and Eager Iterables
+
+    Lazy Evaluation - an iterator does not provide the next value until it's requested.
+    Eager Iterables - Collections evaluate all items upon creation
+
+    ex:
+        import time
+        sleep = ['no pause',' time.sleep(1), time.sleep(2)]
+        # program pauses for three seconds.
+        print(sleepy[0]) # prints 'no pause'
+    
+Infinite Iterators
+    
+    Provide values on demand without being exhausted.
+    Three tools offer this:
+        count() - counts from the given and increments by step.
+        cycle() - counts through each item in the iterable, infinitely.
+        repeat() - repeats the given value endlessly, or until specified number.
+    
+    Become dangerous because they have no end. Especially when combined with for loops.
+
+Generators
+
+    An alternative to the iterator class.
+    It looks like a function, except as the "yield" keyword.
+
+    When called directly, the generator function returns a generator iterator,
+        aka generator object, that encapsulates the logic from a generator function.
+    
+    Each iteration, the iterator runs to a yield statement, then waits for another call
+        to the next method. On the next call, it runs to the next yield statement. 
+
+    ex:
+    from itertools import product
+    from string import ascii_uppercase as alphabet
+
+    def gen_license_plates():
+        for letters in product(alphabet, repeat=3)
+            letters = "".join(letters)
+            if letters == "GOV":
+                continue
+            
+            for numbers in range(1000):
+                yield f'{letters} {numbers:03}'
+    
+        The first for loop iterates over all 3 letter combinations(to lists)
+            and then joins them
+        The second for loop iterates over all numbers under 1000,
+            and returns a 3 digit formatted string with up to 3 leading zeros.
+        
+        Every time the yield statement is reached, it returns the string, 
+            and remembers where it was in the increment.
+        
+    A generator function terminates once it reaches it's end, or a return statement.
+
+    ex:
+        from random import choice
+
+        colors = ['red', 'green', 'blue', 'silver', 'white', 'black']
+        vehicles = ['car', 'truck', 'semi', 'motorcycle', None]
+
+        class Traffic:
+            def __iter__(self):
+                return self
+            
+            def __next__(self):
+                vehicle = choice(vehicles)
+
+                if vehicle is None:
+                    raise StopIteration
+                
+                color = choice(colors)
+
+                return f"{color} {vehicle}"
+
+                In this method, the stop exception represents a 
+                    gap in vehicle generation.
+            
+        count = 0
+        for count, vehicle in enumerate(Traffic(), start=1):
+            print(f"Wait for {vehicle}...")
+        
+        print(f"Merged after {count} vehicles!")
+
+    This class has a lot of extra bloat. Compare with a generator function.
+    
+    ex:
+        from random import choice
+
+        colors = ['red', 'green', 'blue', 'silver', 'white', 'black']
+        vehicles = ['car', 'truck', 'semi', 'motorcycle', None]
+
+        def traffic():
+            while True:
+                vehicle = choice(vehicles)
+                if vehicle is None:
+                    return
+                color = choice(colors)
+                yield f"{color} {vehicle}"
+
+        count = 0
+        for count, vehicle in enumerate(traffic(), start=1):
+            print(f"Wait for {vehicle}...")
+        
+        print(f"Merged after {count} vehicles!")
+
+    Closing Generators
+
+        To create a non-infinite generator, use the close function.
+        generator_name.close()
+    
+        in the above example,
+        ex:
+        def car_wash(traffic, limit):
+            count=0
+            for vehicle in traffic:
+                print("Washing {vehicle}.")
+                count += 1
+                if count >= limit:
+                    traffic.close()
+
+            We called the traffic generator function,
+                then at limit close it.
+
+    Generator Iterator
+
+        Instead of using a function calling another function, 
+            we can pass the function a generator iterator
+        queue = traffic()
+        car_wash(queue, 10)
+    
+    On Close Behavior
+
+    ex:
+        def traffic():
+            while True:
+                vehicle = choice(vehicles)
+                color = choice(colors)
+                try:
+                    yield f"{color} {vehicle}"
+                except GeneratorExit:
+                    print("No more vehicles.")
+                    raise
+        When traffic.close() is called,the GeneratorExit is raised 
+            at the yield statement
+
+    Throwing Exceptions
+        The throw() method is seldom used. 
+        ex:
+            Program reads network data, throw an exception if trying to read
+                from a disconnected network.
+
+Yield From
+
+    You don't have to limit data to the current generator iterator.
+
+    Using, yield from, can add a yield from another generator function.
+
+    ex:
+    from random import choice, randint
+
+    colors = ['red', 'green', 'blue', 'silver', 'white', 'black']
+    vehicles = ['car', 'truck', 'semi', 'motorcycle', None]
+    
+    def biker_gang():
+        for _ in range(randint(2, 10)):
+            color = choice(colors)
+            yield f"{color} motorcycle"
+
+    def traffic():
+        while True:
+            if randint(1, 50) == 50:
+                yield from biker_gang()
+                continue
+            
+            vehicle = choice(vehicles)
+            color = choice(colors)
+            yield f"{color} {vehicle}"
+    
+    count = 0
+    for count, vehicle in enumerate(traffic()):
+        print(f"{vehicle}")
+        if count == 100:
+            break
+
+Generator Expressions
+
+    A iterator that wraps the entire logic of a generator.
+    ex:
+        def license_plates():
+            for num in range(1000):
+                yield f'ABC {num:03}'
+            
+        for plate in license_plates():
+            print(plate)
+
+        This is a very simple function, and thus could be great for a generator expression.
+
+        license_plates = (f'ABC {number:03}' for number in range(1000))
+        
+        This looks like list comprehension.
+
+    Lazy Generator Expressions
+        
+        Generator expressions are lazy, and extremely useful for large data sets.
+        They produce values On-Demand, and not anytime sooner.
+        Creating the generator expression itself doesn't execute the code,
+            and only does once the expression is called.
+    
+    Multi-Loop Generator Expressions
+    
+        ex:
+        from itertools import product
+        from string import ascii_uppercase as alphabet
+
+        license_plates = (
+            f'{""join(letters)} {number:03}'
+            for letters in product(alphabet, repeat=3)
+            for number in range(1000)
+        )
+        
+        Loop one (the outer loop) iterates over the alphabet and joins the letter set.
+        Loop 2 (the inner loop) the inner loop creates all numbers in the set.
+        
+    Conditionals in Generator Expressions
+        Allow flow control within generator expressions
+
+        ex:
+            license_plates = (
+                f'{"".join(letters)} {numbers:03}'
+                for letters in product(alphabet, repeat=3)
+                if letters != ('G', 'O', 'V')
+                for numbers in range(1000)
+            )
+
+            ORDER MATTERS HERE. Checking for the letters before the inner loop
+                skips a thousand checks.
+            
+            The equivalent function of license_plates:
+            license_plate_generator():
+                for letters in product(alphabet, repeat=3):
+                    if letters != ('G', 'O', 'V'):
+                        for numbers in range(1000):
+                            yield f'{"".join(letters)} {numbers:03}'
+        
+        Using an if elif Conditional
+        ex:
+            divis_by_three = (n for n in range(100) if n% 3 == 0)
+
+            changes to
+
+            divis_by_three = (n if n% 3 == 0 else "redacted" for n in range(100))
+
+        This formatting difference only occurs in else statements. 
+
+    Nested Generator Expressions
+
+        Generator expressions are limited to nested single-clause compound statements.
+
+        Nesting is similar to writing two expressions inside one.
+
+        ex:
+        license_plates = (
+            f'{letter} {numbers:03}'
+            for letters in (
+                "".join(chars)
+                for chars in product(alphabet, repeat=3)
+            )
+            if letters != 'GOV'
+            for numbers in range(1000)
+        )
+
+List Comprehension
+
+    A generator expression with brackets instead of parenthesis that creates a list from the yield.
+    ex:
+    orders = ['a', 'b', ...]
+
+    drip_orders = [order for order in orders if 'drip' in order]
+
+Set Comprehension
+
+    A generator expression with curly brackets instead of parenthesis that creates a list from the yield.
+    ex:
+    odd_remainders = {100 % divisor for divisor in range(1, 100, 2)}
+    # returns set {no repeats} of odd remainders.
+
+Dictionary Comprehension
+    Like a set comprehension but with key-value pairs in the yield location.
+
+Hazards of Generator Expressions
+
+    1. Can become quickly unreadable.
+    2. They don't replace loops.
+        - Is it being stored to a value?
+        - Is it being mutated directly?
+    3. Can be hard to debug.
+        - Only create the generator expressions after code is verified to work in for loops.
+    4. Use when they can be created on one line, or are more readable than the for-loop alternative.
+
+Simple Coroutines
+
+    A coroutine is a type of generator that consumes data.
+    ex: A coroutine that maintains a running average temperature 
+            that can be sent new values periodically.
+
+    Assume references to JUST coroutine are referencing simple coroutines (the above example).
+        Asynchronous coroutines (native coroutines), will be introduced later.
+
+    You can close() and throw() them just like generator expressions
+    ex:
+    from random import choice
+    
+    def color_counter(color):
+        matches = 0
+        while True:
+            vehicle = yield
+            if color in vehicle:
+                matches += 1
+            print(f"{matches} so far.")
+        
+        The yield expression is being assigned to the name vehicle.
+        The data is sent to the coroutine assigned to vehicle, which can be processed by checking 
+            if the color is in the list, and incrementing the counter. 
+    
+    Before using a coroutine, you must create a coroutine object. 
+    
+    counter = color_counter('red')
+
+    Before a coroutine can receive data, it must be primed by passing, None, to send().
+
+    counter.send(None)
+
+    Then you can work with the coroutine
+    
+    for count, vehicle in enumerate(traffic(), start=1):
+        if count < 100:
+            counter.send(vehicle)
+        else:
+            counter.close()
+            break
+    
+    There is no __send__() special method. You must define send in a coroutine custom class
+        like any normal member function.
+
+    Returning Values
+
+        Coroutines can accept and return values with the yield statement.
+
+        ex:
+        matches = 0
+        for count, vehicle in enumerate(traffic(), start=1):
+            if count < 100:
+                matches = counter.send(vehicle)
+            else:
+                counter.close()
+                break
+
+        print(f"There were {match} matches.")
+
+    
+    Sequence Behavior
+
+        ex:
+            def coroutine():
+                re = None
+                while True:
+                    print("...")
+                    recv = yield ret
+                    print(f"recv: {recv}")
+                    ret = recv
+
+            co = coroutine()
+            current = co.send(None)
+            print(f"current (ret): {current}")
+
+            for i in range(10):
+                current = co.send(i)
+                print(f"current (ret): {current}")
+
+            co.close()
+
+        Explanation 
+            The coroutine is primed to the first yield statement. 
+            The first input (0) is accepted from co.send() and stored.
+            The value of recv (0) is printed then stored in ret.
+            The coroutine advances to the next yield.
+            The current value of ret (0) is yielded, stored in current, and printed in the for loop.
+            The for loop advances.
+            The next input (1) is accepted from co.send() and stored in recv.
+            The new value of recv (1) is printed and stored in ret.
+            The coroutine advances to the next yield.
+            The current value of ret (1) is yielded, stored in current, and printed in the for loop.
+            The for loop increments.
+            ... continue ...
+
+Async
+    Some developers think simple coroutines are useless, and should be entirely replaced with native coroutines.
+    Although justified, it doesn't mean we shouldn't learn the differences between them. 

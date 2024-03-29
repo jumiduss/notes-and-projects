@@ -1,0 +1,418 @@
+Functional Programming
+
+    We will compare to other, more common, programming types before describing functional programming.
+    Procedural - control blocks and control flow. 
+    Object Oriented -  classes, objects, and the state of attributes.
+
+    Functional Programming:
+
+        Focuses on functions.
+        Is declarative - problems are broken down into steps.
+        Is stateless - do not store information between calls.
+        Functions called on the same input generate the same output.
+        Functions don't mutate anything.
+        Functions can change implementation without effecting anything else
+            as long as the input and output are consistent.
+
+        Code is easier to read and debug
+
+    Rules of Functional Programming:
+
+        1. Every Function should do one specific thing.
+        2. A function's implementation should never affect the behavior of the rest of the program.
+        3. Avoid side effects. The one exception is where a function belongs to an object. 
+            Here, the function should ONLY mutate that object's members.
+        4. In general, Functions shouldn't have, or be affected by, state.
+            The same input produces the same output.
+                Some exceptions are contained in classes.
+
+Recursion
+
+    To increase the number of levels of recursion python can perform:
+    import sys
+    sys.setrecursionlimit(2000)
+    MAKE SURE YOU HAVE A STOP POINT TO AVOID SYSTEM CRASHES.
+    
+Trailing Name Comma
+
+    Example Format:
+    result, = function_name(*args)
+
+    function_name returns a tuple with one item. 
+    The comma directly pulls that item outside of the tuple, and sets result to the value.
+    ex:
+    result, = dice_roll(20,1) # 20 sided die, 1 roll.
+             # returns (14)
+             # the comma sets the name result to the value 14
+
+Default Argument Values
+
+    A required parameter has no default value set within the function input variables.
+    Useful for when we want to specify a default behavior 
+
+    ex_ the dice book example: 
+        If we wanted a default roll behavior of 1 roll so we wont have to type 1
+            every time we wanted a single roll, we can set a default argument value.
+
+        def roll_dice(sides, dice=1):
+            return tuple(random.randint(1,sides) for _ in range(dice))
+
+        If nothing is chosen for dice, the number 1 is used.
+
+
+    Problems can arise with default argument values.
+    ex:
+        def fibonacci_next(series = [1,1]):
+            series.append(series[-1] + series[-2])
+            return series
+
+        This runs into problems because [1,1] is a mutable list, and gets mutated on the first call.
+
+        fib1 = fibonacci_next()     #returns [1,1,2]
+        fib1 = fibonacci_next(fib1) #returns [1,1,2,3]
+        fib2 = fibonacci_next()     #returns [1,1,2,3,5]
+
+        fib1 is bound to the same mutable value as series, so any changes to fib1 are reflected in the default argument.
+            as shown by fib2
+    
+        NEVER use mutable objects for default arguments.
+
+        correcting the error:
+        def fibonacci_next(series = None):
+            if series == None:
+                series = [1,1]
+            ...
+
+Keyword Arguments
+
+    Explicitly setting the function's input name-values.  
+        dice_cup = roll_dice(sides=6, dice=5)
+    You can even mix and match positional and keyword arguments.
+        dice_cup = roll_dice(6, dice=5)
+
+Overloaded Functions
+
+    Writing multiple functions with the same name but different parameters.
+    Python doesn't use, or need them.
+    Dynamic typing, duck typing, and optional parameters allow single functions to handle all input scenarios in,
+    "Single-Dispatch Functions"
+
+Variadic Arguments
+
+    Also called, Arbitrary Arguments Lists.
+    They pack multiple arguments into a single variadic parameter, or positional parameter.
+    The parameter MUST come after any positional arguments.
+        (because it consumes all remaining positional arguments)
+
+    ex:
+        We want to allow multiple dice to be rolled without specifying the number of dice.
+        def roll_dice(*dice):
+            return tuple(random.randint(1,d) for d in dice)
+        
+        This uses the generator expression to roll each dice of d sides
+        dice_cup = roll_dice(6,6,6,6,6) #returns a five int tuple (5,5,6,5,2)
+
+        if we went about this through recursion:
+        def roll_dice(*dice):
+            if dice:
+                roll = random.randint(1, dice[0])
+                return (roll,) + roll_dice(*dice[1:])
+            return ()
+    
+    Keyword Variadic Arguments
+
+        Pack the keyword arguments into a single dictionary object, thus preserving name-value pairs.
+        Not VERY common, but may occasionally see them.
+            Could be used in writing decorators.    
+        A common type of usage for these things:
+        def call_something_else(func, *args, *kwargs):
+            return func(*args, **kwargs)
+        
+        This passes a:
+            callable object (like another function)
+            a variadic parameter (*args)
+            keyword variadic parameter (**kwargs)
+        
+        callable() - check if an object is callable.
+
+Keyword And Position Only Parameters
+
+    Both can be used in the same function definition.
+
+    Keyword-Only Parameters
+        These can ONLY have values passed as keyword arguments.
+        This can ensure in long parameter lists are used properly.
+        Using the function definition (*,var1,var2,...)
+            anything after the * must be a keyword argument. 
+        ex:
+        def roll_dice(*,sides=6,dice=1)
+            ...
+
+            Trying to use positional arguments for either sides or dice will return a type error.
+
+    Position Only Parameters
+        These can ONLY have values passed as positional arguments.
+        Can be used when the parameter name is unhelpful or likely to change later on. 
+        Using / designates all PRECEDING parameters are position only.
+
+Nested Functions
+
+    For logic within a function without creating another function, or cluttering existing code.
+    ex:
+        def roll_dice(sides=6, dice=1):
+            def roll():
+                return random.randint(1, sides)
+            if dice < 1:
+                return ()
+            return (roll(), ) + roll_dice(sides, dice-1)
+
+        we simplified the return and allowed ourselves to manager the roll logic easier.
+
+        Nested functions are typically used for complex logic that sees frequent use.
+
+Closures
+
+    A function that builds and returns a function with non-local names.
+    AKA function factory.
+    ex:
+        def make_dice_cup(sides=6, dice=1):
+            def roll():
+                return tuple(random.randint(1, sides) for _ in range(dice))
+            
+            return roll
+        
+        This returns a function with specific parameters to set to a name. 
+
+        roll_for_damage = make_dice_cup(sides=8, dice=5)
+        damage = roll_for_damage() # returns tuple of length 5.
+
+    Recursive Closure
+        ex:
+        def make_dice_cup(sides=6, dice=1):
+            def roll(dice=dice): # the optional parameter
+                if dice > 1:
+                    return ()
+                die = random.randint(1, sides)
+                dice -= 1
+                return (die, ) + roll(dice-1)
+
+        When using recursive enclosure, you must use optional parameters to avoid non-local scope conflicts.
+    
+    Stateful Closures
+        A closure that retains a bit of state between calls to be used.
+        Useful when writing a class requires too much rework.
+        AVOID THIS UNLESS ABSOLUTELY NECESSARY.
+        ex:
+            def start_turn(limit, dice=5, sides=6):
+                def roll():
+                    nonlocal limit
+                    if limit < 1:
+                        return None
+                    limit -= 1
+                    return tuple(random.randint(1, sides) for _ in range(dice))
+                
+                return roll 
+
+            This closure stops once the limit is reached.
+            The logic to track the local state is abstracted into the closure.
+            In general, stateful closure are difficult to debug since the current value cannot be seen outside of the closure.
+
+            turn1 = start_turn(limit=3)
+            while toss := turn1():
+                print(toss)
+            
+            turn2 = start_turn(limit=3)
+            while toss:= turn2():
+                print(toss)
+
+            # These return 3 rolls each in a tuple.
+
+Lambda Functions
+
+    ex:
+        lambda x, y: x + y
+
+    The left side of the colon is the parameter list, 
+        which can be omitted if you don't want to accept arguments.
+    The right is the return expression, which is evaluated when
+        lambda is called,
+        the result is implicitly returned.
+    You must bind lambda to a name to use it.
+    Lambdas may ONLY consist of a SINGLE return expression.
+    Lambdas are used for short, clear fragments of logic.
+
+    ex:
+        add = lambda x, y: x + y
+        answer = add(20,22) # returns 42
+
+    Why lambdas are useful,
+    ex:
+        import random
+        health = 10
+        xp = 10
+
+        def attempt(action, min_roll, outcome):
+            global health, xp
+            roll = random.randint(1,20)
+            if roll >= min_roll:
+                print(f"{action} SUCCEEDED.")
+                result = True
+            else:
+                print(f"{action} FAILED.")
+                result = False
+            
+            scores = outcome(result)
+            health = health = scores[0]
+            print(f"Health is now {health}.")
+            xp = xp + scores[1]
+            print(f"Experience is now {xp}.")
+
+            return result
+        
+        def eat_bread(success):
+            if success:
+                return (1, 0)
+            return (-1, 0)
+        
+        def fight_ice_weasel(success):
+            if success:
+                return (0, 10)
+            return (-10, 10)
+
+        attempt("Eating bread", 5, eat_bread)
+        attempt("Fighting ice weasel", 15, fight_ice_weasel)
+
+        The code to determine the outcome requires separate outcome functions for each action. 
+            This increases overhead when adding even more events.
+
+        NOTE: when passing functions do not include parenthesis.
+
+        Cleaning up the code:
+        We can eliminate eat_bread and fight_ice_weasel with lambdas.
+        attempt("Eating bread", 5, 
+                lambda success: (1, 0) if success else (-1, 0))
+        attempt("Fighting ice weasel", 15,
+                lambda success: (0, 10) if success else (-10, 10))
+    
+    Lambda Key Sorter
+        Another common situation to use lambdas are for key functions.
+        ex:
+            people = [
+                ("Jason", "McDonald"),
+                ("Denis", "Pobedrya"),
+                ("Daniel", "Foerster"),
+                ("Jaime", "Lopez"),
+                ("James", "Beecham")
+            ]
+            by_last_name = sorted(people, key=lambda x: x[1]) # returns the last name and sorts by alpha
+    
+    Decorators
+
+        Allow you to modify behavior of a function by wrapping it in an additional layer of logic.
+        ex:
+            I want to define multiple game events, their effect on the player, and display the results.
+            import random
+            character = "Sir Bob"
+            health = 15
+            xp = 0
+
+            def eat_food(food):
+                global health
+                if health <= 0:
+                    print(f"{character} is too weak.")
+                    return
+                print(f"{character} ate {food}.")
+                health += 1
+                print(f"    Health: {health} | XP: {xp}.")
+            
+            def fight_monster(monster, strength):
+                global health, xp
+                if health <= 0:
+                    print(f"{character} is too weak.")
+                    return
+                if random.randint(1,20) >= strength:
+                    print(f"{character} defeated {monster}.")
+                    xp += 10
+                else:
+                    print(f"{character} flees from {monster}.")
+                    health -= 10
+                    xp += 5
+                print(f"    Health: {health} | XP: {xp}.")
+            
+            eat_food("bread")
+            fight_monster("Imp", 15)
+            fight_monster("Direwolf", 15)
+            fight_monster("Minotaur", 19)
+
+            This works, but lambda can simplify.
+
+            import functools
+            ...
+            def character_action(func):
+
+                @functools.wraps(func)
+                def wrapper(*args, **kwargs):
+                    if health <=0:
+                        print(f"{character} is too weak.")
+                        return
+                    results = func(*args, **kwargs)
+                    print(f"    Health: {health} | XP: {xp}.")
+                    return result
+                return wrapper
+
+            1. We don't know how many positional or keyword arguments will be used.
+            2. @functools.wraps(func) prevents the callable being wrapped and it's identity concealed.
+            3. The logic inside the wrapper, we put in all code to run before and after the function.
+            4. Inside the wrapper, after check health, we call the bound func, and run as wanted.
+            5. We bind the return value of (func) to result, which get's returned by the decorator.
+            6. Remember that the inner function MUST be returned by the outer function. 
+
+            We now remake the other functions
+            
+            @character_action
+            def eat_food(food):
+                global health
+                print(f"{character} ate {food}.")
+                health += 1
+            
+            @character_action
+            def fight_monster(monster, strength):
+                global health, xp
+                if random.randint(1, 20) >= strength:
+                    print(f"{character} defeated {monster}.")
+                    health -= 10
+                    xp += 5
+
+Type Hints and Function Annotations
+
+    Hints about what data type should be passed in or returned,
+    Helps by:
+        Aiding in documentation
+        Catch potential bugs sooner (MyPy is good for type checkers)
+
+    Cons:
+        lambdas don't support type checking.
+        If a default parameter is set to None, instead of the default type, use type hinting 
+            aka: typing.Option[typing.Any, ...]
+        Can clutter code / natural reading of code.
+
+    Two Types of Annotations:
+        Variable Annotation:
+            answer: int = 42
+        Function Annotation:
+            def roll_dice(sides: int = 6, dice: int =1) -> typing.Tuple[int, ...]:
+            #--snip--
+
+    We can shorten with type aliasing:
+        import random
+        import typing
+        TupleInts = typing.Tuple[int, ...]
+        def roll_dice(sides: int = 6, dice: int = 1) -> TupleInts:
+        #--snip--
+
+    Duck Typing and Type Hints
+        ex:
+            def search(within: typing.Iterable[typing.Any]):
+
+        within is type-hinted with an iterable
+        [typing.Any] indicates the Iterable can contain items of any data type.

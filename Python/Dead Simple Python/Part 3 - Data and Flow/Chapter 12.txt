@@ -1,0 +1,724 @@
+Binary Notation and Bitwise Notation
+
+    Creating a number in any of the base formats will always that number as an integer.
+    ex:
+        chapter = 0xc
+        print(bin(chapter)) # prints 0b1100
+        print(oct(chapter)) # prints 0o14
+        print(chapter)      # prints 12
+        print(hex(chapter)) # prints 0xc
+
+        The value to chapter is unchanged regardless of how you print it.
+    
+    Two's Compliment
+
+        In binary, to get a signed integer you use the method of the two's compliment.
+        Invert every bit, then add 0b1
+
+        In Python
+            The two's compliment in python prints out the same positive integer value,
+                but with a negative sign in front. 
+            If we perform a bit-mask, we will get the real two's compliment returned.
+
+            ex:
+                a = -42
+                print(bin(a))               # returns -0b101010
+                print(bin(a & 0b11111111))  # returns 0b11010110
+        
+    Big vs Little Endian
+
+        The order in which the bytes of data are stored.
+        Endian-ness only affects primitive data types.
+        Most modern processors use Little Endian. 
+        Most programming languages write byte order in Big Endian
+        Byte typically only matters when data is leaving your program.
+
+
+        Big Endian stores bytes as you would write them on paper. Most Significant to Least Significant.
+        ex:
+            0xAABBCCDD = 0xAA000000  -> 0xAA # Register ABCDEF01
+                       + 0x00BB0000  -> 0xBB # Register ABCDEF02
+                       + 0x0000CC00  -> 0xCC # Register ABCDEF03
+                       + 0x000000DD  -> 0xDD # Register ABCDEF04
+                       -->> 0xAABBCCDD
+
+        Little Endian stores bytes Least Significant to Most Significant.
+        ex:
+            0xAABBCCDD = 0xAA000000  -> 0xAA # Register ABCDEF01
+                       + 0x00BB0000  -> 0xBB # Register ABCDEF02
+                       + 0x0000CC00  -> 0xCC # Register ABCDEF03
+                       + 0x000000DD  -> 0xDD # Register ABCDEF04
+                       -->> 0xDDCCBBAA
+
+    Bitwise Operations
+
+        ex: AND - &
+          0b1101
+        & 0b1010
+        = 0b1000
+
+        ex: OR - |
+          0b1101
+        | 0b1010
+        = 0b1111
+
+        ex: XOR - ^
+          0b1101
+        ^ 0b1010
+        = 0b0111
+
+        ex: Inversion - ~
+        ~ 0b0101
+        = 0b1010
+    
+        Note: since python integers are infinite, ~0b0101 is actually 0b111...1010
+            since you have an infinite number of leading zeros, or inverted leading ones.
+            Negative binary notation, and subtracting 0b1 get's around the two's compliment
+
+            ex:
+                print(bin(~0b0101)) # returns -0b110 (which is -0b0101 - 0b1)
+                print(bin(~0b0101 & 0b1111)) # returns 0b1010
+                
+                The first is correct within the program, the second is correct visually.
+
+        ex: Left Shift - <<
+          0b1100 << 4
+        = 0b11000000
+
+        ex: Right Shift - >>
+           0b110000 >> 4
+        =  0b11
+
+           0b1100 >> 4
+        =  0b0 (0b0...000)
+
+          -0b1100 >> 4
+        = -0b1
+
+        Note: Right shifts preserve the sign.
+
+Byte Literals
+
+    Looks like a string literal prepended with b.
+
+    Byte literals have explicit size and implied byte order.
+    ex:
+        b"HELLO"
+    
+    Bytes can only contain ASCII characters of values 0x00 to 0xFF.
+        Partially because a "byte literal" is one byte in size.
+        Partially for backwards compatibility with python 2 and other languages. 
+
+    Byte literals cannot be formatted with f-strings.
+        Although, you can use string formatting, aka %-interpolation.
+
+    The escape sequence must contain 2 characters.
+    Capitalization doesn't matter, but python will return lowercase by default.
+
+    Raw Byte Literals
+        The backslash character is always treated as a backslash.
+        Start the byte string with br instead of b to use raw byte literals.
+
+Byte Like Objects
+
+    These objects have implied byte order.
+        You must explicitly provide the byte order and size of data.
+    
+    Bitwise operators do not work with byte-like objects. 
+
+    Two Types:
+        bytes - immutable
+        bytearray - mutable
+
+        Both types of objects are exactly the same besides this one different.
+    
+    Creating a bytes Object
+        There are six ways to create a bytes object.
+
+        ex:
+            bits = bytes(0b110)
+            # returns '\x00\x00\x00\x00\x00\x00'
+
+            This creates a bytes object, 6 bytes long, with all bytes set to zero.
+        
+        ex:
+            bits = bytes((0b110,))
+            # returns b'\x06'
+        
+            NOTE: Must provide trailing comma in single element tuple.
+        
+        ex:
+            bits = b'\x06'
+            # returns b'\x06'
+
+        ex:
+            bits = bytearray(b'\x06')
+            # returns b'\x06'
+
+        ex:
+            bits = bytes('*smile_emoji*', encoding='utf-8')
+            # returns b'\xe2\x98\xba'
+        
+    Using int.to_bytes()
+        
+        Possibly the easiest way to convert from int to bytes-like object.
+
+        You must specify the byte order.
+            Note: Networks always use big endian.
+            Otherwise, the choice is arbitrary.
+        
+        Grabbing the system's byte order.
+        ex:
+            import sys
+            print(sys.byteorder) # returns 'little'
+        
+        ex:
+        answer = 42
+        bits = answer.to_bytes(4, byteorder=sys.byteorder)
+        print(bits.hex(sep=' ')) # returns '2a 00 00 00
+
+        Note: 4 sets the number of bytes.
+              sep= sets the separation between the bytes printed.
+        
+        If we try this with negative numbers, python can't convert them to an unsigned integer.
+        We must convert the bytes to the two's compliment before setting.
+
+        ex:
+        answer = -42
+        bits = answer.to_bytes(4, byteorder=sys.byteorder, signed=True)
+        print(bits.hex(sep=' ')) # prints 'd6 ff ff ff'
+
+        Note:
+            Get into the habit of setting singed=True for any object that could POSSIBLY become negative.
+    
+    Sequence Operations
+
+        Almost all operations you can perform in sequence you can do with byte-like objects.
+
+    Converting bytes to int
+
+        ex:
+            bits = (-42).to_bytes(4, byteorder=system.byteorder, signed=True)
+
+            answer = int.from_bytes(bits, byteorder=sys.byteorder, signed=True)
+            # returns '-42'
+    
+struct
+
+    CPython, the primary python implementation, influenced how much python is built off C.
+
+    struct was originally created to allow data to move between python values and c structs.
+        Soon after, became important to convert contiguous binary data.
+
+    Modern struct uses bytes to store binary data, which is the sixth way to create bytes-like objects.
+
+    struct.pack() can convert integers, floating-point numbers, and strings to binary using 
+        a specified byte order.
+    
+    struct Format String and Packing
+
+        Typically, the first character in the format string determines the the byte order:
+
+            @ - Use the native byte order and alignment (default).
+            = - Use the native byte order, but no alignment.
+            < - Little-endian, no alignment.
+            > - Big-endian, no alignment.
+            ! - Network standard: big-endian, no alignment (same as >)
+        
+        The basic C data types are represented as a character in python:
+            Character - C Type          - Python Type -   Standard Size      
+            ?           _Bool(C99)          bool            1
+            c           char                bytes(1)        1
+            b           signed char         int             1
+            B           unsigned char       int             1
+            h           short               int             2
+            H           unsigned short      int             2
+            i           int                 int             4
+            I           unsigned int        int             4
+            l           long                int             4
+            L           unsigned long       int             4
+            q           long long           int             8
+            Q           unsigned long long  int             8
+            e           IEEE half precision int             2
+            f           float               float           4
+            d           double              float           8
+            s           char[]              bytes
+            p           char[] (pascal str) bytes
+            x           (pad byte)          "effectively bytes(1)"
+        
+        ex: Two integers and a boolean.
+
+            import struct
+
+            bits = struct.pack('>ii?', 4, 2, True)
+            # returns '\x00\x00\x00\x04\x00\x00\x00\x02\x01'
+
+            Two adjacent integer values.
+            bits = struct.pack('>2i?', 4, 2, True)
+            # returns '\x00\x00\x00\x04\x00\x00\x00\x02\x01'
+
+            Two half-precision floats with 3 pad bytes.
+            bits = struct.pack('>3xi', -4, -2)
+            # returns '\xff\xff\xff\xfc\x00\x00\x00\xff\xff\xff\xfe'
+
+        Representing Strings in struct
+
+            Typically, you must null-terminate traditional strings.
+                aka: the last character is always \x00
+                ex:
+                    '10s' is a 10 character string, 9 chars + 1 null-terminator.
+            
+            ex:
+            bits = struct.pack('>4s', b"Hi!")
+            # returns 'Hi!\x00'
+
+            Note: struct MUST work with bytes literals, and not python strings.
+
+            If you the size of your string, and the data is only read by your code,
+                you do not need to put a null-terminator byte.
+    
+        Representing Data as a Pascal String
+
+            Begins with a byte that represents the string length.
+            Limits the max-length of the string.
+            Doesn't require termination byte.
+
+            ex:
+                bits = struct.pack('>4p', b"Hi!")
+                # returns '\x03Hi!'
+            
+        Padding struct
+
+            You may need to pad struct to the word size (smallest memory chunk)
+            ex: C struct of two longs and one short = 24 bits.
+
+                struct.calcsize('@11h') # returns '18' -> This is wrong.
+                struct.calcsize('@11h01') # returns '24' -> This is correct. 
+
+        Rarely Used Formatting
+
+            Only used if converting to and from data directly in C.
+                n - ssize_t
+                N - size_t
+                P - void*
+            
+    Unpacking with struct
+
+        1. Determine the appropriate format string.
+        
+        ex:
+            import struct
+
+            answer = -360
+            bits  = struct.pack('i', answer)
+
+            # if we know bits uses native ordering, and contains a single integer,
+                I can retrieve that int with struct.unpack()
+            
+            new_answer, = struct.unpack('i', bits)
+            # returns '-360'
+        
+        unpacking two integers from the bytes-like object
+
+            first, second = struct.unpack('>i3xi', bits)
+            # returns '-4, -2'
+        
+        2. It's critical to know the format string that was used to pack struct.
+        ex:
+            wrong = struct.unpack('<ixi', bits)
+            # returns '-50331649 -16777217' - aka wrong byte order.
+
+            wrong = struct.unpack('>f3xf', bits)
+            # returns 'nan nan' - aka wrong types used
+
+            wrong = struct.unpack('hh3xhh', bits)
+            # returns '-1 -4 -1 -2' - aka wrong integer type
+
+            wrong = struct.unpack('>q3xq', bits)
+            # throws struct.error - aka data sizes are too large.
+            NOTE: This last example "seems to work," but unpacked values are wrong.
+    
+    struct Objects
+
+        For when you need to use the same format string repeatedly.
+        ex:
+            import struct
+            packer = struct.Struct('iif')
+
+            Creates a struct object with the formatting of 'iif,' and bind it to the name packer.
+        
+        The struct object remembers the string format and uses it for any pack() or unpack() 
+            calls on that object.
+        
+        ex: Writing a generator that produces some strange numeric data and packs it into bytes-like objects:
+
+            def number_grinder(n):
+                for right in range(1, 100):
+                    left = right % n
+                    result = left / right
+                    yield packer.pack(left, right, result)
+
+                packer.pack uses the format string I passes it the operand and the results of the division.
+                The packer object uses the format string I passed to it's initializer.
+
+            for bits in number_grinder(5):
+                print(*packer.unpack(bits))
+
+Bitwise Operations on Bytes-Like Objects
+
+    Two Options Exist:
+
+    Via Integers
+
+        Convert the bytes-like objects to integers first, which resolves the byte order. 
+
+        ex:
+            def bitwise_and(left, right, *, byteorder):
+                size = max(len(left), len(right))
+            
+            Note: The * parameter list forces all parameters after it, in this case byteorder,
+                to be kwargs only. 
+                If the user fails to provide the argument, the function should fail rather than output garbage.
+
+                To convert the bytes back in the last step, we need to know the size of the largest
+                    bytes object passed to it.
+                    Since bytes is a sequence, it implements __len__(), so we take the max() of the lengths
+                        and use that as the size of the output.
+
+                left = int.from_bytes(left, byteorder, signed=False)
+                right = int.from_bytes(right, byteorder, signed=False)
+
+                NOTE: We are not using True here. I we did, any 1 in the most significant byte
+                    would be interpret the entire number as negative.
+                
+                result = left & right
+                return result.to_bytes(size, byteorder, signed=False)
+
+            # Trying the function
+            bits = b'\xcc\xcc\xcc\'
+            bitFilter = b'\xaa\xaa'
+
+            result = bitwise_and(bits, bitFilter, byteorder='big')
+            # returns b'\x00\x88\x88'
+    
+    Via Iteration
+
+        Used over integer bitwise operations when working with a lot of data.
+            Both operations have about the same time complexity.
+        
+        ex:
+            def bitwise_and(left, right):
+                return bytes(l & r for l, r in zip(left, right))
+            
+            We employ a generator expression to create a new bytes object to return.
+            Iterating over bytes-like objects gives a positive integer value equivalent to each byte.
+            zip() allows iteration over both left and right bytes-like objects at the same time, 
+                and then take the bite-wise '&' of the pair of integers produced on each integers.
+
+            We can only reliably perform bit-wise operations if the operators are the same length,
+                otherwise the result will only be as long as the shortest operand object.
+    
+memoryview
+
+    When you're slicing a bytes object, a copy of the data being sliced is created.
+    When working with large data sets, this can cause slowdowns which memoryview resolves.
+
+    memoryview implements the buffer protocol, which provides a set of methods that
+        provide and govern access to an underlying memory array.
+        Bytes-like objects fit this qualification.
+    Buffer protocol is implemented on the C level of python.
+
+    Slicing with memoryview
+
+        ex: Verify that two 0xFF bytes appear after every three bytes of data.
+
+            def verify(bits):
+                for i in range(3, len(bits), 5):
+                    if bits[i:i+2] != b'\xff\xff':
+                        return False
+                return True
+
+            Under normal conditions this would run fine, but supposed this is a few
+                megabytes worth of data instead of 10.
+
+            def verify(bits):
+                is_good = True
+                view = memoryview(bits)
+                for i in range(3, len(view), 5):
+                    if view[i:i+2] != b'\xff\xff':
+                        is_good = False
+                        break
+                view.release()
+                return is_good
+
+            Functionally, this code is the same, except we created a memory view object, 
+                which is bound to view, and gives access to the memory bits.
+            NOTE: This only views teh memory in place, so we MUST release the object ASAP.*******
+
+            To make this code even more pythonic by removing the need to close the memoryview object:
+
+            def verify(bits):
+                with memoryview(bits) as view:
+                    for i in range(3, len(view), 5):
+                        if view[i+i+2] != b'\xff\xff':
+                            return False
+                return True          
+
+Reading and Writing Binary Files
+    
+    Functionally, this is the same as chapter 11. 
+        The difference is that we open the stream in binary mode which gives us a
+            BufferedRead, BufferedWriter, and BufferedRandom object.
+            All depending on the method used to open it.
+    
+    Organizing the Data
+
+        The Basic Structure
+            rw_binary_example/
+                book.py
+                bookshelf.py
+                __init__.py
+                __main__.py
+
+        The Book Class
+        #book.py
+            import struct
+
+            class Book:
+
+                packer = struct.Struct(">64sx64sx2h")
+
+                def __init__(self, title="", author="", pages=0, pages_read=0):
+                    self.title = title
+                    self.author = author
+                    self.pages = pages
+                    self.pages_read = pages_read
+                
+                def update_progress(self, pages_read):
+                    self.pages_read = min(pages_read, self.pages)
+
+            packer is being bound to a struct object, where we define the format string.
+                Using the struct object instead of the pack() function:
+                    1. Consolidates the format to a single source.
+                    2. The string is precompiled into a python-bytecode object.
+                We are using big endian because the data is being transferred over ethernet.
+            We also set a byte limit to the string of 64s. 
+                The struct fields to hold most titles and authors.
+                Each field is padded with one byte x, which can be interpreted as C-style null terminated strings.
+
+            We also specify a 2-byte (short) integers (2h) for storing the page count and pages read.
+                Which is over 32,000 pages.
+                Trying to pack a larger value into a struct field returns struct.error.
+
+            The instance method to convert binary book data from the book class.
+
+                def serialize(self):
+                    return self.packer.pack(
+                        self.title.encode(),
+                        self.author.encode(),
+                        self.pages,
+                        self.pages_read
+                    )
+
+                We're passing the pack method on self.packer, instead of struct.pack()
+                We use encode() on each string to convert them from UTF-8 to byte literals.
+                    We can also specify the encoding if not UTF-8
+
+                Integer values of the page count and read_page count can be passed directly. 
+                self.packer.pack() returns a bytes object.
+
+        The Book Shelf Class
+        #bookshelf.py
+            import struct
+            from .book import Book
+
+            class Bookshelf:
+                fileinfo = struct.Struct('>h')
+                version = 1
+
+                def __init__(self, *books):
+                    self.shelf = [*books]
+                
+                def __iter__(self):
+                    return iter(self.shelf)
+                
+                def add_books(self, *books):
+                    self.shelf.extend(books)
+
+                NOTE: we created the struct fileinfo to store the file format.
+                    Also the version for tracking the format version number. 
+                        If we change our .shlf file format, we can write how to reach each file version.
+
+                def write_to_stream(self, stream):
+                    stream.write(self.fileinfo.pack(self.version))
+                    for book in self.shelf:
+                        stream.write(book.serialize())
+
+    Writing to a File
+
+        #__main__.py
+            from .bookshelf import Bookshelf
+            from .book import Book
+
+            def write_demo_file():
+                # Write to file
+                check_ting_bookshelf = Bookshelf(
+                    Book("Automate the boring stuff with python", "Al Swig", 592, 592),
+                    Book("Title 2", "Name 2",264, 100),
+                    Book("Title 3", "Name 3", 192, 0),
+                    Book("Title 4", "Name 4", 240, 200),
+                    Book("Title 5:, "Name 5", 370, 370),
+                )
+
+                with open('mybookshelf.shlf', 'bw') as file: # Opening the stream in binary mode
+                    check_ting_bookshelf.write_to_stream(file)
+
+                def read_demo_file():
+                    """TODO: Write me."""
+                
+                if __name__== "__main__":
+                    write_demo_file()
+
+
+    Reading from a Binary File
+
+        #book.py  -> class book
+        ...
+         @classmethod
+         def deserialize(cls, bits):
+            title, author, pages, pages_read = cls.packer.unpack(bits)
+            title = title.decode()
+            author = author.decode()
+
+            The class method (@classmethod) prevents you from overwriting another book.
+            This accepts a bytes object, unpacks with Book.packer to unpack the data into 4 names.
+                Remember, integer values are automatically converted to int.
+                We then return the unpacked data.
+
+        @classmethod
+        def from_stream(cls, stream):
+            size = cls.fileinfo.size
+            version, = cls.fileinfo.unpack(stream.read(size))
+            if version != 1:
+                raise ValueError(f"Cannot open .shlf v{version}; expect v1.")
+
+            We read the number of bytes provided by size, and pass that to unpack the bytes literal.
+                There is a tuple returned, but we only need to take the unpacked size, so a trailing comma is used.
+            Before processing any data, we much check that the version number can be decoded.
+            
+            # Preparing to read data from individual books.
+            size = Book.packer.size
+            shelf = Bookshelf()
+            
+            while bits := stream.read(size):
+                self.add_books(Book.deserialize(bits))
+            
+            return shelf
+
+            Within the header of a loop, we walrus stream.read(size) to bits.
+            We check that bits is not an empty bytes-literal, by setting it to the while loop's conditional.
+                bytes() evaluates to False only if it is empty, which means bits = False at the end of the stream.
+                NOTE: Even '\x00' would evaluate True.
+            When we have byte data, we deserialize the data, create a book object, and add it to the bookshelf.
+
+        # Updating __main__.py -> read_demo_file():
+        ...
+        def read_demo_file():
+            with open('mybookshelf.shlf', 'br') as file:
+                my_bookshelf = Bookshelf.from_stream(file)
+            
+            for book in my_bookshelf:
+                print(book.title)
+        
+        # Updating __main__.py
+        if __name__ == "__main__":
+            write_demo_file()
+            read_demo_file()
+
+    Seek with Binary Stream
+
+        The seek method accepts two arguments: offset, and "whence".
+            Positive offset is forward, negative is backwards in the stream.
+            whence gives the start position the offset moves from, and has three values
+                for binary streams:
+                0 - start
+                1 - current position
+                2 - end
+        
+        ex:
+            from pathlib import Path
+            Path('binaryBits.dat').write_bytes(b'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+            with open('binaryBits.dat', 'br') as file:
+                file.seek(-6, 2)
+                # Seeks 6 positions left from the end of the file.
+            NOTE: Trying to write data past the end of the stream will result in it being lost.
+                You can use file.seek(0,2) to append to the end of the stream.
+        
+    BufferedRWPair 
+
+        Accepts two stream objects, one to read data from, and one to write data to.
+            They must be two different objects. 
+        
+        The primary usage is in working with a socket or two way pipe where your code communicates with
+            another system through two separate buffers. Rx and Tx.
+        You use it as any other byte stream, but you pass in two streams instead of one.
+
+        ex: (very simple example)
+            from pathlib import Path
+            from io import BufferedRWPair
+
+            Path('readFrom.dat').write_bytes(b'\xaa\xbb\xcc')
+
+            with BufferedRWPair(Path('readFrom.dat').open('rb'), Path('writeTo.dat').open('wb')) as buffer:
+                data = buffer.read()
+                print(data)
+                buffer.write(data)
+
+Serialization Techniques 
+
+    The process of converting data to a storage format.
+    The inverse operation is called deserialization.
+
+    Human readable formats are future-proof, which means they can be reverse engineered
+        if the current standard ceases to exist.
+    Human readable formats have disadvantages.
+        The size is larger than binary.
+        They're slower to deserialize.
+        They're easy to modify (which is bad for sensitive data, but good for dynamic sets).
+            Minor errors can corrupt the files.
+
+    Forbidden Tools:
+
+        pickle - stores binary objects into files to later be deserialized. 
+            SEVERE security risk because pickled data can be modified to run ANYTHING. Also painfully slow.
+        
+        marshal - used for internal python communications. No documented spec and can change between versions.
+            Same security risk as pickle.
+
+        shelve - built on pickle, never use. 
+
+    Serialization Formats
+
+        Property List - .plist - Best binary serialization without pickle.
+            Offers Binary, and Human-Readable (XML-Based) forms.
+            Uses built in plistlib module.
+
+        MessagePack - MessagePack - JSON version of Property List
+            Must install through --  pip install msgpack
+
+        BSON - Faster to deserialize than JSON, smaller file sizes than JSON, larger file sizes than MessagePack.
+            Primarily used by MongoDB, installed with -- pip install bson 
+
+        CBOR - The standard by Internet Engineering Task Force for working with JSON.
+
+        NetCDF - Network Common Data Form - For array-orientated scientific data. 
+
+        Hierarchial Data Format - HDF - For large data sets. Used mostly for data science. HDF5 is the latest version.
+            Install with -- pip install h5py -- or -- pip install tables -- .
+
+        Protocol Buffers - Googles offer for .proto schema. The schema can be compiled into your favorite language.
+
+        Others
+            GRIB - For meteorology studies.
+            FITS - For astronomical studies.

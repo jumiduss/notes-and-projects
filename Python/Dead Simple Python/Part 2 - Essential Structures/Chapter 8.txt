@@ -1,0 +1,69 @@
+Exceptions
+    An interruption in normal processing typically cause by an error condition 
+        that can be handled by another part of the program.
+    
+Trace Backs
+    The entire call stack is shown on program errors.
+
+Catching Exceptions
+    Look Before You Leap - LBYL
+        Stop errors before they occur
+
+    Easier to Ask Forgiveness than Permission - EAFP
+        Python's philosophy. 
+        We use errors to debug code and handle them with exceptions.
+
+    ex:
+    try:
+        int(input("Give integer"))
+    except ValueError:
+        print("Not an integer.")
+
+Multiple Exceptions
+    add more except controls for every different error you wish to operate off.
+
+    Don't use a bare exception state.
+        use else instead.
+
+    Use finally for the last set of commands after all try/except/else clauses.
+Raising Exceptions
+    raise name_of_error("text describing the error")
+
+How to use Exceptions
+    log them with the logging and system packages
+
+When to Create Exceptions
+    1. No existing exception effectively describes the error, even with custom messages.
+    2. You will raise or catch the exception more than once.
+    3. You need to catch this specific exception, while avoiding any similar built in exceptions.
+
+Base Exceptions
+    BaseException - The base class for all exceptions. Do not inherit directly from this.
+    Exception - The base class for all error-type exceptions.
+    ArithmeticError - The base class for arithmetic related exceptions.
+    LookupError - The base class for any errors related to finding values in collections.
+
+Concrete Exceptions
+    All of these inherit directly from the Exception class.
+    Items ending with "-" imply "Error"
+    AttributeError - Accessing a non-existent attribute.
+    ImportError - Import statement can not find a package, module, or name within the module.
+        ModuleNotFoundError - A subclass of ImportError.
+    KeyError - Key is not in dictionary.
+    KeyboardInterrupt - When KEY-KEY combo is pressed to interrupt the program. Like ctrl+c in Linux
+    MemoryError - Python ran out of memory.
+    NameError - Name is not found in local/global scope.
+    OSError - concrete and base class error for many exceptions.
+        FileNotFoundError - a subclass of OSError
+    OverflowError - Arithmetic operation produced a result too large to be stored.
+        Integers do not raise an OverflowError, mostly float values.
+    RecursionError - You've gone too deep, subclass of RuntimeError.
+    RuntimeError - Catch-all for non-categorized errors.
+    SyntaxError - Syntax error in your python code.
+        IndentationError - A subclass of SyntaxError.
+        TabError - A subclass of SyntaxError.
+    SystemError - The interpreter has an internal error, not coder solvable.
+    TypeError - Wrong type is used for a call or operation.
+    UnboundLocalError - Try to access a local name that has no assigned value, a subclass of Name error.
+    ValueError - Function operates on the right type of data, but wrong value.
+    ZeroDivisionError - To loop or divide by zero with /, //, %, or divmod(). 

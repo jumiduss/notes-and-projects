@@ -1,0 +1,794 @@
+Standard I/O
+
+Using the python interpreter with the linux terminal.
+
+    ex:
+    Base Script:
+    "print_error.py"
+        print("Normal Message")
+        print("Scary error occurred")
+
+    In linux terminal:
+        python3 print_error.py > output.txt 2> error.txt
+        cat output.txt
+        #Normal Message
+        #
+
+        Both outputs go to output.txt because print sends messages to the standard output stream.
+    
+    Modifying the Base Script:
+    "print_error.py"
+        import sys
+        print("Normal Message")
+        print("Scary error occurred", file=sys.stderr)
+
+        sys.stderr sends a message to the standard error stream.
+        
+    In linux terminal:
+        python3 print_error.py > output.txt 2> error.txt
+        cat output.txt
+        #Normal Message
+        cat error.txt
+        #Scary error occurred
+
+Flush
+
+    Standard streams are used as buffers.
+    Buffers take data and arrange it into a queue to be processed.
+    The terminal tends to update once after each buffer stream is processed.
+
+    In the above example. 
+    1. The first print statement is pushed to the stream buffer.
+    2. The contents are printed to the terminal.
+    3. The contents are flushed from the buffer.
+
+    ex:
+        import time
+
+        print("Downloading", end='')
+        for n in range(20):
+            print('.', end='', flush=True)
+            time.sleep(0.1)
+        print("\nDownload completed!")
+
+        end - prevents print's default end="\n" from adding a newline after each dot.
+        flush - forces the terminal to update after each print statement in the loop.
+    
+    To default python into un-buffered mode(flush on every print), 
+        pass the -u flag when invoking the program.
+
+Printing Multiple Values
+    
+    Using f strings vs the default multi-value print
+        print(f"{number} {street} {city} {state} {zip_code}")
+        print(number, street, city, state, zip_code)
+
+        The second print gives the exact same output, 
+            while being efficient and easy to read.
+        
+    ex:
+        nearby_properties = {
+            "N. Anywhere Ave.":
+            {
+                123: 156_852,
+                124: 157_923,
+                126: 163_812,
+                127: 144_121,
+                128: 166_356,
+            },
+            "N. Everywhere St.":
+            {
+                4567: 175_753,
+                4568: 166_121,
+                4569: 185_123,
+            }
+        }
+
+        To print out this table in f string vs default print separation.
+        
+        for street, properties in nearby_properties.items():
+            for address, value in properties.items():
+            print(f"{street}\t{address}\t${value:,}")
+
+        for street, properties in nearby_properties.items():
+            for address, value in properties.items():
+                print(street, address, f"$(value:,)", sep='\t')
+        
+        sep= defines the space between each entry.
+        The f-string is used to format the address's price
+
+input()
+
+    Takes an input from the standard input stream.
+    Input has no extra features (unlike print)
+
+    Input has only one argument, the __str__() method.
+
+Streams
+
+    Streams offer methods for reading and writing to files in memory.
+    A stream can be called a file object, or file-like object.
+
+    Binary streams are the base level stream all others are built off.
+    Text streams handle encoding and decoding text from binary.
+
+    You can work with streams by using open().
+
+    ex:
+        house = open("file_name.txt")
+        print(house.read())
+        house.close()
+
+        Anything opened needs to be closed.
+
+Context Manager
+
+    Context Managers are object that automatically handle it's own cleanup
+        when the program leaves it's "context," or code section.
+    All stream objects are context managers.
+
+    ex:
+        # Without Context Manager
+        house = open("file_name.txt")
+        try:
+            print(house.read())
+        finally:
+            house.close()
+    
+        Stream objects remove the need to call close, and simplify the above code
+
+        with open("file_name.txt") as house:
+            print(house.read())
+    
+    Note: standard streams (stdout, stderr, stdin) cause errors
+        after exist the "with" statement.
+        The end of the with statement closes the system's stream with the interpreter itself,
+            so you have to restart python to regain your system functionality.
+    
+File Modes
+
+    open accepts the mode= argument, which defines how python opens this file.
+   
+    There are 8 modes to choose from.
+        Adding + to any mode adds reading to the writing mode, and writing to the reading mode.
+
+    Modes:
+    
+        r - reading
+        w - writing with truncation
+        a - appends to the file's end
+        x - creates a new file that doesn't exist already.
+
+    Functionality - Note, a+ only allows file seek on read.
+
+                                r   r+  w   w+  a   a+  x   x+  
+    Allows Read                 /   /       /       /       /
+    Allows Write                    /   /   /   /   /   /   /
+    Can Create NewFile                  /   /   /   /   /   /
+    Can Open ExistingFile       /   /   /   /   /   /
+    Erases File Contents First          /   /
+    Allows FileSeek             /   /   /   /       /*  /   /
+    Initial Position at Start   /   /   /   /           /   /
+    Initial Position at End                     /   /
+
+    Position dictates where you read and write from.
+    seek() allows you to change position, if supported.
+    Using the mode= argument, you can switch between text(the default) and binary modes.
+        You only need to specify text when switching from binary, otherwise binary is 
+            the only one that needs to be explicitly stated.
+        mode="t" -> text, mode="b" -> binary
+        ex:
+            mode="r+b"
+
+Reading Files
+
+    read()
+        Reads the complete contents of the file into an object.
+        read() accepts the size= argument.
+            This allows you to specify the number of characters to read from file.
+
+    readline()
+        Like read(), but only reads one line of the file at a time. 
+        readline() is like an iterator, and shifts the line value after each
+            call to readline()
+
+        readline() has the size= argument, which stops at the value given,
+            or the newline symbol, whichever comes first.
+    
+    readlines()
+        Saves all lines of the file into a list of strings.
+        readlines has the hint() argument
+            This works like size, except hint ALWAYS reads the entire line.
+            hint also includes the \n for each line read.
+                (if the length is over the \n)
+    
+    Iteration Reading
+
+        ex:
+            with open('file_name.txt', 'r') as house:
+                for line in house:
+                    print(line.strip())
+
+            This removes the overhead of newlines() when creating a list that is trashed
+                immediately after finishing the iteration.
+        
+        If you access a file's data more than ones, readlines is preferred, otherwise,
+            single use functions like readline or strip will be faster.
+
+Stream Position
+
+    After each read and write, the stream position changes.
+    
+    tell() - gives a positive integer that represents the current position in the stream.
+    seek() - sets your position within the stream. Also works with positive integers.
+
+    ex:
+        with open('file_name.txt', 'r') as house:
+            for n in range(10):
+                house.seek(n)
+                print(house.readline().strip())
+        #### Prints ####
+        # abcdefghijklmnop
+        # bcdefghijklmnop
+        # ...
+        # ijklmnop
+        # jklmnop
+    
+Writing Files
+
+    Writing to a stream ALWAYS overwrites, never inserts.
+        Even appending overwrites, but it's on top of data that doesn't exist.
+    
+    Read the file contents into memory, modify the file there, then write it out.
+        This reduces the chances of destroying data due to a bug.
+        
+
+    write()
+
+        Writes the given string to the file starting at the current stream position.
+        It returns a positive integer representing the number of characters written.
+        
+        Set all files to a variable before modifying or writing the data.
+
+        replace() changes all occurrences of string_1 with string_2
+
+        to rewrite data to a file.
+            variable_name.seek(0)
+            variable_name.write(content)
+        
+        If the length of the new file contents is longer than the old, 
+            you will have extra data at the end of the file.
+            To solve this, use truncate() to trim any excess data over the value given.
+                If no value given, truncate uses the resulting integer from tell().
+    
+    writelines()
+
+        Stores the contents of a list of strings as lines in the file.
+        It doesn't insert new characters at the end of each string in the list.
+        writelines() is the same as write, it just accepts a list of strings instead of one.
+
+        Modifying a File With writelines()
+        ex:
+            with open("file_name.txt", 'r+') as file:
+                contents = file.readlines()
+            
+                new_contents = []
+                for line in contents:
+                    line = line.replace('Tiny', 'Cozy')
+                    line = line.replace('Needs Repairs', 'Full of Potential')
+                    ...
+
+                    new_contents.append(line)
+                
+                file.seek(0)
+                file.writelines(new_contents)
+                file.truncate()
+
+    print()
+
+        By passing print the file= argument, you can specify what file to write the string to.
+
+        This is useful for conditional data output towards a file or console.
+        
+        ex:
+            with open('file_name', 'w') as file:
+                for street, properties in nearby_properties.items():
+                    for address, value in properties.items():
+                        print(street, address, f"${value:}",
+                        sep='    |    ',
+                        file=file)
+    
+    Line Separators
+        In windows, newline separators become \r\n, while unix is still \n.
+        In python, we only need to specify the "universal newline," which is \n.
+
+Details about the Context Manager
+
+    How it works:
+        For an object to be a context manager, it must have:
+            __enter__() - any setup required to enter the stream.
+            __exit__() - closes the stream.
+
+        with is roughly equivalent to:
+            VAR = EXPR
+            VAR.__enter__()
+            try:
+                BLOCk
+            finally:
+                VAR.__exit__()
+
+        ex:
+            simplifying previous examples
+
+            listings = open('file_name.txt')
+            listings.__enter__()
+            try:
+                print(listings.read())
+            finally:
+                listings.__exit__()
+
+        This all get's simplified by using the with content manager, into two lines.
+
+    Using Multiple Context Managers
+    
+    ex: Reading from multiple streams.
+
+        with open('file_name1.txt', 'r') as one, open('file_name2.txt', 'r') as two:
+            do something.
+
+    Implementing Context Manager Protocol
+        The context manager protocol is the name of the __enter__()/__exit__ methods.
+
+        These methods only need to exist.
+            If you don't need one or the other, don't write any functionality inside them.
+
+        ex:
+            class House:
+                def __init__(self, address, house_key, **rooms):
+                    self.address = address
+                    self.__house_key = house_key
+                    self.__locked = True
+                    self._rooms = dict()
+                    for room, desc in rooms.items():
+                        self._rooms[room.replace("_", " ").lower()] = desc
+                
+                def unlock_house(self, house_key):
+                    if self.__house_key == house_key:
+                        self.__locked = False
+                        print("House Unlocked")
+                    else:
+                        raise RuntimeError("Wrong Key!")
+                
+                def explore(self,room):
+                    if self.__locked:
+                        raise RuntimeError("Cannot explore the locked house.")
+
+                    try:
+                        return f"The {room.lower()} is {self._rooms[room.lower()]}."
+                    except KeyError as e:
+                        raise KeyError(f"No room {room}") from e
+                    
+                def lock_house(self):
+                    self.__locked = True
+                    print("House Locked")
+
+            Class Summary:
+
+                Initialize with an address, a house key value, and room descriptions.
+                    Then converts underscores to spaces, and lowercases the name and description.
+                
+            class HouseShowing:
+            
+                def __init_(self, house, house_key):
+                    self.house = house
+                    self.house_key = house_key
+
+                def __enter__(self):
+                    self.house.unlock_house(self.house_key)
+                    return self
+                
+                Note: We MUST return the instance to use enter.
+
+                def show(self, room):
+                    print(self.house.explore(room))
+                
+                def __exit__(self, exc_type, exc_val, exc_tb):
+                    if exc_type:
+                        print("Sorry about that.")
+                    self.house.lock_house()
+                    
+                    This method must accept three arguments.
+                    If an exception is raised anywhere inside the with statement, 
+                        the three parameters will describe it.
+                    If no exception, all three pass None.
+
+                    The names of the function arguments are conventional.
+                    Exceptions should not be raised on exit, it only acts as a listener
+                        for exceptions when they occur.
+                    Do not re-raise exceptions passed into the exit.
+            
+            Creating the Custom Class
+
+            house = House("address", house_key=1803,
+                            living_room = "spacious,
+                            office = "bright",
+                            bedroom = "cozy",
+                            bathroom = "small",
+                            kitchen = "modern")
+            
+            # An example of an error
+            with HouseShowing(house, house_key=9999) as showing:
+                showing.show("Living Room")
+                showing.show("bedroom")
+                showing.show("porch")
+            
+                The __enter__() method is called with the "with" statement.
+                The value returned from __enter__() is bound to showing.
+
+                #Results from using the context manager house.
+                #RuntimeError("Wrong key!")
+
+                If we correct the key number and re-run the program
+                #House Unlocked
+                #Living room is spacious
+                #Bedroom is cozy
+                #Sorry about that,
+                #House is locked
+                #KeyError: 'No room porch'
+
+            Process:
+                1. with calls showing.__enter__().
+                2. showing.__enter__() calls house.unlock_house().
+                3. unlock_house() prints "House unlocked".
+                4. showing.show() attempts to find porch, can't, then calls showing.__exit__().
+                5. The apology is printed.
+                6. house.lock_house() is called.
+                7. The trace back exception is printed.
+
+Path
+
+    Two modules are offered by python to deal with pathing conflicts, especially between operating systems.
+        os.path - standard garbage drawer for filesystem functionality.
+        pathlib - cleaner, predictable, and more efficient way to deal with os paths. 
+
+    Path Objects
+        
+        Path like classes that inherit from os.Pathlike. 
+        They are immutable representations of filesystem paths.
+        They are NOT based on strings, they are unique objects.
+        pathlib handles all differences between OS's behind the scenes.
+    
+    Pure Paths
+        
+        A path that allows you to work with it without accessing the underlying filesystem.
+        Initializing from PurePath creates a PurePosixPath or PureWindowsPath behind the scenes.
+            Python fill figure this out for you.
+        
+        ex:
+            from pathlib import PurePath
+            path = PurePath('../some_file.txt')
+            with open(path. 'r') as file:
+                print(file.read()) # fails if the file doesn't exist. 
+            
+            path.touch() # fails if with open is successful.
+
+    Concrete Paths
+        
+        A path that interacts with the filesystem. 
+        Initializing from Path creates a PosixPath or WindowsPath object.
+        
+        ex:
+            from pathlib import Path
+            path = Path('../some_file.txt')
+
+            with open(path, 'r') as file:
+                print(file.read()) # fails if the file doesn't exist.
+
+            path.touch() # Doesn't fail if with open succeeds.
+
+    Parts of a Path
+
+        Absolute paths - Start at filesystem's root.
+            Starts with the root/anchor, and ends with the full filename
+            The file name contains a stem, followed by the period, followed by the suffix.
+        
+        path.parents is a iterable collection that is a property of the current file.
+        The first item in the collection, parents[0], is the immediate parent folder. 
+            Each higher integer is one parent greater. 
+        
+        path.suffixes lists the suffixes of the file from left to right. 
+            path.suffixes[-1] is always the last suffix of the file.
+
+        Windows Path Parts:
+            C:\Windows\System\python37.dll
+
+            C:                - drive letter.
+            C:\               - anchor and root directory.
+            C:\Windows\System - parent[0].
+            C:\Windows        - parent[1]
+            C:\               - parent[2]
+            \python37.dll     - name.
+            python37          - stem.
+            .dll              - suffixes.
+        
+        POSIX Path Parts:
+            /usr/lib/x86_64-linux-gnu/libpython3.7m.so.1
+
+                                      - drive letter.
+            /                         - anchor and root directory.
+            /usr/lib/x86_64-linux-gnu - parent[0].
+            /usr/lib                  - parent[1]
+            /usr                      - parent[2]
+            /                         - parent[3]
+            libpython3.7m.so.1        - name.
+            .1                        - suffix.
+            .7m                       - suffixes[0].
+            .so                       - suffixes[1].
+            .1                        - suffixes[2].
+            libpython3.7m.so          - stem.
+        
+    Creating a Path
+
+        Define a specific path with a class initializer.
+            This can be PureWindowsPath or PosixPath
+        
+        Paths relative to a user folder only work if the username is the same on each system.
+
+        ex:
+            from pathlib import PosixPath
+
+            path = PosixPath.joinpath(PosixPath.home(), '.bash_history')
+
+            joinpath() combines multiple paths together.
+            home() returns the absolute path to the current users directory.
+            Note: You don't include the leading anchor in the second path.
+                (aka the / )
+
+            Another, shorter way to do the same.
+            
+            from pathlib import PosixPath
+
+            path = PosixPath.home() / '.bash_history'
+
+            Another, shorter method for Unix Systems
+
+            from pathlib import PosixPath
+
+            path = PosixPath('~/.bash_history').expanduser()
+
+    Relative Paths
+
+        Starts at the current working directory.
+
+        Getting the current working directory
+        ex:
+            from pathlib import Path
+            print(Path.cwd())
+
+        Any path that doesn't start with an anchor is considered a relative path.
+
+        ./  - current directory
+        ../ - previous or parent directory
+
+        If you want to resolve paths to absolute paths, do so immediately.
+        ex:
+            from pathlib import Path
+            path = Path('../settings.ini').resolve()
+
+    Paths Relative to a Package
+
+        For non-code resources that the user provides to your project.
+        You have no idea where it is, where it could be, and can't expect the user to 
+            put it in the right location.
+        
+        Modules have a special attribute called __file__.
+        This contains the absolute path of the project root.
+
+        ex:
+            from pathlib import Path
+
+            path = Path(__file__).resolve()
+            path = path.parents[1] / Path('resources/content/content.txt')
+
+            with path.open() as file:
+                data = file.read()
+
+            We resolved our path to the absolute location of the project's root. 
+
+    Path Operations
+
+        NOTE: Unix Glob Search
+            ex:
+                mv *.txt textfiles/
+                This moves all files with the txt suffix to the directory textfiles/
+                The glob is the pattern '*.txt' that specifies the pattern to match,
+                    with * denoting take anything that comes before/after/between the text around me.
+        
+*********************       NOTE: Hard Links
+
+*********************       NOTE: Symbolic Links
+
+        All of the following operators belong to path_object_name.operator_name()
+
+        mkdir()            - Creates a directory at the specified path. 
+                                Optional argument is parents=True, which 
+                                    creates all missing parent folders
+        rename(name)       - Renames the specified file or directory at the path to the name specified.
+                                On unix, if the path exists and the user has permissions, it will be replaced.
+        replace(name)      - Renames the file or directory and replaces any existing file by that name.
+                                This ALWAYS replaces the existing file, assuming you have permissions.
+        rmdir()            - Removes the directory at the path. The directory MUST be empty or OSError is raised.
+        unlink()           - Removes the file or symbolic link (filesystem shortcut) at the path.
+                                Cannot be used to remove directories. 
+                                Optional argument missing_ok=True stops FileNotFoundError from being raised. 
+        glob()             - Returns a generator of path-like objects for all items at the path that match the pattern.
+                                This is in the style of a Unix-styled glob search.
+        iterdir()          - Returns a generator of path-like objects for all items in a path.
+        touch()            - Creates an empty file at the path. If one exists, it updates the file's
+                                time of access "timestamp," and nothing else. 
+                                Optional argument exist_ok=False allows FileExistsError to be raised. 
+        symlink_to(target) - Creates a symbolic link at the path to the target. 
+        link_to(target)    - Creates a hard link at the path to the target.
+        exists()           - Returns True if path points to existing file or symbolic link.
+        is_file()          - Returns True if path points to a file or symbolic link to a file.
+        is_dir()           - Returns True if path points to a directory or symbolic link to a directory.
+        is_symlink()       - Returns True if path points to a symbolic link.
+        is_absolute()      - Returns True if the path is absolute.
+
+    Out of Place File Writes
+
+        path.replace() is useful because if there is an error during file write,
+            it wont save a corrupted file over your previous version.
+
+        ex:
+            from pathlib import Path
+
+            path = Path('file_name.txt')
+
+            with path.open('r') as file:
+                contents = file.read()
+                contents = contents.replace('a', 'b')
+                contents = contents.replace('c', 'd')
+                contents = contents.replace('e', 'f')
+                contents = contents.replace('g', 'h')
+            
+            tmp_path = path.with_name(path.name + '.tmp')
+            
+            with tmp_path.open('w') as file:
+                file.write(contents)
+
+            We created a new path, that is the same as the old one, but with .tmp applied to the end.
+
+            Once the file is successfully written to, we can replace the existing file with 
+                the replace command.
+            
+            tmp_path.replace(path)
+
+            If we had crashed at any point in this chain, we could have saved over a good file with
+                corrupted content. 
+                By using a temp file and replacing the original, we have multiple fail-safe
+                    points to restore our lost data.
+
+    The os Module
+
+        The os module was the old standard for developers until python 3.8.
+        Always use pathlib until it doesn't provide the utility needed.
+
+        The os module works safely with pathlib, so even using both in the same script is safe.
+
+File Formats
+
+    The process of converting python data to a storage format is called serialization.
+
+    JSON
+
+        Stands for JavaScript Object Notation.
+        The most popular storage type for python developers.
+        Python has a built in module for handling JSON data.
+
+        Built in Serialization and Data Types
+        To Serialized | Serialized | Deserialized
+           Python    -> JSON      -> Python
+        dict            object       dict       #Note, in object, all Keys are strings 
+        list & tuple    array        list
+        bool            boolean      bool
+        str             string       str
+        int             number(int)  int        #Note, To Serialized applies for int-derived enums        
+        float           number(real) float      #Note, To Serialized applies for float-derived enums
+        None            null         None    
+
+        Anything derived from the above python file types can be JSON-Serialized
+        You can also make a custom JSON serialization class with the subclass json.JSONEncoder()
+
+        Writing to JSON
+
+            ex:
+                import json
+
+                data = {
+                    # Dictionary with 1 level of nested key-value pairs
+                }
+
+                with open('file_name.json', 'w') as file:
+                    json.dump(data, file)
+
+                open creates a writeable stream for the file.
+                json.dump() requires data, and writeable file stream to put the data. 
+
+                json.dumps() works the same, except it returns a python string containing the
+                    json code, rather than passing the stream to it.
+
+        Reading From JSON
+
+            ex:
+                with open('file_name.json','r') as file:
+                    data = json.load(file)
+        
+                NOTE: If we printed the data from this file, it would return the 
+                    literal representation of each key and value.
+
+                    For instance, from:
+                    {
+                        "Street_Name":
+                        {
+                            132: 123_456
+                        }
+                    }
+                    to:
+                    {
+                        "Street_Name":
+                        {
+                            '132':123456
+                        }
+                    }
+    
+    Other Formats
+
+        CSV
+            Comma Separated Values
+            CSV's have different dialects, aka different formatting styles. 
+                This makes it tricky to create a standard decoder, but there
+                    are built in tools to adjust the input stream for each type.
+
+        INI
+            A typical format for configuration files.
+                Other config suffix include .conf, .cfg, .config, .txt, etc....
+
+            Python's configparser, or configobj(for nested configs) can help read in these settings
+                to your project.
+        
+        XML
+            A structured markup language based on tags, elements, and attributes.
+            Many file formats use XML syntax, like: XHTML, SVG, RSS, DOCX, ODT.
+            XML is typically replaced by JSON for python developers, and python
+                provides over 8 libraries to work with XML files.
+
+        HTML
+            Base website framework.
+            Python offers html to work with them.
+            html.parser and html.entities are two very important submodules for web-scraping.
+
+        YAML
+            Like XML with less syntax.
+            YAML also implements all of the features of the JSON format, so JSON is also
+                valid in YAML.
+            In python, YAML is considered a superset of JSON by allowing the addition of comments
+                to your serialized file.
+
+        TOML
+            Inspired by INI, but enforces a formal specification for creating.
+
+        ODF
+            Stands for Open Document Format.
+            XML based format managed by oasis
+            Used by most modern word processors: LibreOffice, MS Word, Google Docs.
+
+            Primarily used for working with data handled by an office suite.
+                Maybe for spell checker, spreadsheet validator, slide deck organizer, etc...
+
+        RTF
+            Stands for Rich Text Format
+            Supports basic text formatting.
+            Proprietary of MS Word, but relatively common because of it's simplicity.
+            Has mostly been replaced by the ODF Format Standard.
+   

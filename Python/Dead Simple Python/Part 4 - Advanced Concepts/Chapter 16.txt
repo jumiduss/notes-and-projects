@@ -1,0 +1,143 @@
+Summarizing the Example:
+
+    Adding asynchrony relies on noticing where the program is waiting, or bound 
+    by a specific task. 
+
+    Simple co-routines run until they hit a yield statement, then wait for data 
+    to be sent to the object with send().
+
+    Native co-routines (AKA co-routine functions / asynchrony) can be paused and resumed
+    to achieve multi-tasking-like behavior.
+
+    To achieve asynchrony: 
+        1. You declare a native co-routine function by adding async before the def of a function.
+        2. A co-routine function returns a native-co-routine object, called an awaitable.
+        3. Awaitables are called using "await" which acts like a "yield from" statement. 
+        4. Await can only be used INSIDE an awaitable.
+        5. Functions should only be turned into a co-routine when it:
+            calls another awaitable
+            performs an IO-bound task
+            when it's intended to run concurrently with another awaitable
+
+    We MUST call a co-routine function from another co-routine function.
+    Even if main() is not asynchronous, it must have async to call and run 
+        get_input() as a co-routine.
+    Two ways to run co-routine functions:
+        Directly awaiting them.
+        Scheduling them as tasks.
+
+    The aioconsole provides functionality for allowing "true-er" asynchrony 
+    for processes like input(). 
+
+
+    async def function_one_name(input_variables):
+        ...
+        await asyncio.sleep(0)
+        ...
+    async def function_two_name(input_variables):
+        ...
+        n = await ainput(prompt)
+        ...
+
+    async def main():
+        We schedule the co-routines as tasks so that as soon as main() is waiting,
+        we allow another task to process in turns until length_counter() returns.
+        The program then waits for the guess to be entered if it hasn't been
+        submitted before the end of length_counter()'s execution.
+
+        var_one_name_task = asyncio.create_task(function_one_name())
+        var_two_name_task = asyncio.create_task(function_two_name())
+        
+        var_one_name = await var_one_name_task
+        var_two_name = await var_two_name_task
+
+    if __name__ == "__main__":
+
+        Since only co-routines can be called with await, we must use an event loop
+        to allow main() to run without infinite async calls.
+        
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+
+        OR USE:
+        asyncio.run(main())
+
+Scheduling and Asynchronous Execution Flow
+
+    asyncio.run(main())
+        Schedules main() co-routine function as a task.
+        It runs immediately because it's the only scheduled task.
+    
+    target = await get_input("String")
+        await removes control from main().
+        get_input() is scheduled as an event in the background.
+        get_input() then runs, and returns a value to the target.
+        main() continues once the task is complete.
+
+    length_counter_task = asyncio.create_task(var_name)
+        This is now scheduled to run, and waiting on main().
+
+    guess_task = asyncio.create_task(
+        get_input("String")
+    )
+        This task is bound to the name guess_task, and is scheduled but 
+            main() hasn't released control to allow it to run.
+    
+    
+    count = await length_counter_task
+        Allows main() to release control to the event loop.
+        The next scheduled task is length_counter_task which is now run.
+        The event loop pauses at the sleep command.
+            Then waits for length_counter_task to have a return value.
+        The event loop regains control and runs the next scheduled task while waiting.
+    
+    guess = await guess_task
+        The event loop gives control to get_input(), which runs until
+            n = await ainput(prompt)
+        Since guess_input() is now waiting, the event loop regains control.
+    
+    The event loop now runs through each task until a return value, or user input is given.
+    The order in which the tasks complete is NEVER guaranteed.
+
+    We can simplify the code.
+    (guess, count) = await asyncio.gather(
+        get_input("String"),
+        length_counter(target)
+    )
+
+Asynchronous Iterators / Context Managers / Generators
+
+    Setup a class like any other custom iterator object, then add 'a'
+        in front of each iteration special method.
+
+    Generators still use yield statements without awaits, but are defined with async def.
+        They can also be used with await, async, for, as needed.
+
+Miscellaneous Asynchrony Concepts
+    
+    Locks
+    Pools
+    Events
+    Futures
+    contextvars - context variables
+        Allow you to store different values depending on the context,
+            so two tasks can work with the same "apparent" variables, and retrieve
+                distinct values than the other.
+
+
+
+
+Asynchrony vs Concurrency
+
+    Concurrency
+        Allows code to do something else while waiting for I/O bound process.
+        Does not speed up code execution.
+    
+    Asynchrony
+        Uses:
+            async - "this structure "can" be used asynchronously."
+            await - "I'm waiting for a value so do something else if you like."
+        
+        Writes native co-routines and either awaits them or schedules them as tasks.
+        Relies on an event loop to manage the execution of native co-routines.
+        Curio and Trio can be used to simplify asynchrony.
