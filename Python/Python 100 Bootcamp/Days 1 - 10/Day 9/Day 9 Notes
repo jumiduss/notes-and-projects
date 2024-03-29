@@ -1,0 +1,20 @@
+Dictionary
+    Runs off of a key and value
+    {
+        "key1":"Value1",
+        "key2":"Value2",
+    }
+
+    Index a dictionary by giving the key, and it returns the value
+    Dictionaries will return the first matching entry
+    Keys have to be a valid data type like an int or string
+    Add a dictionary definition
+        dictionary_name["key_name"] = "key_value"
+    Looping through dictionaries 
+        for term in dictionary_name:
+            print(term) # The key
+            print(dictionary_name[term]) # The value
+    You can add more entries into a dictionary just by referencing a new key value pair
+    
+Nesting
+    Putting dictionaries or lists within other dictionaries or lists

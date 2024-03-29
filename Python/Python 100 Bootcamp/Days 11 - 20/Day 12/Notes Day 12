@@ -1,0 +1,9 @@
+Scope
+    Objects and variables have a scope they fall within and it depends on the language you're writing in.
+    Python's scope is based on the block you are within.
+
+Global
+    Scope available to the whole application, but must be called within a function/block
+    Global variables can be referenced with global within a block
+    Global constants are by convention written uppercase with underscores so 
+        you know not to treat it like a variable

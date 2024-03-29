@@ -1,0 +1,61 @@
+# Reeborg's World
+# World Info Python
+# Hurdle 1
+def right():
+    turn_left()
+    turn_left()
+    turn_left()
+    
+def jump():
+    move()
+    turn_left()
+    move()
+    right()
+    move()
+    right()
+    move()
+    turn_left()
+    
+for i in range(0,6):
+    jump()
+
+# Hurdle 3
+def right():
+    turn_left()
+    turn_left()
+    turn_left()
+    
+def jump():
+    turn_left()
+    move()
+    right()
+    move()
+    right()
+    move()
+    turn_left()
+while not at_goal():
+    if front_is_clear():
+        move()
+    else:
+        jump()
+        
+# Hurdle 4
+def right():
+    turn_left()
+    turn_left()
+    turn_left()
+def jump():
+    turn_left()
+    while not right_is_clear():
+        move()
+    right()
+    move()
+    right()
+    while front_is_clear():
+        move()
+    turn_left()
+while not at_goal():
+    if front_is_clear():
+        move()
+    else:
+        jump()

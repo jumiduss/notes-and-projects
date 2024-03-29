@@ -1,0 +1,8 @@
+Classes
+    Names begind with uppercase
+    constructors setup the base object when created 
+        within the __init__(self) function
+        This initializes the base attributes
+
+    Methods are called with the dot notation and represent functions an object can perform
+    

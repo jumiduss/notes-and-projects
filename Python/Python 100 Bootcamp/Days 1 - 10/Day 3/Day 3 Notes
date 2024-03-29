@@ -1,0 +1,19 @@
+Conditional Statements
+    if
+    elif
+    else
+
+Comparison Operators
+    >
+    <
+    >=
+    <=
+    ==
+    !=
+
+Logical Operators
+    and
+    or
+    not
+
+.count(value) counts the number of occurrences in a string

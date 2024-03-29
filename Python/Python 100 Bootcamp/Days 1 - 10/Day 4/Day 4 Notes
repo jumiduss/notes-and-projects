@@ -1,0 +1,18 @@
+import modules with 
+    import moduleName
+
+the module, random , makes a random number
+    random.randint(minInclusiveInt,maxInclusiveInt)
+    random.random() random float between 0 and 1
+    random.choice(listName)
+We can make our own module by making a py file in the same folder as the main file, and importing the file name at the top
+
+lists
+    [] - denote a list that is comment seperated
+    append - adds to the end
+    extend - appends items from the iterable
+    insert - insert item at position
+    remove - removes entry from list
+    pop    - removes entry from list and returns it
+    more methods on python docs
+    we can get list lengths

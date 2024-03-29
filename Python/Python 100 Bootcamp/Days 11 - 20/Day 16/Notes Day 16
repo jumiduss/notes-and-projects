@@ -1,0 +1,15 @@
+OOP
+    Object Oriented Programming
+
+Class
+    Defines models for objects
+
+Objects
+    A class initialized variabled. AKA walter is a variable belonging to the class of dogs.
+
+Method
+    A function that a modeled object can perform
+
+Attribute
+    A property of an object. This is defined by a variable within the class as opposed to a method
+a

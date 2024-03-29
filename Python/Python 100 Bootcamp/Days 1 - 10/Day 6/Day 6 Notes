@@ -1,0 +1,10 @@
+Functions
+    start a function definition with 
+        def function_name(input1=default_value,more_inputs):
+            do stuff
+            return optional_objects_return
+
+While loop
+    while condition is true continue to loop
+
+    infinite loops have no exit condition met

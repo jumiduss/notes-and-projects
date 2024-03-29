@@ -1,0 +1,5 @@
+printing text to console with print()
+accept input from console with input("Pre Accept String")
+get the length of a string with len()
+new line with \n
+print with new line with println

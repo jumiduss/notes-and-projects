@@ -1,0 +1,3 @@
+Loops
+    For loops iterate for every item in a set
+    range gives every number from min to exclusive max, and the step count

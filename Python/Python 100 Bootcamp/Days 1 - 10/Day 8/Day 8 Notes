@@ -1,0 +1,6 @@
+Input variables within function def parenthesis to pass in.
+
+Position vs Keyword
+    Position Arguments are based on the tuple position when passed to the function
+    Keyword Arguments define the variable within the function call which decreases conflicts in code
+        due to the coder's disorganization, nothing logically changes in the calls

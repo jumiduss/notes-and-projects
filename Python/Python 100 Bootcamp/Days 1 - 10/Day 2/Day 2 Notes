@@ -1,0 +1,28 @@
+Data Types
+    Strings
+    Boolean
+    Int
+    Float
+        Supposedly, floats ignore underscores??
+            734_503.516 is still considered a float
+
+    type() checks the data type of an object
+
+    You cannot objects of different types together
+
+Object Indexing
+    Subscripting uses brackets []
+    Subscripting indexes strings
+
+Math Operators
+    +
+    -
+    /
+    *
+    //  - returns floor division as int
+    **
+    %   - returns remainder 
+    +=
+    -=
+    *=
+    /=

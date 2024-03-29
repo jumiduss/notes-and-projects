@@ -1,0 +1,39 @@
+def add(a,b):
+    return a + b
+
+def sub(a,b):
+    return a - b
+
+def mult(a,b):
+    return a * b
+
+def div(a,b):
+    return a / b
+
+def print_op():
+    opers = ''
+    for key in operators:
+        opers += key + " " 
+    print("Operators: " + opers)
+    return input("Pick an operator\n")
+
+    
+def perform_operation(num1):
+    operator = print_op()
+    num2 = int(input("Choose a second number?\n"))
+    result = operators[operator](num1,num2)
+    print("{} {} {} = {}\n\n".format(num1, operator, num2, result))
+    cont_choice = input("Perform Operation on Answer? \n(y/n)\n")
+    if cont_choice == "y":
+        perform_operation(result)
+    
+operators = {
+    "+":add,
+    "-":sub,
+    "*":mult,
+    "/":div,
+}
+
+num1 = int(input("What's the first number?\n"))
+
+perform_operation(num1)

@@ -1,0 +1,12 @@
+Function Comments
+    Write function comments on the first line of the function with triple quote. They will populate with the ide
+
+Storing Functions
+    You can store function names in a dictionary, and then set 
+        them to a variable (like import x as name)
+    ex_|
+        def add(a,b):
+            return a + b
+        dictAdd = {"+":add}
+        addthese = dictAdd["+"]
+        addthese(2,1)

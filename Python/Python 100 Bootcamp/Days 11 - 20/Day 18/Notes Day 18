@@ -1,0 +1,10 @@
+Turtle graphics
+    from turtle import Turtle
+
+If you are using something under 4 times, import the module.
+    Otherwise, import the module function / class you are using directly with from import 
+
+We can simplify modules using the as modifier
+
+    import turtle as t
+    t.forward()

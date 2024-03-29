@@ -1,0 +1,41 @@
+# Step 1: Use colorgram to extract colors in dot picture
+# # from colorsys import rgb_to_hls
+# # import colorgram
+# # colors = colorgram.extract('image.jpeg',10)
+# # rbg_colors = []
+# # for i in colors:
+# #     rbg_colors.append((i.rgb.r,i.rgb.g,i.rgb.b))
+# # print(rbg_colors)
+
+import turtle as t
+import random as r
+
+screen = t.Screen()
+
+timmy = t.Turtle()
+colors = [(239, 239, 238), (233, 237, 234), (235, 237, 240), (241, 234, 237), (43, 105, 171), (232, 206, 117), (225, 153, 88), (183, 50, 78), (120, 86, 50), (228, 120, 147)]
+
+def draw_row(distance):
+    for i in range(0,10):    
+        timmy.dot(5,r.choice(colors))
+        timmy.forward(distance)
+    timmy.dot(5,r.choice(colors))
+        
+def draw_grid(distance):
+    for i in range(0,5,1):
+        draw_row(distance)
+        timmy.left(90)
+        timmy.forward(distance)
+        timmy.left(90)
+        draw_row(distance)
+        timmy.right(90)
+        timmy.forward(distance)
+        timmy.right(90)
+timmy.penup()
+screen.colormode(255)  
+draw_grid(20)
+    
+    
+    
+
+screen.exitonclick()
