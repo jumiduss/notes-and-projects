@@ -1,0 +1,273 @@
+Shallow VS Deep Copying
+    Shallow - Only copies the top-level entries of objects and Arrays
+        The entry values maintain original values
+    Deep - Copies the complete tree
+        The root is copied, all nodes duplicated.
+
+
+Shallow Copying
+
+    Copying Plain Objects and Arrays via Spreading
+        
+        Object and Array Literals
+            const copyOfObject = {...originalObject};
+            const copyOfArray = {...originalArray};
+
+        Spreading has several issues:
+        ex_|
+            class MyClass{}
+
+            const original = new.MyClass();
+            assert.equal(original instanceof MyClass, true);
+
+            const copy = {...original};
+            assert.equal(copy instanceof MyClass, false);
+
+            Note, obj instanceof SomeClass === SomeClass.prototype.isPrototypeOf(obj)
+            We fix this by giving the copy the same prototype as original
+        ex_|
+            class MyClass {}
+
+            const original = new MyClass();
+            const copy = {
+            __proto__: Object.getPrototypeOf(original),
+            ...original,
+            };
+            assert.equal(copy instanceof MyClass, true);
+
+            Note, we can alternatively use Object.setPrototypeOf() after the copy's creation
+        
+        Many built in objects have special internal slots that aren't copied by object spreading
+            i.e. regular expressions and dates, if we make copy we lose stored data inside.
+        
+        Only own (non-inherited) properties are copied by object spreading.
+        ex_|
+            const proto = { inheritedProp: 'a' };
+            const original = {__proto__: proto, ownProp: 'b' };
+            assert.equal(original.inheritedProp, 'a' );
+            assert.equal(original.ownProp, 'b' );
+
+            const copy = {...original};
+            assert.equal(copy.inheritedProp, undefined);
+            assert.equal(copy.ownProp, 'b' );
+            
+            Note, inheritedProp isn't available in copy from original since it's not "own" property, but prototype
+        
+        Only Enumerable Properties are Copied by Object Spreading
+        i.e. own property .length of Array is not enumerable and not copied
+        ex_| 
+            const arr = [ 'a', 'b' ];
+            assert.equal(arr.length, 2);
+            assert.equal({}.hasOwnProperty.call(arr, 'length'), true);
+
+            const copy = {...arr};
+            assert.equal({}.hasOwnProperty.call(copy, 'length'), false);
+
+            Note, if we need to copy non-enumerable properties we can use:
+                Object.getOwnPropertyDescriptors() - retrieves both types of (non-)enumerable properties
+                Object.defineProperties()
+                (They both consider all attributes and copy getters, setters, read-only properties, etc...)
+        
+        Property Attributes ALWAYS Copied Faithfully by Object Spreading
+            Independently of Property Attributes, it's copy will always be a data property that is writable and configurable.
+
+            ex_ original.prop whose attributes are writable and configurable|
+                const original = Object.defineProperties(
+                    {}, {
+                        prop: {
+                            value: 1,
+                            writable: false,
+                            configurable: false,
+                            enumerable: true,
+                        },
+                    });
+                assert.deepEqual(original, {prop: 1});
+
+                Note, if we copy .prop, then writable and configurable are both true.
+            ex_ Continuation of previous ex|
+                const copy = {...original};
+                assert.deepEqual(
+                    Object.getOwnPropertyDescriptors(copy),
+                    {
+                        prop: {
+                            value: 1,
+                            writable: true,
+                            configurable: true,
+                            enumerable: true,
+                        },
+                    });
+                
+                Note, as a consiquence, getters and setters are not copied faithfully.
+            ex_ Continuation of previous ex|
+                const original = {
+                    get myGetter() { return 123 },
+                    set mySetter(x) {},
+                };
+                assert.deepEqual({...original}, {
+                    myGetter: 123,
+                    mySetter: undefined,
+                });
+
+                Note, myGetter is not a getter anymore.
+                    Object.getOwnPropertyDescriptors() and Object.defineProperties() always transfers own properties 
+                        with all attributes intact
+
+        Copying is Shallow
+            Fresh versions of each key-value entry in the original, but values of the original aren't copied themselves.
+            ex_|
+                const original = {name: 'Jane', work: {employer: 'Acme'}};
+                const copy = {...original};
+
+                // Note, property .name is a copy: and we are changing the copy, not the original.
+                copy.name = 'John';
+                assert.deepEqual(original,
+                    {name: 'Jane', work: {employer: 'Acme'}});
+                assert.deepEqual(copy,
+                    {name: 'John', work: {employer: 'Acme'}});
+                
+                // Note, the value of .work is shared, changing the copy affects the original.
+                copy.work.employer = 'Spectre';
+                assert.deepEqual(
+                    original, {name: 'Jane', work: {employer: 'Spectre'}});
+                assert.deepEqual(
+                    copy, {name: 'John', work: {employer: 'Spectre'}});
+        
+
+
+    Shallow Copying via Object.assign()
+        These are almost equivalent
+            const copy1 = {...original};
+            const copy2 = Object.assign({}, original);
+                This uses assignment to create the copy's properties
+                Spreading defines the new properties to the copy
+        Using the method instead allows it to be polyfilled on older JS engines via a library.
+        ex_ Contrived case showing inherited setters invokation|
+            const original = {['__proto__']: null};
+            const copy1 = {...original};
+
+            assert.deepEqual(
+                Object.keys(copy1), ['__proto__']);
+
+            const copy2 = Object.assign({}, original);
+            assert.equal(Object.getPrototypeOf(copy2), null);
+
+            Note, copy1 has the own property '__proto__', copy2 has prototype null.
+                first line creates .__proto__ as own prop without invoking setter
+                Object.assign() copies that property and invokes setter
+
+    Shallow Copying via Object.getOwnPropertyDescriptors() and Object.defineProperties()
+        Creating properties via property descriptors - aka objects that specify property attributes.
+        ex_ Combining Object.defineProperties() with Object.getOwnPropertyDescriptors()|
+            function copyAllOwnProperties(original) {
+                return Object.defineProperties(
+                    {}, Object.getOwnPropertyDescriptors(original));
+            }
+            Note, this eliminates the two issues of copying via spreading.
+                All attributes of own property are copied correctly,
+                    allowing us to copy own getters and own setters 
+        ex_|
+            const original = {
+                get myGetter() { return 123 },
+                set mySetter(x) {},
+            };
+            assert.deepEqual(copyAllOwnProperties(original), original);
+
+            Note, Object.getOwnPropertyDescriptors() copies non-enumerable properties also.
+        ex_|
+            const arr = [ 'a', 'b' ];
+            assert.equal(arr.length, 2);
+            assert.equal({}.hasOwnProperty.call(arr, 'length'), true);
+
+            const copy = copyAllOwnProperties(arr);
+            assert.equal({}.hasOwnProperty.call(copy, 'length'), true);
+
+
+Deep Copying
+    
+    Manual Deep Copying via Nested Spreading
+        ex_|
+            const original = {name: 'Jane', work: {employer: 'Acme'}};
+            const copy = {name: original.name, work: {...original.work}};
+
+            assert.deepEqual(original, copy);
+            assert.ok(original.work !== copy.work);
+
+            Note, we copied successfully at deepEqual(), the copy at ok is deep.
+
+    Hack: Generic Deep Copying via JSON
+        assert.deepEqual(
+            jsonDeepCopy({
+                // Symbols aren''t supported as keys
+                [Symbol( 'a' )]: 'abc',
+                // Unsupported Value
+                b: function () {},
+                // Unsupported Value
+                c: undefined,
+            }),
+            {}  // empty Object
+        );
+        // Other Cause Exceptions
+        assert.throws(
+            () => jsonDeepCopy({a: 123n}),
+        /^TypeError: Do not know how to serialize a BigInt$/
+        );
+
+
+    Implementing Generic Deep Copying
+        ex_|
+            function deepCopy(original) {
+                if (Array.isArray(original)) {
+                    const copy = [];
+                    for (const [index, value] of original.entries()) {
+                        copy [index] = deepCopy(value);
+                    }
+                    return copy;
+                }
+                else if (typeof original === 'object' && original !== null) {
+                    const copy = {};
+                    for (const [key, value] of Object.entries(original)) {
+                        copy[key] = deepCopy(value);
+                    }
+                    return copy;
+                }
+                else {
+                    //These are already primitive values: atomic, and need no copy
+                    return original;
+                }
+            }
+
+            Note, if original is array, we create new deep array
+                if object we do similar to array
+                if primitive we don't have to do anything
+            
+        ex_ Trying out deepCopy()|
+            const original = {a: 1, b: {c: 2, d: {e: 3}}};
+            const copy = deepCopy(original);
+
+            // Are these two equal
+            assert.deepEqual(copy, original)
+
+            // Did we copy all levels? Same content? Same Objects?
+            assert.ok(copy     !== original);
+            assert.ok(copy.b   !== original.b);
+            assert.ok(copy.b.d !== original.b.d);
+
+            Note, deepCopy only fixes one issue due to spreading, shallow copying.
+                Prototypes are not copied, special objects are partial copied, non-enumerable ignored,
+                    most property attributes ignored.
+        
+        ex_ More Consice Deep Copy|
+            function deepCopy(original) {
+                if (Array.isArray(original)) {
+                    return original.map(elem => deepCopy(elem));
+                }
+                else if (typeof original === 'object' && original !== null) {
+                    return Object.fromEntries(
+                        Object.entries(original)
+                        .map(([k, v]) => [k, deepCopy(v)]));
+                }
+                else {
+                    //Prim Val: Atomic, no need to copy
+                    return original;
+                }
+            }

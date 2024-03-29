@@ -1,0 +1,269 @@
+Preparring for the Pattern Matching Algorithms
+
+    Destructuring Assignment
+        <<pattern>> = <<value>>
+        We want to use pattern to extract data from the value
+
+    Pattern Matching - aka Matching
+        <<pattern>> <- <<value>>         // for the coffescript formatting ->
+        <- means match against           // for the coffescript formatting ->
+            Assigns variables while doing so
+
+    Destructuring Variable declarations and parameter definitions work similarly
+    
+
+    Using Declaritive Rules for Specifying the Matching Algorithm
+        General Pattern for Rules (with an example)
+        ex_| 
+        (2c) {key: <<pattern>>, <<properties>>} <- object           ->
+        {<<properties>>} <- obj                                     ->
+        
+        Properties of a rule
+            2c is the number of the rule
+            The head of the rule is the first line
+            The head describes the input structure for the rule
+            The body contains the remaining lines
+            The body describes the action of the rule
+        Properties of 2c
+            The head means the rule is applied to object patterns with 
+                at least one property with the key, and either 0 or more additional properties
+            This continues with the property value pattern matching obj.key
+            The remaining properties matching aainst obj
+
+        ex_|
+        (2e) {} <- obj (no properties left)                         ->
+            The head means this rule executes if the empty object pattern {} is matched against the obj val.
+            The value of the object implies we are done
+
+        Rules (2c) and (2e) are the declaritive loop that iterates over properties of the
+            pattern on the left side of the arrow.
+
+
+    Evaluating Expressions Based on the Declaritive Rules
+        ex_|
+            {first: f, last: l} <- obj                                  ->
+            To apply the rules, we go from top to bottom and apply the first applicable.
+            If there is a matching expression in the body, the rules are applied again
+
+        Sometimes the head includes a rule condition before running.
+        ex_|
+            (3a) [<<elements>>] <- non_iterable                         ->
+            if (!isIterable(non_iterable))
+                throw new TypeError();
+
+ 
+The Pattern Matching Algorithm
+
+    Patterns
+        A pattern is either 
+            a variable x
+            an object pattern with {<<properties>>}
+            an array pattern with {<<elements>>}
+
+    Rules for Variables
+        1.x <- value   (including undefined and null values)            ->
+        x = value 
+
+    Rules for Object Patterns
+        (2a) {<<properties>>} <- underfined(illegal value)              ->
+            throw new TypeError();
+
+        (2b) {<<properties>>} <- null (illegal value)                   ->
+            throw new TypeError():
+
+        (2c) {key: <<pattern>> = default_value, <<properties>>} <- obj  ->
+            <<pattern>> <- obj.key                                      ->
+            {<<properties>>} <- obj                                     ->
+
+        (2d) {key: <<pattern>> = default_value, <<properties>>} <- obj  ->
+
+        (2e) {<<properties>>} <- obj (no properties left)               ->
+
+        Notes
+            2a, 2b - deal with illegal values
+            2c, 2d, 2e - deal with looping over property patterns
+            2d - A default_value provides an alternative pattern match if none exist
+
+    Rules for Array Patterns
+        Array algorithm starts with an array pattern and an iterable
+        
+        (3a) [<<elements>>] <- non_iterable (illegal value)             ->
+        if (!isIterable(non_iterable))
+            throw new TypeError();
+        
+        (3b) [<<elements>>] <- iterable                                 ->
+        if (isIterable(iterable))
+            const iterator = iterable[Symbol.iterator]();
+            <<elements>> <- iterator                                    ->
+        
+        Helper function
+            function isIterable(value) {
+                return (value !== null
+                && typeof value === 'object'
+                && typeof value[Symbol.iterator] === 'function');
+            }
+
+        The algorithm continues with
+            The elements of the pattern (left side of arrow)
+            The iterator that was obtained from the iterable (right side of arrow)
+        
+        (3c) <<pattern>>, <<elements>> <- iterator                      ->
+            <<pattern>> <- getNext(iterator)                            -> 
+            <<elements>> <- iterator                                    ->
+        
+        (3d) <<pattern>> = default_value, <<elements>> <- iterator      ->
+            const tmp = getNext(iterator)  // undefined if last    
+            if (tmp !== undefined) {
+                <<pattern>> <- tmp                                      ->
+            }
+            else {
+                <<pattern>> <- default_value                            ->
+            }
+            <<elements>> <- iterator                                    ->
+        
+        (3e) , <<elements>> <- iterator(hole, elision)                  ->
+            getNext(iterator);
+            <<elements>> <- iterator                                    ->
+        
+        (3f) ...<<pattern>> <- iterator (always the last object)        ->
+            const tmp = [];
+            for (const elem of iterator) {
+                tmp.push(elem);
+            }
+            <<pattern>> <- tmp                                          ->
+        
+        (3g) <- iterator (no elements left)                             ->
+
+        Helper function
+            function getNext(iterator) {
+                const {done,value} = iterator.next();
+                return (done ? undefined : value);
+            }
+
+
+Empty Object Patterns and Array Patterns
+    We can destructure empty object and array patterns
+        AKA, empty destructuring patterns force values to have characteristics, but nothing else. 
+
+    Given an empty object pattern {},
+        if the value to be destructured is undefined or null, nothing happens--
+        otherwise a TypeError is thrown.
+
+    ex_|
+        const {} = 123
+        assert.throws(
+            () => {
+                const {} = null;
+            },
+            /^TypeError: Cannot destructure 'null' as it is null.$/
+        )
+
+    Given an empty array pattern []
+        if the value to destruct is iterable, nothing happens--
+        otherwise TypeError is thrown
+    
+    ex_|
+        const [] = 'abc';
+        assert.throws(
+            () => {
+                const [] = 123;
+            },
+            /^TypeError: 123 is not iterable$/
+        )
+
+
+Applying the Algorithms
+
+    Named parameters are simulated via objects. 
+        The caller uses an obj literal
+        The callee uses destructuring
+    
+    ex_|
+        function move1({x=0, y=0} = {}) {
+            return [x, y];
+        }
+        assert.deepEqual(
+            move1({x: 3, y: 8}), [3, 8]
+        )
+        assert.deepEqual(
+            move1({x: 3}), [3, 0]
+        )
+        assert.deepEqual(
+            move1({}), [0, 0]
+        )
+        assert.deepEqual(
+            move1(), [0, 0]
+        )
+
+        There are 3 default values
+            The first two allow us to omit x and y
+            The third allows us to call move1() without parameters (aka the last assert)
+        
+        Why don''t we just use a simple move2()?  (see next section for answer)
+            ex_|
+            function move2({x, y} = { x: 0, y: 0 }) {
+                return [x, y];
+            }
+        
+
+    Background: Passing Parameters  Via Matching
+        In function calls, "formal parameters" are matched against "actual parameters"
+            Aka, inside function definition vs inside function calls 
+
+        ex_|
+            function func(a=0, b=0) {....}
+            func(1, 2)
+
+            The deconstruction of the above "func(1, 2)"
+            [a=0, b=0] <- [1, 2]                                        ->
+
+    Using move2()
+        Destructuring Example
+        
+        ex_ Successful Destructuring|
+        [{x, y} = { x: 0, y: 0 }] <- []                                 ->
+            The single arr element doesn''t have a match on the right
+            Therefore, x and y are matched to default_value and not data
+        {x, y} = { x: 0, y: 0 }
+            Left hand side contains property value shorthands, used for the following
+        {x: x, y: y} <- { x: 0, y: 0 }                                  ->
+            Destructuring with rules 2c and 1 gives the following
+        x = 0;
+        y = 0;
+            This gives what we wanted  
+
+        ex_ Unsuccessful Destructuring of{z:3}|
+        move2({z: 3})
+            The function call
+        [{x, y} = { x: 0, y: 0 }] <- [{z: 3}]
+            The array element at index 0 on the right hand side
+            Default is ignored - rule 3d
+        {x, y} <- { z: 3 }                                              ->
+            x and y are set undefined
+            We haven''t matched against the default_value but {z:3}
+
+        
+    Using move1()
+        ex_ Successful Destructuring|
+            [{x=0, y=0} = {}] <- []                                     ->
+                rule 3d
+            {x=0, y=0} <- {}                                            ->
+                destructuring equivelant
+            {x: x=0, y: y=0} <- {}                                      ->
+                x and y have no match, defaults are used
+            X <- 0                                                      ->
+            y <- 0                                                      ->
+                leads to
+            x = 0;
+            y = 0;
+
+        ex_ Successful Destructuring of {z:3}|
+            [{x=0, y=0} = {}] <- [{z: 3}]                               ->
+                rule 3d
+            {x=0, y=0} <- {z: 3}                                        ->
+            x = 0
+            y = 0
+                works as desired since even being matched against {z: 3} succeeds
+
+    Conclusion: Default Values are a Feature of Pattern Parts
+

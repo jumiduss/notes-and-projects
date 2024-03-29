@@ -1,0 +1,136 @@
+Scopes
+    Lexical Scope - The region a variable is able to be accessed.
+    In JS scopes are static, and can be nested.
+
+    ex_|
+        function func() {
+            const aVariable = 1;
+            if (true) {
+                const anotherVariable = 2;
+            }
+        }
+
+        The scope of if is nested in the scope of the function.
+        The outer scope of if is the function.
+
+Lexical Environments
+    Lexical Environments is how scopes are implemented in JS.
+    Environment Records map variable names to variable values
+        Like a dictionary.
+    Bindings connect the names to values in Environment Records.
+    The outer environment is the environment of the outer scope.
+    A tree of nested scopes is represented as a tree of nested environments.
+
+
+The Global Object
+    The object whose properties become global variables.
+    Available by globalThis.
+    Windows is the classic global object reference name. 
+        Works in normal browser code, but not Web Workers
+            AKA processes running concurrently with the browser
+        Also not with Node.js
+    self is available everywhere in browsers AND Web Works, not Node.js
+    Global is only available in Node.js
+
+
+In Browsers, globalThis Doesn''t Point Directly to Global Object
+    ex_|
+        <iframe src="iframe.html?first"></iframe>
+        <script>
+            const iframe = document.querySelector('iframe');
+            const icw = iframe.contentWindow;
+
+            iframe.onload = () => {
+                const firstGlobalThis = icw.globalThis;
+                const firstArray = icw.Array;
+                console.log(icw.iframeName);
+
+                iframe.onload = () => {
+                    const secondGlobalThis = icw.globalThis;
+                    const secondArray = icw.Array;
+
+                    console.log(icw.iframeName);
+                    console.log(secondArray === firstArray);
+                };
+                iframe.src = 'iframe.html?second';
+            }
+        </script>
+
+        File iframe.html:
+        <script>
+            global.This.iframeName = location.search.slice(1);
+        </script>
+
+    In browsers, globalThis doesn''t point to the global, but indirection.
+    When the src of the iframe changes, it gets a new global object.
+    globalThis always has the same value, and can be checked outside of iframe like the code above.
+    Browsers distinguish between globalThis and global with the use of the following terms.
+        Window - Global Object - Changes with location.
+        WindowProxy - an object that forwards all accesses to current Window - Never changes.
+
+
+The Global Environment
+    The outermost scope. It''s environment is THE global environment.
+    Every environment is connected to the global through chains of environments,
+        linked by outer environment references.
+            The global outer reference is null.
+
+    Two types of Record Managements:
+        Object environment record has the same interface, but binds to a JS object.
+            Like the global object.
+        A normal "declaritive" environment record with its own binding storage.
+
+    Script and Module Scopes
+        Global scope is only at the top level, each module has its own scope and sub scopes.
+            ex_|
+            { // global scope
+                // global variables
+                {
+                    // module 1 scope
+                    
+                }
+                {
+                    // module 2 scope
+                }
+                // etc....
+            }
+    Creating Variables
+        Top-Level const, let, class
+            Create bindings in the declaritive environment record.
+        Top-Level var and function declar create bindings in the object environment record.
+        ex_|
+            <script>
+                const one = 1;
+                var two = 2;
+            </script>
+            <script>
+                console.log(one);
+                console.log(two);
+
+                console.log(globalThis.one);
+                console.log(globalThis.two);
+            </script>
+
+    Global ECMAScript Variables and Global Host Variables
+        The global object also contains
+            All built-in global var of ECMAScript
+            All built-in global var of the host platform (browser, Node.js, etc)
+        Using const, or let guarantees global var declar aren''t influecing/influenced by built-in globals.
+
+        ex_|
+
+            var location = 'https://example.com';
+            let location = 'https://example.com';
+
+            If the var already exists, the var declar behaves like an assignment which causes a conflict 
+            in the example above.
+                This doesn''t apply when we are in a module.
+        
+        The global environment contains the global record.
+        The global record contains an object record that is influenced by the declaritive record
+        Modules have records that are linked to the global environment.
+
+Conclusion: Why Does JS have Normal Global Variables and Global Object
+    Global object is generally a mistake to use.
+    Constructions like const, let, and classes are better practice for global variables.
+    Since most JS code is in modules, global variable rules rarely are cared about.

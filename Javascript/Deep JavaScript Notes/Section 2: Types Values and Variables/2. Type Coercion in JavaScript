@@ -1,0 +1,623 @@
+What is Type Coercion?
+
+    Definition and Examples
+
+        An object''s parameters depend on it''s type, and it expects to see them.
+            JavaScript initially didn''t have exceptions, so coercion is used for most operations
+
+        ex_| function multiple(x, y) {
+            if (typeof x !== 'number' || typeof y !== 'number') {
+
+                //Response Possibility Example 1
+                throw new TypeError();
+
+                //Response Possibility Example 2
+                return NaN;
+            
+            }
+
+            //Response Possibility Example 3
+            if (typeof x !== 'number') {
+                x = Number(x);
+            } 
+            if (typeof y !== 'number'){
+                y = Number(y);
+            }
+
+            // etc.....
+        }
+
+        Example 3 from above shows "type coercion"
+
+        Another example of coercion.
+        ex_|
+            // Coercion
+            assert.equal(3 * true, 3);
+
+            // Error Values
+            assert.equal(1 / 0, Infinity);
+            assert.equal(Number('xyz'), NaN);
+
+    Dealing With Coercion: Two Common Ways, Author Prefers Explicit Conversion
+
+        Explicit Conversion
+            let x = '3';
+            let y = '2';
+            assert.equal(Number(x) * Number(y), 6);
+        
+        Using a Caller
+            let x = '3';
+            let y = '2';
+            assert.equal(x * y, 6);
+
+Important Coercion Functions in ECMAScript Specfication
+    
+    The following list is a set of functions commonly used by the ECMAScript specification
+        for converting parameters of existing types.
+
+        ex_ In TypeScript|
+        function isNaN(number: number) {
+            // do something
+        }
+
+        Now becomes this in JavaScript|
+        function isNaN(number) {
+            let num = ToNumber(number);
+            // do something
+        }
+
+    Converting to Primitive Types
+
+        ToBoolean()
+        ToNumber()
+        ToBigInt()
+        ToString()
+        ToObject()
+    
+    Converting to Numeric Types
+
+        ToNumeric() - Returns a numeric value of type num
+            Its callers usually invoke a method mthd of the spec type of num
+                ex_| Type(num)::mthd(...)
+            The following operations use ToNumeric()
+                Prefixing and postfixing ++ operator
+                * operator
+        ToInteger(x) - Used when numbers without fractions are expected.
+            The range of results typically is restricted.
+            It calls ToNumber() and removes the fraction
+            The following operations use ToInteger()
+                Number.prototype.toString(radix?)
+                String.prototype.codePointAt(pos)
+                Array.prototype.slice(start, end)
+                etc.
+        ToInt32() or ToUint32() - Coerce numbers to 32 Bit Integers used by Bitise Operators
+
+            int32- Singed, Range of [-2^31, 2^31 - 1] (including limit values)
+            uin32 - Unsigned, Range of [0, 2^32 - 1] (including limit values)
+    
+        Bitwise Number Operators - Operand Coercion
+
+            Operator    Left Operand    Right Operand   Result Type
+            <<          ToInt32          ToUint32        Int32
+            signed>>       ToInt32          ToUint32        Int32
+        unsigned>>>     ToInt32          ToUint32      ToUint32
+                        ToInt32          ToUint32        Int32
+                        _______          ToInt32         Int32
+    
+    Converting to Proper Keys
+        ToProperKey() - returns a string/symbol.
+        Used by:
+            []
+            Computed Property Keys in Object Literals
+            Left-Hand side of "in" operator
+            Object.defineProperty(_, P, _)
+            Object.fromEntries()
+            Object.getOwnPropertyDescriptor()
+            Object.prototype.hasOwnProperty()
+            Object.prototype.propertyIsEnumerable()
+            Several of the "Reflect" Methods 
+
+    Converting to Array Indices
+        ToLength() - Used directly / mainly for string indices
+            Helps the function ToIndex()
+            Range of Results for i: 0 <= i <= (2^53 - 1)
+        ToIndex() - For Typed Array Indices
+            Different from ToLength() by throwing exception if arg is out of range
+            Range of Results for i: 0 <= i <= (2^53 - 1 )
+        ToUint32() - For Array Indices
+            Range of Results for i: 0 <= i <= (2^32 - 1)
+                Note, upper limit excluded for .length
+    
+    Converting to Typed Array Elements
+        When we set the value of Typed Array Elements, the following are used.
+            ToInt8()
+            ToUint8()
+            ToUint8Clamp()
+            ToInt16()
+            ToUint16()
+            ToInt32()
+            ToUint32()
+            ToBigInt64()
+            ToBigUint64()
+
+Expressing Specification Algorithms in JavaScript
+    Several Algorithms Implemented as JavaScript
+        Spec: If Type(value) is String
+        in JS |
+            if (TypeOf(value) === 'string') {}
+        Spec: If IsCallable(method) is true
+        in JS |
+            if (IsCallable(method)) {}
+        Spec: Let numValue be ToNumber(value)
+        in JS |
+            let numValue = Number(value)
+        Spec: Let isArray be IsArray(O) - letter O
+        in JS |
+            let isArray = Array.isArray(O)
+        Spec: If (letter) has a [[NumberData]] internal slot - letter O
+        in JS |
+            if ('__NumberData__' in O) {}
+        Spec: Let tag be Get(O, @@toStringTag) - letter O
+        in JS |
+            let tag = O[Symbol.toStringTag]
+        Spec: Return the string-concatenation of "[object", tag, and "]"
+        in JS |
+            return '[object ' + tag + ']';
+    Note, let is ised to match language of the specification instead of const
+
+Coercion Algorithms
+
+    ToPrimitive()
+
+        Converts arbitrary values to primitive values, typically an intermediary step
+        Called because most operators can only work with primitive values
+        
+        Operational Hint Preference
+
+            Hints specify a prefered type for the input to be converted to, if possible.
+                    Default means no preference.
+            number
+                ToNumeric()
+                ToNumber()
+                ToBigInt(), BigInt()
+                Abstract Relational Comparison <
+            string
+                ToString()
+                ToProperKey()
+            default
+                Abstract Equality Comparison ==
+                Addition Operator + 
+                new Date(value)
+                    Value can be either a number or a string
+
+        in JS |
+
+            function ToPrimitive(input: any, 
+                hint: 'string' | 'number' | 'default' = 'default') {
+                if (TypeOf(input) === 'object') {
+                    let exoticToPrim = input[Symbol.toPrimitive];
+                    if (exoticToPrim !== undefined) {
+                        let result = exoticToPrim.call(input, hint);
+                        if (TypeOf(result) !== 'object') {
+                            return result;
+                        }
+                        throw new TypeError();
+                    }
+                    if (hint === 'default') {
+                        hint = 'number';
+                    };
+                    return OrdinaryToPrimitive(input, hint)
+                }
+                else {
+                    // aka the input is already primitive
+                    return input;
+                }
+            }
+
+        This is called if the first function, "Symbol.toPrimitive" is not.
+
+        in JS |
+
+            function OrdinaryToPrimitive(O: object, hint: 'string' | 'number') {
+                let methodNames;
+                if (hint === 'string') {
+                    methodNames = ['toString', 'valueOf'];
+                }
+                else {
+                    methodNames = ['valueOf', 'toString'];
+                }
+                for (let name of methodNames) {
+                    let method = O[name];
+                    if (IsCallable(method)) {
+                        let result = method.call(O);
+                        if (TypeOf (result) !== 'object') {
+                            return result;
+                        } 
+                    }
+                }
+                throw new TypeError();
+            }
+
+        Methods used with Primitive Object Conversion
+            Only used if not overridden by Symbol.toPrimitive.OrdniaryToPrimitive()
+
+            Methods:
+                toString - if hint specifies string
+                valueOf - if hint specifies number
+        
+            ex_|
+            in JS |
+                const obj = {
+                    toString() { return 'a' },
+                    valueOf() { return 1 },
+                };
+
+                assert.equal(String(obj), 'a');
+                assert.equal(Number(obj), 1);
+        
+        Overriding Normal Convertion To Primitive
+            Only used twice in the standard library
+                Symbol.prototype[Symbol.toPrimitive](hint)
+                    If the receiver is an instance of Symbol, this returns the wrapped symbol
+                    Why?
+                        Instances of symbol have a .toString() return strings
+                        Even if the hint, string, is used, we shouldn''t call .toString 
+                            so we don''t convert instances of symbols to strings accidentally.
+                Date.prototype[Symbol.toPrimitive](hint)
+                    
+                    This is how dates are converted to primitive values
+                    The only difference is that default become string and not number
+                    == operator coerces objects to primitives (with a default of hint)
+                        if the other operand is a primitive value !== undefined, null, boolean types.
+                    + operator coerces both operands to primitives (with a default of hint)
+                        if one results in a string, it performs string concatenation, else numeric addition.
+
+                    ex_|
+                    in JS |
+                        Date.prototype[Symbol.toPrimitive] = function (
+                            hint: 'default' | 'string' | 'number') {
+                                let O = this;
+                                if (TypeOf(O) !== 'object') {
+                                    throw new TypeError();
+                                }
+                                let tryFirst;
+                                if (hint === 'string' || hint === 'default') {
+                                    tryFirst = 'string';
+                                }
+                                else if (hint === 'number') {
+                                    tryFirst = 'number';
+                                }
+                                else {
+                                    throw new TypeError();
+                                }
+                                return OrdinaryToPrimitive(O, tryFirst);
+                            }
+                    ex_ Coercing a the date held within a string |
+                    in JS |
+                        const d = new Date('2222-03-27');
+                        assert.equal(
+                            d == 'Wed Mar 27 2222 01:00:00 GMT+0100' 
+                            + ' (Central European Standard Time)', true
+                        );
+                    ex_ Double Coercion on the date held within two strings |
+                    in JS |
+                        const d = new Date('2222-03-27');
+                        assert.equal(
+                            123 + d,
+                            '123Wed Mar 27 2222 01:00:00 GMT+0100'
+                            + ' (Central European Standard Time)'
+                        );
+
+
+    ToString() - and Related operations
+
+        ToString() Different from String()
+            If argument is a symbol - throws TypeError
+                Symbols default to exceptions if something attempts to convert them.
+                    String() and Symbol.prototype.toString() overrides this.
+                ex_|
+                in JS Console |
+                    > const sym = Symbol('sym');
+                    > ' ' + sym  
+                    TypeError: Cannot convert a Symbol value to a string
+                    >'${sym}'
+                    TypeError: Cannot convert a Symbol value to a string
+
+        This uses toPrimitive as an intermediary step before converting primitive result to a string.
+        
+        ex_ Function Definition |
+        in JS |
+            function ToString(argument) {
+                if (argument === undefined) {
+                    return 'undefined';
+                }
+                else if (argument === null) {
+                    return 'null';
+                }
+                else if (argument === true) {
+                    return 'true';
+                }
+                else if (argument === false) {
+                    return 'false';
+                }
+                else if (TypeOf(argument) === 'number') {
+                    return Number.toString(argument);
+                }
+                else if (TypeOf(argument) === 'string') {
+                    return argument;
+                }
+                else if (TypeOf(argument) === 'symbol') {
+                    throw new TypeError();
+                }
+                else if (TypeOf(argument) === 'bigint') {
+                    return BigInt.toString(argument);
+                }
+                else {
+                    // aka the argument is an object
+                    let primValue = ToPrimitive(argument, 'string');
+                    return ToString(primValue);
+                }
+            }
+    
+        String()
+
+            Used to convert plain objects to strings
+                and also can convert class instances to strings
+
+            Conditional operations based on how String() was called
+
+                function calls
+                new - uses new.target   
+                    StringCreate()
+                    SymbolDescriptiveString()
+
+            ex_ Function definition |
+            in JS |
+                function String(value) {
+                    let s;
+                    if (value === undefined) {
+                        s = ' ';
+                    }
+                    else {
+                        if (new.target === underfined && TypeOf(value) === 'symbole') {
+                            return SymbolDescriptiveString(value);
+                        }
+                        s = ToString(value);
+                    }
+
+                    if (new.target === undefined) {
+                        return s;
+                    }
+                    return StringCreate(s, new.target.prototype);
+                }
+            ex_ Function SymbolDescriptiveString definition |
+            in JS |
+                function StringCreate(value, prototype) {
+                    // ........ 
+                }
+                function SymbolDescriptiveString(sym) {
+                    assert.equal(TypeOf(sym), 'symbol');
+                    let desc = sym.description;
+                    if (desc === undefined) {
+                        desc = ' ';
+                    }
+                    assert.equal(TypeOf(desc), 'string');
+                    return 'Symbol('+desc+')';
+                }
+            ex_ Method Symbol.prototype.toString definition |
+            in JS |
+                Symbol.prototype.toString = function () {
+                    let sym = thisSymbolValue(this);
+                    return SymbolDescriptiveString(sym);
+                } 
+                function thisSymbolValue(value) {
+                    if (TypeOf(value) === 'symbol') {
+                        return value; 
+                    }
+                    if (TypeOf(value) === 'object' && '__SymbolData__' in value) {
+                        let s = value.__SymbolData__;
+                        assert.equal(TypeOf(s), 'symbol');
+                        return s;
+                    }
+                }
+            ex_ Object.prototype.toString default Spec |
+            in JS |
+                Object.prototype.toString = function () {
+                    if (this === underfined) {
+                        return '[object Undefined]';
+                    }
+                    if (this === null) {
+                        return '[object Null]';
+                    }
+                    let 0 = ToObject(this);
+                    let isArray = Array.isArray(O);
+                    let builtinTag;
+                    if (isArray) {
+                        builtinTag = 'Array';
+                    }
+                    else if ( '__ParameterMap__ ' in O) {
+                        builtinTag = 'Arguments';
+                    }
+                    else if ( '__Call__' in O) {
+                        builtinTag = 'Function';
+                    }
+                    else if ( '__ErrorData__' in O) {
+                        builtinTag = 'Error';
+                    }
+                    else if ( '__BooleanData__' in O) {
+                        builtinTag = 'Boolean';
+                    }
+                    else if ( '__NumberData__' in O) {
+                        builtinTag = 'Number';
+                    }
+                    else if ( '__StringData__' in O) {
+                        builtinTag = 'String';
+                    }
+                    else if ( '__DateValue__' in O) {
+                        builtinTag = 'Date';
+                    }
+                    else if ( '__RegExpMatcher__' in O) {
+                        builtinTag = 'RegExp';
+                    }
+                    else {
+                        builtinTag = 'Object';
+                    }
+                    
+                    let tag = O[Symbol.toStringTag];
+                    if (TypeOf(tag) !== 'string') {
+                        tag = builtinTag;
+                    }
+                    return '[object ' + tag + ']';
+                }
+
+
+    ToProperKey()
+        Used by the bracket operator
+
+        ex_ Function Definition |
+        in JS |
+            function ToProperKey(argument) {
+                let key = ToPrimitive(argument, 'string');
+                if (TypeOf(key) === 'symbol') {
+                    return key;
+                }
+                return ToString(key);
+            }
+
+    ToNumeric() - And Related operations
+
+        ToNumeric() - Used by the multiplication operator
+            ex_ Function Definition |
+            in JS |
+                function ToNumeric(value) {
+                    let primValue = ToPrimitive(value, 'number');
+                    if (TypeOf(primValue) === 'bigint') {
+                        return primValue;
+                    }
+                    return ToNumber(primValue);
+                }
+            
+            ex_ Function Definition ToNumber |
+            in JS |
+                function ToNumber(argument) {
+                    if (argument === undefined) {
+                        return NaN;
+                    }
+                    else if (argument === null) {
+                        return +0;
+                    }
+                    else if (argument === true) {
+                        return 1;
+                    }
+                    else if (argument === false) {
+                        return +0;
+                    }
+                    else if (TypeOf(argument) === 'number') {
+                        return argument;
+                    }
+                    else if (TypeOf(argument) === 'string') {
+                        return parseTheString(argument); // this code is in another section
+                    }
+                    else if (TypeOf(argument) === 'symbol') {
+                        throw new TypeError();
+                    }
+                    else if (TypeOf(argument) === 'bigint') {
+                        throw new TypeError();
+                    }
+                    else {
+                        let primValue = ToPrimitive(argument, 'number');
+                        return ToNumber(primValue);
+                    }
+                }
+
+Operations that Coerce
+    Addition Operator +
+        Steps
+            Operands are converted to primitive values.
+            If one returns a string, both are converted to strings 
+                and then concatenated.
+            Else both operands are converted to numeric and added
+            Type() returns the script spec of lnum
+            .add() is a method of numeric types 
+        ex_ Function Definition |
+        in JS |
+            let lprim = ToPrimitive(leftHandSide);
+            let rprim = ToPrimitive(rightHandSide);
+            if (TypeOf(lprim) === 'string' || TypeOf(rprim) === 'string') {
+                return ToString(lprim) + ToString(rprim);
+            }
+            let lnum = ToNumeric(lprim);
+            let rnum = ToNumeric(rprim);
+            if (TypeOf(lnum) !== TypeOf(rnum)) {
+                throw new TypeError();
+            }
+            let T = Type(lnum);
+            return T.add(lnum, rnum);
+
+    Abstract Equality Comparison ==
+
+        Note, the following operations aren''t explained here:
+            strictEqualityComparison()
+            StringToBigInt()
+            isSameMathematicalValue()
+
+        ex_ Function Definition |
+        in JS |
+            function abstractEqualityComparison(x, y) {
+                if (TypeOf(x) === TypeOf(y)) {
+                    return strictEqualityComparison(x, y);
+                }
+
+                if (x === null && y === undefined) {
+                    return true;
+                }
+                if (x === undefined && y === null) {
+                    return true;
+                }
+
+                if (TypeOf(x) === 'number' && TypeOf(y) === 'string') {
+                    return abstractEqualityComparison(x, Number(y));
+                }
+                if (TypeOf(x) === 'string' && TypeOf(y) === 'number') {
+                    return abstractEqualityComparison(Number(x), y);
+                }
+                
+                if (TypeOf(x) === 'bigint' && TypeOf(y) === 'string') {
+                    let n = StringToBigInt(y);
+                    if (Number.isNaN(n)) {
+                        return false;
+                    }
+                    return abstractEqualityComparison(x, n);
+                }
+                if (TypeOf(x) === 'string' && TypeOf(y) === 'bigint') {
+                    return abstractEqualityComparison(y, x);
+                }
+
+                if (TypeOf(x) === 'boolean') {
+                    return abstractEqualityComparison(Number(x), y);
+                }
+                if (TypeOf(y) === 'boolean') {
+                    return abstractEqualityComparison(x, Number(y));
+                }
+
+                if (['string', 'number', 'bigint', 'symbol'].includes(TypeOf(x)) && TypeOf(y) === 'object') {
+                    return abstractEqualityComparison(x, ToPrimitive(y));
+                }
+                if (TypeOf(x) === 'object' && ['string', 'number', 'bigint', 'symbol'].includes(TypeOf(x))) {
+                    return abstractEqualityComparison(ToPrimitive(x), y);
+                }
+
+                if ((TypeOf(x) === 'bigint' && TypeOf(y) === 'number') || 
+                    TypeOf(x) === 'number' && TypeOf(y) === 'bigint') {
+                        if ([NaN, +Infinity, -Infinity].includes(x) || [NaN, +Infinity, -Infinity].includes(y)) {
+                            return false;
+                        }
+                        if (isSameMathematicalValue(x, y)) {
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                return false;
+            }
