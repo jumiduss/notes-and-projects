@@ -1,0 +1,402 @@
+{
+    "0": {
+        "Artist": "Mariah Carey",
+        "Song": "All I Want For Christmas Is You"
+    },
+    "1": {
+        "Artist": "Brenda Lee",
+        "Song": "Rockin' Around The Christmas Tree"
+    },
+    "2": {
+        "Artist": "Bobby Helms",
+        "Song": "Jingle Bell Rock"
+    },
+    "3": {
+        "Artist": "Burl Ives",
+        "Song": "A Holly Jolly Christmas"
+    },
+    "4": {
+        "Artist": "Post Malone",
+        "Song": "Circles"
+    },
+    "5": {
+        "Artist": "Arizona Zervas",
+        "Song": "Roxanne"
+    },
+    "6": {
+        "Artist": "Andy Williams",
+        "Song": "It's The Most Wonderful Time Of The Year"
+    },
+    "7": {
+        "Artist": "Lewis Capaldi",
+        "Song": "Someone You Loved"
+    },
+    "8": {
+        "Artist": "Maroon 5",
+        "Song": "Memories"
+    },
+    "9": {
+        "Artist": "Lizzo",
+        "Song": "Good As Hell"
+    },
+    "10": {
+        "Artist": "Wham!",
+        "Song": "Last Christmas"
+    },
+    "11": {
+        "Artist": "Jose Feliciano",
+        "Song": "Feliz Navidad"
+    },
+    "12": {
+        "Artist": "Roddy Ricch",
+        "Song": "The Box"
+    },
+    "13": {
+        "Artist": "Tones And I",
+        "Song": "Dance Monkey"
+    },
+    "14": {
+        "Artist": "Dean Martin",
+        "Song": "Let It Snow, Let It Snow, Let It Snow!"
+    },
+    "15": {
+        "Artist": "Nat \"King\" Cole",
+        "Song": "The Christmas Song (Merry Christmas To You)"
+    },
+    "16": {
+        "Artist": "Dan + Shay & Justin Bieber",
+        "Song": "10,000 Hours"
+    },
+    "17": {
+        "Artist": "Selena Gomez",
+        "Song": "Lose You To Love Me"
+    },
+    "18": {
+        "Artist": "Mustard & Roddy Ricch",
+        "Song": "Ballin'"
+    },
+    "19": {
+        "Artist": "DaBaby",
+        "Song": "BOP"
+    },
+    "20": {
+        "Artist": "The Ronettes",
+        "Song": "Sleigh Ride"
+    },
+    "21": {
+        "Artist": "Gene Autry & The Pinafores",
+        "Song": "Rudolph The Red-Nosed Reindeer"
+    },
+    "22": {
+        "Artist": "Billie Eilish",
+        "Song": "Bad Guy"
+    },
+    "23": {
+        "Artist": "Andy Williams",
+        "Song": "Happy Holiday / The Holiday Season"
+    },
+    "24": {
+        "Artist": "Chris Brown Featuring Drake",
+        "Song": "No Guidance"
+    },
+    "25": {
+        "Artist": "Shawn Mendes & Camila Cabello",
+        "Song": "Senorita"
+    },
+    "26": {
+        "Artist": "Juice WRLD & YoungBoy Never Broke Again",
+        "Song": "Bandit"
+    },
+    "27": {
+        "Artist": "Perry Como And The Fontane Sisters With Mitchell Ayres And His Orchestra",
+        "Song": "It's Beginning To Look A Lot Like Christmas"
+    },
+    "28": {
+        "Artist": "Darlene Love",
+        "Song": "Christmas (Baby Please Come Home)"
+    },
+    "29": {
+        "Artist": "Lil Nas X",
+        "Song": "Panini"
+    },
+    "30": {
+        "Artist": "Kelly Clarkson",
+        "Song": "Underneath The Tree"
+    },
+    "31": {
+        "Artist": "Gene Autry",
+        "Song": "Here Comes Santa Claus (Right Down Santa Claus Lane)"
+    },
+    "32": {
+        "Artist": "Young Thug Featuring Gunna",
+        "Song": "Hot"
+    },
+    "33": {
+        "Artist": "Lil Nas X Featuring Billy Ray Cyrus",
+        "Song": "Old Town Road"
+    },
+    "34": {
+        "Artist": "Lizzo",
+        "Song": "Truth Hurts"
+    },
+    "35": {
+        "Artist": "Chuck Berry",
+        "Song": "Run Rudolph Run"
+    },
+    "36": {
+        "Artist": "Perry Como With Mitchell Ayers And His Orchestra",
+        "Song": "(There's No Place Like) Home For The Holidays (1959)"
+    },
+    "37": {
+        "Artist": "Travis Scott",
+        "Song": "HIGHEST IN THE ROOM"
+    },
+    "38": {
+        "Artist": "The Weeknd",
+        "Song": "Heartless"
+    },
+    "39": {
+        "Artist": "Elvis Presley",
+        "Song": "Blue Christmas"
+    },
+    "40": {
+        "Artist": "Billie Eilish",
+        "Song": "Everything I Wanted"
+    },
+    "41": {
+        "Artist": "Bing Crosby With Ken Darby Singers & John Scott Trotter & His Orchestra",
+        "Song": "White Christmas"
+    },
+    "42": {
+        "Artist": "Frank Sinatra With The Orchestra & Chorus Of Gordon Jenkins",
+        "Song": "Jingle Bells"
+    },
+    "43": {
+        "Artist": "Jonas Brothers",
+        "Song": "Like It's Christmas"
+    },
+    "44": {
+        "Artist": "Dean Martin",
+        "Song": "Baby It's Cold Outside"
+    },
+    "45": {
+        "Artist": "SHAED",
+        "Song": "Trampoline"
+    },
+    "46": {
+        "Artist": "Lil Baby",
+        "Song": "Woah"
+    },
+    "47": {
+        "Artist": "Lil Uzi Vert",
+        "Song": "Futsal Shuffle 2020"
+    },
+    "48": {
+        "Artist": "Thurl Ravenscroft",
+        "Song": "You're A Mean One, Mr. Grinch"
+    },
+    "49": {
+        "Artist": "Lil Tecca",
+        "Song": "Ran$om"
+    },
+    "50": {
+        "Artist": "Trevor Daniel",
+        "Song": "Falling"
+    },
+    "51": {
+        "Artist": "Dua Lipa",
+        "Song": "Don't Start Now"
+    },
+    "52": {
+        "Artist": "Harry Styles",
+        "Song": "Adore You"
+    },
+    "53": {
+        "Artist": "Old Dominion",
+        "Song": "One Man Band"
+    },
+    "54": {
+        "Artist": "blackbear",
+        "Song": "Hot Girl Bummer"
+    },
+    "55": {
+        "Artist": "YNW Melly & Juice WRLD",
+        "Song": "Suicidal"
+    },
+    "56": {
+        "Artist": "Taylor Swift",
+        "Song": "Lover"
+    },
+    "57": {
+        "Artist": "Wale Featuring Jeremih",
+        "Song": "On Chill"
+    },
+    "58": {
+        "Artist": "Luke Combs",
+        "Song": "Even Though I'm Leaving"
+    },
+    "59": {
+        "Artist": "Don Toliver",
+        "Song": "No Idea"
+    },
+    "60": {
+        "Artist": "Halsey",
+        "Song": "Graveyard"
+    },
+    "61": {
+        "Artist": "Camila Cabello Featuring DaBaby",
+        "Song": "My Oh My"
+    },
+    "62": {
+        "Artist": "Doja Cat & Tyga",
+        "Song": "Juicy"
+    },
+    "63": {
+        "Artist": "Maren Morris",
+        "Song": "The Bones"
+    },
+    "64": {
+        "Artist": "Summer Walker",
+        "Song": "Playing Games"
+    },
+    "65": {
+        "Artist": "Chris Brown Featuring Gunna",
+        "Song": "Heat"
+    },
+    "66": {
+        "Artist": "Idina Menzel & AURORA",
+        "Song": "Into The Unknown"
+    },
+    "67": {
+        "Artist": "DaBaby",
+        "Song": "VIBEZ"
+    },
+    "68": {
+        "Artist": "John Legend",
+        "Song": "Happy Xmas (War Is Over)"
+    },
+    "69": {
+        "Artist": "Rod Wave",
+        "Song": "Heart On Ice"
+    },
+    "70": {
+        "Artist": "Lady Antebellum",
+        "Song": "What If I Never Get Over You"
+    },
+    "71": {
+        "Artist": "The Weeknd",
+        "Song": "Blinding Lights"
+    },
+    "72": {
+        "Artist": "Dustin Lynch",
+        "Song": "Ridin' Roads"
+    },
+    "73": {
+        "Artist": "NLE Choppa",
+        "Song": "Camelot"
+    },
+    "74": {
+        "Artist": "Jon Pardi",
+        "Song": "Heartache Medication"
+    },
+    "75": {
+        "Artist": "Roddy Ricch & Gunna",
+        "Song": "Start Wit Me"
+    },
+    "76": {
+        "Artist": "Post Malone Featuring Ozzy Osbourne & Travis Scott",
+        "Song": "Take What You Want"
+    },
+    "77": {
+        "Artist": "Layton Greene, Lil Baby, City Girls & PnB Rock",
+        "Song": "Leave Em Alone"
+    },
+    "78": {
+        "Artist": "Ellie Goulding & Juice WRLD",
+        "Song": "Hate Me"
+    },
+    "79": {
+        "Artist": "Sam Hunt",
+        "Song": "Kinfolks"
+    },
+    "80": {
+        "Artist": "Juice WRLD",
+        "Song": "Let Me Know (I Wonder Why Freestyle)"
+    },
+    "81": {
+        "Artist": "Thomas Rhett",
+        "Song": "Remember You Young"
+    },
+    "82": {
+        "Artist": "Trippie Redd Featuring DaBaby",
+        "Song": "Death"
+    },
+    "83": {
+        "Artist": "YNW Melly & 9lokknine",
+        "Song": "223's"
+    },
+    "84": {
+        "Artist": "H.E.R. Featuring YG",
+        "Song": "Slide"
+    },
+    "85": {
+        "Artist": "Black Eyed Peas X J Balvin",
+        "Song": "RITMO (Bad Boys For Life)"
+    },
+    "86": {
+        "Artist": "Harry Styles",
+        "Song": "Watermelon Sugar"
+    },
+    "87": {
+        "Artist": "Kane Brown",
+        "Song": "Homesick"
+    },
+    "88": {
+        "Artist": "Joji",
+        "Song": "Slow Dancing In The Dark"
+    },
+    "89": {
+        "Artist": "DaniLeigh Featuring Chris Brown",
+        "Song": "Easy"
+    },
+    "90": {
+        "Artist": "Bad Bunny",
+        "Song": "Vete"
+    },
+    "91": {
+        "Artist": "DaBaby Featuring Offset",
+        "Song": "Baby Sitter"
+    },
+    "92": {
+        "Artist": "Niall Horan",
+        "Song": "Nice To Meet Ya"
+    },
+    "93": {
+        "Artist": "Ant Saunders",
+        "Song": "Yellow Hearts"
+    },
+    "94": {
+        "Artist": "Roddy Ricch Featuring A Boogie Wit da Hoodie",
+        "Song": "Tip Toe"
+    },
+    "95": {
+        "Artist": "Doja Cat",
+        "Song": "Candy"
+    },
+    "96": {
+        "Artist": "Russ & BIA",
+        "Song": "BEST ON EARTH"
+    },
+    "97": {
+        "Artist": "Karol G & Nicki Minaj",
+        "Song": "Tusa"
+    },
+    "98": {
+        "Artist": "Post Malone Featuring DaBaby",
+        "Song": "Enemies"
+    },
+    "99": {
+        "Artist": "Ed Sheeran Featuring Camila Cabello & Cardi B",
+        "Song": "South Of The Border"
+    }
+}
