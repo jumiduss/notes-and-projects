@@ -1,0 +1,360 @@
+Models Work Flow
+    Edit models form
+    python manage.py makemigrations app_name_of_modified_model
+
+Adding App to Settings
+    'polls.apps.PollsCofig'
+Python Shell Interactions 1
+    Question.objects.all()
+        Method that returns all objects in the model Question
+    from django.utils import timezone
+        Imports timezone into the shell
+    q = Question(question_text="What's new",pub_date=timezone.now())
+        Creates an object variable q from model Question
+    q.save()
+        Saves the object variable to the model it was created from
+    q.id
+        Lists the model Question''s id field integer
+    q.question_text
+        Returns the question_text from the object
+    q.pub_date
+        Same as above
+    q.question_text = "What's up?"
+        Sers the string into the object''s question_text model field
+    q.save()
+        Re-saves the object to the database
+    Question.objects.all()
+        Now returns a queryset that states an object exists
+def __str__(self)
+    Returns a value when an object is called, this is useful for Question.objects.all()
+        so it returns an actual field name
+
+def was_published_recently(self):
+    User created function that retuns a boolean on whether the poll was created before today
+
+Python Shell Interactions 2
+    Question.objects.all()
+        Returns a query entity Question: What''s up? (double single quote for markuptext, really only 1)
+    Question.objects.filter(id=1)
+        Returns a query set like above, but matches the given id
+    Question.objects.filter(question_text__startswith="What")
+        Returns a query set like above, but matches new filter terms
+        Double underscore filters database by the model variable, filtered with the CharField attribute starts_with
+    current_year = timezone.now().year
+        Sets new variable to the current year by timezone in settings.py 
+    Question.objects.filter(pub_date__year=current_year)
+        Same type of filter as above, but with DateTimeField attribute 'year'
+    Question.objects.get(id=2)
+        Returns traceback error because id=2 doesn''t exist in the table
+    Question.objects.get(pk=1)
+        Returns the primary key lookup == 1
+    q = Question.objects.get(pk=1)
+        Sets a variable to the object with this primary key
+    q.was_published_recently()
+        Returns the boolean check from the function
+    q.choice_set.all()
+        Returns choices from the object set, none have been made so far
+    q.choice.create(choice_text="Note much", votes=0)
+    q.choice.create(choice_text="The sky", votes=0)
+        creates a choice object for q
+    c = q.choice.create(choice_text="Just hacking again", votes=0)
+        creates a new Question (not saved) object while setting one choice
+    c.question
+        Returns the associated questions to c
+        NOTE: Django automatically lowercases foreign key classes
+    q.choice_set.all()
+        Returns all Choice''s for q
+    Choice.objects.filter(question__pub_date__year=current_year)
+        returns all choice objects with a class Question, with publication date, with field attribute year
+    c = q.choice_set.filter(choice_text__startswith="Just hacking")
+        Sets the c variable to the set of choices returned from the query
+    c.delete()
+        Deletes the choices in object b that were set to c in previous command
+
+
+Admin
+    Create super user
+        python manage.py createsuperuser
+    Make model fields editable in the admin page
+        polls/admin.py
+
+        from django.contrib import admin
+        from .models import Question
+        
+        admin.site.register(Question)
+
+        Note, Once logged in, the DateTimeField and CharField use the default html import widget
+            ex, DateTimeField widget supplies a today shortcut from javascript
+
+Writing Views
+    polls/views.py
+    def detail(request, question_id):
+        return HttpResponse("You're looking at question %s" % question_id)
+    
+        This defines a view function that takes in two variables: the request and the model Question''s id 
+        This returns the string with the %s format adding the id
+    
+    def results(request, question_id):
+        response = "You're looking at the results of question %s."
+        return HttpResponse(response % question_id)
+
+        This accomplishes the same as detail, but shows setting the string to a variable before returning
+
+    def vote(requestion, question_id):
+        return HttpResponse("Your're voting on question %s." % question_id)
+
+        Same functionality as detail  
+
+Updating Urls
+    polls/urls.py
+    from django.urls import path
+    from . import views
+    urlpatterns = [
+        path("", views.index, name="index"),
+        path("<int:question_id>/", views.detail, name="details"),
+        path("<int:question_id>/results/", views.results, name="results"),
+        path("<int:question_id>/vote/", views.vote, name="vote"),
+    ]
+
+    First path sets the project''s index view
+    Second path sets the index view for any Question model based on it''s id field
+        Note: Any id, even id not defined, can be displayed by the second path, but not 3 and 4 
+    Third and Fourth path add an additional sub link based on the page''s context
+
+Writing Useful Views - Unfortunately, these are hardcoded and not efficient
+    polls/views.py
+    ...
+    def index(request):
+        latest_question_list = Question.objets.order_by("-pub_date")[:5]
+        output = ", ".join([q.question_text for q in latest_question_list])
+        return HttpResponse(output)
+    ...
+    This view function creates a variable from a query on the Question model
+    The question model is sorted by the reverse publish_date, for the first 5 date values
+    The output variable joins all values in the first variable, and places the beggining string between entries
+
+Creating Templates
+    Template directory locations are within the application
+    polls/templates/polls/html_file_name.html
+    Django, by default, looks for the templates folder in each application
+
+    ~/polls/templates/polls/index.html
+    {% if latest_question_list %}
+        <ul>
+        {% for question in latest_question_list %}
+            <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+        {% endfor %}
+    {% else %}
+        <p>No polls are available.</p>
+    {% endif %}
+
+    This html template takes in the latest_question_list and builds the html based on the conditions
+    If there''s anything in the list, build a list of those items at the url provided in the anchor
+    If not, provide a paragraph explaining the list is empty
+
+    We need to update views to include this template
+    polls/views.py
+    ...
+    from django.template import loader
+    ...
+    def index(request):
+        latest_question_list = Question.objets.order_by("-pub_date")[:5]
+        template = loader.get_template("polls/index.html")
+        context = {
+                "latest_question_list": latest_question_list,
+            }
+        return HttpResponse(template.render(context,request))
+    
+    We load the html template into a variable
+    We define variables used within the template in a dictionary
+    We return a render of the html template with the dictionary variables
+    
+Shortcuting Template Loading in Views
+    Django has a shortcut for rendering views that skips some code from previous
+    ...
+    from django.shortcuts import render
+    from .models import Question
+
+    def index(request):
+        latest_question_list = Question.objects.order_by("-pub_date")[:5]
+        context = {"latest_question_list":latest_question_list}
+        return render(request, "polls/index.html",context)
+    
+    We still define our list
+    We still define our dictionary
+    We use our request information to satisfy render
+    We''ve skipped using loader and HttpResponse
+
+404 Errors
+    404 errors help us deal with requests for missing objects
+
+    ...
+    from django.http import Http404
+    ...
+    def detail(request, question_id):
+        try:
+            question = Question.objects.get(pk=question_id)
+        except Question.DoesNotExist:
+            raise Http404("Question does not exist")
+        return render(request, "polls/detail.html",{"question": question})
+    
+Details Template
+    ~/polls/templates/polls/details.html
+    {{ question }}
+
+404 Shortcut
+    polls/views.py
+    ...
+    from django.shortcuts import get_object_or_404, render
+    ...
+    def detail(request,question_id):
+        question = get_object_or_404(Question,pk=question_id)
+        return render(request, "polls/detail.html", {"question": question})
+    
+    We skipped the whole try condition
+
+Adding to the Detail Template
+    <h1>{{ question.question_text }}</h1>
+    <ul>
+        {% for choice in question.choice_set.all %}
+            <li>{{ choice.choice_text }}</li>
+        {% endfor %}
+    </ul>
+
+    We state the question
+    We show the list of choices for the question
+    This is called dot lookup syntax
+        question.choice_set.all is the same as question.choice_set.all()
+            This returns a set of iterable Choice objects
+
+Removing Hard Coded Urls
+    polls/index.html
+    <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+    gets replaced with
+    <li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+
+    Since we defined 'detail' in our urls file, we can pull the details form with the link in urls.py
+    The variables are imported from this form within the anchor tag, and used between the start/end tags
+
+    To change the url name, you would do it in polls/urls.py
+
+Namespace Urls
+    adding an app name to the application''s url specifies which app same name templates belong to
+    polls/urls.py
+    ...
+    app_name = "polls"
+    ...
+    ~/polls/templates/polls/index.html - modify anchor href
+    {% url 'polls:detail' question.id %}
+
+A Minimal Form
+    ~/polls/templates/polls/detail.html
+    <form action="{% url 'polls:vote' question.id %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+        <legend><h1>{{ question.question_text }}</h1></legend>
+        {% if error_message %}
+            <p><strong>{{ error_message }}</strong></p>
+        {% endif %}
+        {% for choice in question.choice_set.all %}
+        <label>
+            <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+        </label><br>
+        {% endfor %}
+    </fieldset>
+    <input type="submit" value="Vote">
+    </form>
+
+    We link out form to views.py
+    We setup csrf token
+        Internal url forms must be protected with csrf tokens
+    We setup error message handler
+    We setup a for loop to list the choices for the question
+    We setup the form inputs
+    We setup the submit button
+    We used an included property forloop.counter for the index
+
+Creating Voting View
+    ~/posts/views.py
+    ...
+    from django.http import ..., HttpResponseRedirect
+    from django.urls import reverse
+    ...
+    def vote(request,question_id):
+        question = get_object_or_404(Question,pk=question_id)
+        try:
+            selected_choice = question.choice_set.get(pk=request.POST["choice"])
+        except (KeyError, Choice.DoesNotExist):
+            return render(request,"polls/detail.html",{"question":question,"error_message":"You didn't select a choice",},)
+        else:
+            selected_choice.votes += 1
+            selected_choice.save()
+            return HttpResponseRedirect(reverse("polls:results", args=(question_id,)))
+    
+    We queried for a set of question options for our id
+    We set a custom error handler based on whether a choice was selected ON POST
+    If there was no exception, add a tally to the poll
+    Redirect to the poll results view
+
+Creating Results Page
+    ~/polls/views.py
+    def results(request, question_id):
+        question = get_object_or_404(Question,pk=question_id)
+        return render(request, "polls/results.html",{"question":question})
+    ~/polls/templates/polls/results.html
+    <h1>{{ question.question_text }}</h1>
+
+    <ul>
+    {% for choice in question.choice_set.all %}
+        <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+    {% endfor %}
+    </ul>
+    <a href="{% url 'polls:details' question.id %}">Vote again?</a>
+
+Generic Views
+    The detail and results view functions from above are so short and common they become redundant
+    These represent common get commands in web dev
+    ListView, and DetailView are generic views that can replace these functions
+
+    ~/polls/urls.py
+    ...[
+        path("", views.IndexView.as_view(),name="index"),
+        path("<int:pk>", views.DetailView.as_view(),name="details"),
+        path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
+        path("<int:question_id>/vote/", views.vote, name="vote"),
+    ]
+
+    ~/polls/views.py
+    from django.http import HttpResponseRedirect
+    from django.shortcuts import get_object_or_404, render
+    from django.urls import reverse
+    from django.views import generic
+    from .models import Choice, Question
+
+    class IndexView(generic.ListView):
+        template_name = "polls/index.html"
+        context_object_name = "latest_question_list"
+
+        def get_queryset(self):
+            return Question.objects.order_by("-pub_date")[:5]
+
+    class DetailView(generic.DetailView):
+        model = Question
+        template_name = "polls/details.html"
+    
+    class ResultsView(generic.DetailView):
+        model = Question
+        template_name = "polls/results.html"
+    ...(all other code remains unchanged)
+
+Generic View Structure
+    Default naming of Detail View
+        <app_name>/<model_name>_detail.html
+        default variable name was question (automatically set from django)
+    Default naming of List View
+        <app_name>/<model_name>_list.html
+        default variable name question_list
+            override with context_object_name
+    Stating the template name for both list and detail changes the default search to the provided url
+
+    Check generic views documentation for more 
