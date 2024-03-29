@@ -1,0 +1,311 @@
+Strings
+
+    For loop appending items to list vs list comprehension
+
+        For Loop
+            x = [1,2,3,4]
+            out = []
+            for num in x:
+                out.append(num**2)
+
+        List Comprehension
+            x = [1,2,3,4]
+            out = [num**2 for num in x]
+            
+    Reverse String Indexing
+        string = "This is a string"
+        print(16:0)
+
+    
+Functions
+
+    Checking Variable Type
+        type(10) is base ten int
+        type(variable)
+
+    Conditional Returns
+
+        return num%2 == 0  #Returns the number if the condition is true
+
+    lambda Expressions - one line nameless function
+
+        lambda num:num%2 == 0
+    
+    Filtering Returns of lists and functions
+
+        filter(FunctionToTestIn, listToTest)
+
+        With lambda Expression
+
+            filter(lambda num:num%2 == 0, myList)
+
+    Splitting
+
+        Based on Character
+            st = "Go Sports! #Sports"
+            print(st.split('#')[1])
+
+    Testing Conditions for Boolean Response
+
+        'x' in [1,2,3] -> false
+
+Defining a Class
+
+    class Dog():
+        
+        species = "mammal"  #Since all dogs are mammals, this is a train all dogs can call
+
+        def __init__(self,breed,name):
+            self.breed = breed
+            self.name = name
+    
+    mydog = Dog(breed = "Lab")
+    print(mydog.breed) # Note this is not with parenthesis because we're not running it, just calling the information
+                       # This defines objects
+Defining a Method in a Class # Methods are functions defined inside of a class 
+    class Circle():
+        pi = 3.14
+
+        def __init__(self,radius=1): #sets the default radius of 1
+            self.radius = radius
+
+        def area(self):         #self defines the method as a function of the class
+            return self.radius*self.radius*Circle.pi
+
+    myCircle = Circle(3)
+    #redefining property
+    myCircle.radius = 20
+    print(myCircle.area)
+
+Inheritance
+    Defines new classes based on previously defined classes
+    Methods will be overwritten by the newest referenced method in the linked scope
+
+    class Animal():
+
+        def __init__(self):
+            print("Animal Created")
+        
+        def whoAmI(self):
+            print("Animal")
+        
+        def eat(self):
+            print("Eating")
+
+    class Dog(Animal):
+
+        def __init__(self):
+            Animal.__init__(self) #We can also comment this out and it will STILL pull properties from previous class
+                #Note, this will not run the initialization of Animal where "Animal Created" is printed
+            print("Dog")
+
+    myDog = Dog()
+    myDog.whoAmI()
+    myDog.eat()
+
+    #::::Prints::::
+    #Animal Created
+    #Dog Created
+    #Animal
+    #Eating 
+
+Returning Data From Classes
+
+    class Book():
+
+        def __init__(self,title,author,pages):
+            self.title = title
+            self.author = author
+            self.pages = pages
+
+        def __str__(self):
+            return "Title: {}, Author: {}, Pages: {}".format(self.title,self.author,self.pages)
+
+        def __del__(self):
+            return print("A book is destroyed!")
+
+        def __len__(self):
+            return self.pages
+
+
+
+    b = Book("Python","Jose",200)
+    print(b)
+    #::::Prints::::
+    #The string defined above
+
+    del b # Deletes the object from memory
+
+Nested For Loops equal to integer
+    mycards = []
+    for r in RANKS:
+        for s in SUITE:
+            mycards.append((s,r))
+
+    OR
+    
+    mycards = [(s,r) for s SUITE for r in RANKS]
+
+Try Condition
+    "try" allows for exception handling by adding exceptions 
+        like "except EXCEPTION#1"(elif equivelant) or else if no exception applies 
+
+File Management
+    f = open('filepath', 'option')
+        w = write
+        r = read only
+        
+    methods
+        .write()
+        .close()
+
+Regular Expressions
+    A module that can recognize patterns in text
+    import re 
+
+    patterns = ['term1','term2']
+
+    text = 'This is a string with term1, not not the other!'
+
+    for pattern in patterns:
+        print("I'm searching for: "+pattern)
+
+        if re.search(pattern,text): #Returns match object if pattern is matched
+            print("Match!")         # Match object looks like <class '_sre.sre_MAtch'>
+        else: 
+            print("No Match!")
+        
+    
+    match.start() # Shows index start of the match
+
+    re.split(split_term,stringToSplit) 
+    #if split_term = '@'
+    #and stringToSplit = 'me@gmail.com'
+    #This returns ['me','gmail.com']
+
+    re.findall('stringToFind','stringToSearch')
+    #returns every ocurrance of stringToFind in a list
+
+    Weird syntax to search patterns
+    
+        #Find all patterns starting with x, and 0 to any # of y's that follow x
+            ['xy*']
+        #Find all patterns with x and 1 or more y's 
+            ['xy+']
+        #Find all patterns with x and 0,1 y
+            ['xy?']
+        #Find all patterns with x and n number of y
+            ['xy{n}']
+        #Find all patterns with x and n or m y
+            ['xy{n,m}']
+        #Find all patterns with x followed by one or more y or z
+            ['x[yz]+']number
+        #Find string without one or more x
+            ['^[x]+']
+        #Find string sequences with lowercase letters  
+            ['[a-z]+']
+        #Find string sequences with upperacse letters
+            ['[A-Z]+']
+        #Finding literals to escape[]
+            [r'\d+'] #Returns digits. r forces literal "\", "\d" forces digits 
+            # \D forces non digits
+            # \s white space
+            # \S non white space
+            # \w all alpha-numeric
+            # \W all non alpha-numeric
+
+Modules and Packages
+    import moduleName 
+        #moduleName is in same folder as program as moduleName.py
+
+    moduleName.functionInModule()
+    
+    Renaming Module
+        import moduleName as mn 
+    
+    Importing methods from modules
+        from moduleName import methodName
+
+Decorators
+    global varName - calls the global variable into the function and manipulates the global instead of the local
+
+    Grab a dictionary of global or local variables in the function
+        locals()
+        globals()
+        globals()['varName'] #returns the global variable value with the key (aka varName) of varName
+
+    Defining a default function variable value
+    
+    def functionName(varName = "defaultString"):
+        return "hello " + varName
+
+    setting functions as variables
+
+        varName = functionName
+        varName() #returns function call    
+
+    defining a function within a function
+        def functionOuter():
+            def functionInner():
+                do something
+
+    defining decorator
+        def decoratorName(func):
+            def wrapFunction():
+                func()
+
+            return wrapFunction
+
+        def func_needs_decorator():
+            return didSomething
+
+        func_needs_decorator = new_decorator(func_needs_decorator)
+        func_needs_decorator()
+
+        #This can be rewritten with the at symbol
+        
+        @new_decorator
+        def func_needs_decorator():
+            return didSomething
+
+Defining Main and Name
+
+    #Two files in the same directory, one.py, two.py
+    #Used to figure out if the function we're using is from an import or original file
+    
+    #in one.py
+        def func():
+            return doSomething
+        
+        doSomethingElse
+
+        if __name__ == '__main__':
+            print("one.py is being run directly")
+        else:
+            print("one.py has been imported")
+
+    #in two.py
+        import one
+        one.func()
+
+    # if we run one.py, we run in main.
+    # if we run two.py, we run on import
+    # This works because "__name__" variable is set to __main__ in the function if the function is used in the original file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

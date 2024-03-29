@@ -1,0 +1,50 @@
+(projEnv) [jd@lapcom learning_users]$ python manage.py migrate
+Traceback (most recent call last):
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/urls/resolvers.py", line 692, in url_patterns
+    iter(patterns)
+TypeError: 'module' object is not iterable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/jd/Documents/Study Notes/Web Development/Django/djangoProjects/level_five/learning_users/manage.py", line 22, in <module>
+    main()
+  File "/home/jd/Documents/Study Notes/Web Development/Django/djangoProjects/level_five/learning_users/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/__init__.py", line 446, in execute_from_command_line
+    utility.execute()
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/__init__.py", line 440, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/base.py", line 402, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/base.py", line 448, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/base.py", line 96, in wrapped
+    res = handle_func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/commands/migrate.py", line 97, in handle
+    self.check(databases=[database])
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/management/base.py", line 475, in check
+    all_issues = checks.run_checks(
+                 ^^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/checks/registry.py", line 88, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/checks/urls.py", line 14, in check_url_config
+    return check_resolver(resolver)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/core/checks/urls.py", line 24, in check_resolver
+    return check_method()
+           ^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/urls/resolvers.py", line 476, in check
+    for pattern in self.url_patterns:
+                   ^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/jd/miniconda3/envs/projEnv/lib/python3.12/site-packages/django/urls/resolvers.py", line 700, in url_patterns
+    raise ImproperlyConfigured(msg.format(name=self.urlconf_name)) from e
+
+django.core.exceptions.ImproperlyConfigured: The included URLconf 'learning_users.urls' does not appear to have any patterns in it. 
+If you see the 'urlpatterns' variable with valid patterns in the file then the issue is probably caused by a circular import.

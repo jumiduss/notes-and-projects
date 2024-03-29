@@ -1,0 +1,362 @@
+Forms
+    Used to generate HTML form widgets
+    Validate data dn process it into data structures
+    Creates form versions of our models for quick updates
+
+    Steps
+        Create a forms.py file within the app
+        Call in the forms class
+        ex_|
+            from django import forms
+            
+            class FormName(forms.Form):
+                name = forms.CharField()
+                email = forms.EmailField()
+                text = forms.Charfield(widget=forms.Textarea)
+        Import the form to views.py
+        ex_|
+            from . import forms # Dot says look at current directory
+            from forms import FormName # FormName is the class object
+        Create the new view of the form
+        ex_|
+            def form_name_view(request):
+                form = forms.FormName()
+                return render(request, 'form_name.html',
+                    {'form':form})
+        Add the view to the app's urls.py directly, or with include
+        ex_|
+            urlpatters = [
+                re_path(r'formpage/',views.form_name_view,
+                    name = 'form_name'),
+            ]
+        Create the templates folder with html file that will hold the
+            templates and tagging for the form
+        Update settings.py to reflect TEMPLATE_DIR variable
+        Update views.py to reflect subdirectories inside templates
+        Inject the template form 
+        ex_|
+            {{ form }}
+        ex_|
+            <div class="container">
+                <form method="POST">
+                    {{ form.as_p }}
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" value="Submit">
+                </form>
+            </div>
+        Edit the views.py to accept received data from the form submission
+        Connect forms to the model
+
+HTTP   
+    Enables communication between a client and a server
+    The client submits a request, a server responds to the request
+    Commonly used request methods:
+        GET - requests data from a resource
+        POST - submits data to be processed to a resource
+
+
+Security
+    csrf - Cross Site Request Forgery token
+        Secures HTTP POST on form submissions
+        Works by using a hidden input and checks it against the user's local site page.
+    
+
+Code Along Lecture
+     1. Made a new project folder and went into it
+     2. Started the project environment
+        source activate projEnv
+     3. Created the new django project
+        django-admin startproject basicforms
+     4. CD into basicforms and create an application basicapp
+        django-admin startapp basicapp
+     5. Went into the project main folder, and created a templates folder
+     6. Went into the templates folder and created an app subdirectory
+     7. Created an index.html file and forms.html file and 
+        inputed basic information into the index, and titled the forms.html
+     8. Add the templates directory, and basicapp in settings.py - Make sure to "import os"
+            TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
+            INSTALLED_APPS = [
+                ...
+                'basicapp'
+            ]
+            TEMPLATES = [
+                {
+                    'BACKEND': '....' ,
+                    'DIRS': [TEMPLATE_DIR,],
+                    ...
+                }
+            ]
+     9. Create the forms.py within the application folder and import the forms module from django
+        from django import forms
+    10. Create a class with the form fields needed
+        class FormName(forms.Form):
+            name = forms.CharField()
+            email = forms.EmailField()
+            text = forms.CharField(widget=forms.Textarea) #Textarea is the widget for getting text in a box
+    11. Setup app views so the data is imported correctly.
+        from django.shortcuts import render
+        from . import forms  # period represents this application
+        def index(request):
+            return render(request,'basicapp/index.html')
+        def formname_view(request):
+            form = forms.FormName() #forms.FormName is the file.class we just created
+            return render(request,'basicapp/form_page.html',{'form':form})
+    12. Update the urls to include your application view
+        from django.conf.urls import include
+        from basicapp import views
+        urlpatterns = [
+            re_path(r'^$',views.index,name='index'),
+            .... ,
+            re_path(r'^formpage/',views.form_name_view,name='form_name'),
+                # This states, if you go to our url/formpage/ (and anything after that),
+                # it will take you to our named view, form_name_view, with the name, form_name
+        ]
+    13. In our index.html, we added a section that links to the form page.
+    14. In our form_page.html we created div with class container with the form inserted
+        <div class="container">
+            {{ form }}
+        </div>
+    15. Start the server to check for errors, check the start page and serverurl/formpage
+        python manage.py runserver
+        #Response, 0 errors, 18 unapplied migrations
+    16. Close server and import bootstrap to forms.html and index.html
+        <head>
+          <link rel="stylesheet" href="link to bootstrap" crossorigin="anonymous">
+        </head>
+    17. Put index.html body elements in a div class container, then another div class jumbotron
+    18. Insert form tags in form_page.html, input setup, and some styling
+        <h1>Fill out the form!</h1>
+        <form method="post">
+            {{form.as_p}} #as_p inserts elements of the form with a page break between
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </form>
+    19. Test server pages again with new formatting
+        # All pages look nicer, but we receive a csrf verification fail when submitting the form.
+    20. Add a csrf token to the form_page.html and test the page again
+        {{form.as_p}}
+        {% csrf_token %}
+        # We receive a post response in the server terminal
+    21. In views. create script for passing in the post request
+        def form_name_view(request):
+            form = forms.FormName()
+            if request.method == 'POST':
+                form = forms.FormName(request.POST)
+                if form.is_valid():
+                    #Do Something Code Example
+                    print("Validation Success!")
+                    #access the data
+                    print("Name: "form.cleaned_data['name'])
+                    print("Email: "form.cleaned_data['email'])
+                    print("Text: "form.cleaned_data['namtext'])
+            return render(request, 'basicapp/form_page.html',{'form':form})
+
+Form Validation Code Along
+    0. General Steps
+        A. Add a check for empty fields
+        B. Add a check for a bot
+        C. Add a clean method for the entire form
+    1. Insert a hidden field in forms.py to catch a bot inserting into all html entry fields,
+        but the user couldn't actually enter data into it normally
+
+        botcatcher = forms.CharField(required=False, widget=forms.HiddenInput) 
+            #specifying false to not catch normal users
+    2. Add a custom data validator within the class of the field you're checking in forms.py
+        def clean_botcatcher(self):
+            botcatcher = self.cleaned_data['botcatcher']
+            if len(botcatcher):
+                raise forms.ValidationError("Gotcha Bot!") # returns console error on form
+
+        OR you can import the validators module and add it to the field parameters
+
+        from django.core import validators
+        class FormName(forms.Form):
+            ...
+            botcatcher = forms...(..HiddenInput,validators=[validators.MaxLengthValidator(0)])
+    3. Create general data validators in forms.py, outside of classes, and add to intended form fields.
+        def check_for_z(value):
+            if value[0].lower() != 'z':
+                raise forms.ValidationError("Name needs to start with z")
+        #Add to any form field's parameters
+    4. Create a email validation field in FormName class
+        verify_email = forms.EmailField(label='Enter your email again:') 
+        def clean(self):
+            all_clean_data = super().clean() # returns all cleaned data from the form entry
+            email = all_clean_data['email']
+            vmail = all_clean_data['verify_email']
+            if email != vmail:
+                raise forms.ValidationError("Emails are not matching.")
+
+Model Forms
+    Ex case, a user signs up for a website, we want to import their details into a model to save their login information
+    We can do this by using forms.ModelForm in forms.py
+    We are using a new class called meta (class within a class)
+    ex_|
+        from django import forms
+        from myapp.models import MyModel
+        class MyNewForm(forms.ModelForm):
+            class Meta:
+                model = MyModel
+                fields = "__all__"
+                fields = ("field1",......)
+                exclude = ["field1",.....]
+
+Django Module 3 End Project
+    Change our module site to be a signup page
+    Connected to a ModelForm, the user will sign up on the user page and be returned to the home page
+
+    Thoughts:
+        Modify the forms page to a format that mimics a sign in page.
+        Change the form functions to ModelForms, and setup a model in our database to store users
+        Redirect the user to the existing homepage on completion, which can be done by referencing the
+            second print statement in the previous lecture on models.
+
+
+Relative URLS Code Along
+    1. Create a new project folder for a one application project, and create a project and app
+        cd level_four
+        django-admin startproject learning_templates
+        django-admin startapp basic_app
+    2. Create templates folder and app subfolder
+        mkdir -p templates/basic_app
+    3. Add templates path in settings
+        import os
+        TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
+        INSTALLED_APPS = [..... , basic_app, ...]
+        TEMPLATES = [{... , 'DIRS': [TEMPLATE_DIR], ...}]
+    4. Create some template files and populate the last 3 with a basic header description in the body
+        base.html, index.html, other.html, relative_url_templates.html
+    5. In views, add a view for the same websites we created html for in step 4.
+        def other(request):
+            return render(request,'basic_app/other.html')
+    6. Create the url paths in urls.py.
+        from django.urls import path,include
+        from basic_app import views
+            
+            path('', views.index,name='index'),
+            path('basic_app/',include('basic_app.urls'))
+    7. Make a urls.py file inside the basic app folder and create the namespace
+        from django.urls import path,include
+        from basic_app import views
+
+        app_name = 'basic_app' #set global variable to application name
+
+        urlpatterns= [ #Says if you go to anything /relative it gives you relative page view.
+            path('relative/',views.relative,name='relative'),
+            path('other/',views.other,name='other'),
+        ]
+    8. Create the reference tags in your html pages to other and admin
+        <a href="{% url 'basic_app:other' %}">The Other Page</a> # basic_app matches the url defined name, other matches defined name
+        <a href="{% url 'admin:index' %}">Link to Admin</a>
+        #NOTE You CANNOT leave any spaces between single quotes 'basic_app:other'
+
+
+URL Template Inheritance (AKA template extending)
+    DRY Coding - Don't Repeate Yourself
+    Base templates allow you to inherit objects, like a navigation bar,
+        without repeating the navigation bar code on every page
+    Overall Steps of Inheritance
+        1. Find the repetitive parts of your site
+        2. Create the base template of the repeated parts
+        3. Set takes in the base template
+        4. Extend, and call those tags anywhere
+    ex_|
+        base.html
+        ...
+        <body>
+            {%% block body_block %}
+            {% endblock %}
+        </body>
+        ...
+
+        other.html
+            <!DOCTYPE html>
+            {% extends "basic_app/base.html" %}
+            {% block body_blocks%}
+            <HTML specific for other.html>
+            ...
+            {% endblock %}
+
+Inheritance Code Along
+    1. Look at the common elements in the base.html file with all others,
+        for example, everything except the header info and body elements
+            are the same.
+    2. Copy the  bootstrap style information into base.html, and add a nav bar
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <ul class="nav navbar-nav">
+                    <li class="navbar-brand"><a href="{% url 'index' %}">Brand</a></li>
+                    <li class="navbar-link"><a href="{% url 'admin:index' %}">Admin</a></li>
+                    <li class="navbar-link"><a href="{% url 'basic_app:other' %}">Other</a></li>
+                </ul>
+            </div>
+        </nav>
+    3. Add another div element so all new body elements are inside of a container
+        for easier styling with bootstrap
+        
+        <div class="container">
+            {% block body_block %}
+            <!-- Anything outside of this will be inherited! -->
+            {% endblock %}
+        </div>
+        
+    4. Re-write other.html to import the base file
+        <!DOCTYPE html>
+        {% extends "basic_app/base.html" %}    
+        {% block body_block %} <!-- body_block matches the base.html body block name --> 
+            <h1>Welcome to the other page!</h1>
+            <h2>We are now exteneded!</h2>
+        {% endblock %}
+
+
+Template Filters
+    Note: If we had extra templates to include, we can list them with 
+        {% load template_name %}
+        This is called a cut filter and we load it into the top of the html file
+
+    Form: {{ value |filter_type:"parameter_string" }}
+
+
+Filter Code Along
+    1. Add a context dictionary to the classes in views.py
+        def index(request):
+            context_dict = {'text':'hello world','number':100}
+            return render(request,'basic_app/index.html',context_dict)
+    2. Inject the two variables created into the index.html page.
+        {{ text|upper }}
+        {{ number|add:"99" }}
+    3. Create the file to perform the add function in the app's main directory
+        my_extras.py 
+        from django import template
+        register = template.Library
+        def cut(value,arg):
+            return value.replace(arg,'')
+        register.filter('cut',cut)
+    4. Add cut to index.html
+        {{ text|cut:'hello' }}
+
+    Implementing through decorators instead of function registration
+    3.Alternative 
+        my_extras.py 
+        from django import template
+        register = template.Library
+        @register.filter(name='cut')
+        def cut(value,arg):
+            return value.replace(arg,'')
+        #register.filter('cut',cut)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

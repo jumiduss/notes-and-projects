@@ -1,0 +1,289 @@
+__init__.py
+    Blank python script that let's python know this directory can be treated as a package
+
+settings.py
+    Project settings file
+
+urls.py 
+    stores the url patterns for your project, stores web page locations
+
+asgi.py
+    Activatesa the web server's asynchronous gateway interface
+
+wsgi.py 
+    Activates the web server gateway interface
+
+manage.py
+    the main script used to associates with commands to run the server
+
+
+Django Setup
+    #Django is a web framework
+    #Originated at a newspaper
+    #Has great documentation and references
+    #Has a basic tutorial
+    #Uses poll because of newspaper roots
+    # Creating a virtual environment is referenced as venv
+    # venv is a virtual python and python packages install on the local pc
+        #This allows you to test out features without breaking the web application.
+        #This is done using anaconda
+    
+    Creating the virtual environment in terminal with Django package
+        #Conda also has very good documentation
+        conda create --name envName django 
+    Activating the environment
+        #after activation, anything installed with pip or conda will be installed only for this environment
+        #use source on mac / linux
+        source activate envName
+    Deactivating the environment
+        deactivate envName
+    New Project on Server - once inside the environment
+        django-admin startproject projectName
+    Start Server
+        python manage.py runserver
+    Migrations
+        allows you to move databases between different designs
+
+Django Application
+    Something that is created to perform a function for the webapp
+
+    Creating an application
+        python manage.py startapp first_app
+        #first_app is the application within the manage.py server
+
+    __init__.py
+        servers the same purpose as the server
+    admin.py
+        where you register models for the admin interface
+    apps.py
+        application specific config
+    models.py
+        appliation data models 
+        entities and relationships betweent the data
+    tests.py
+        stores test functions for testing your code
+    views.py
+        stores functions for request handling and return responses
+    migrations -folder
+        stores database specific information as it relates to the models
+        migrate with
+            python manage.py migrate
+
+    You have to add your applications to the settings.py file
+        you can check by running the server and checking for errors
+
+
+    Creating a view
+        Sending a simple string
+            #within our application folder, views.py
+
+        from django.shortcuts import render
+        from django.http import HttpResponse
+        def index(request):
+            return HttpResponse("Hello World!")
+        #Each view exists within the views.py as it's own function
+        #Each view takes in at least one object, by convention "request" is used
+        #Each view must return an HttpResponse Object
+
+        We must map the view if we want to see it on the server
+        #Open the project folder, urls.py
+        from first_app import view 
+
+        urlpatterns = [
+            url(r'^$',views.index,name='index'), # this is a default entry
+            url(r'^admin/', admin.site.urls)
+        ]
+
+Creating URLS
+    To define a URL in your website, you need to link to the app URL in the project urls file, 
+        then to the project in a newly created urls file within the app
+    
+    ex_ in project.urls|
+        #These are added to existing links
+    from django.conf.urls import include
+    urlpatterns = [
+        re_path(r'^first_app/', include('first_app.urls')),
+    ]
+    _ in app.urls|
+    from django.urls import re_path
+    from first_app import views
+    urlpatterns = [
+        re_path(r'^$', views.index, name='index'),
+    ]
+
+Creating Templates
+    Templates - Contain static parts of the html page
+    Template Tags - Allows dynamic content injection that views.index produces  
+    Templates are stored under the root directory
+    ex_|
+        project_Name/templates/first_app
+                              /second_app 
+                               etc
+
+    settings.py needs to add the template location 
+        These are fixed paths from the root folder, so we use python module "os"
+            to generate the correct path relative to our directory
+            ex_| os.path.dirname(__file__)
+    Here's a full example:
+    ex_ in projectRoot/projectName/settings.py|
+        import os
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
+        #later in the same file
+        TEMPLATES = [
+            {
+                'BACKEND': 'location',
+                'DIRS': [TEMPLATES_DIR,],  #Add this
+                etc....
+            }
+        ]
+            # The innermost call gives settings.py's path
+            # The middle call gives the inner projectName's path
+            # The outermost call gives projectRoot's path
+            # Each call goes up by 1 folder
+
+    _ in projectRoot/templates/index.html|
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <title>First Project</title>
+            </head>
+            <body>
+                <h1>Hello, this is the index.html!</h1>
+                {{ variable_to_insert }}
+            </body>
+        </html>
+    _ in projectRoot/first_app/views
+        from django.shortcuts import render
+        from django.http import HttpResponse
+
+        def index(request):
+            my_dict = {'variable_to_insert':"Hello I am from views.py!"}
+            return render(request,'index.html',context=my_dict)
+
+    It is normal to split the index.html files (within the templates folder)
+        in seperate folders for each application for better organization
+
+Static Files
+    Using un-changing files within our server.
+    Add a new folder called static into our root
+    Add the STATIC_PATH to the directory dictionary
+    Inside the html file, we load in the static files with:
+        {% load staticfiles %}
+        Place this directly after the DOCTYPE tag
+    Insert (for example images) withs
+        <img src="{ % static "path/to/file.extension" %} />
+    Can even do this with CSS files
+    <head>
+        <link rel="stylesheet" href="{ % static "link/to/stylesheet.css" % }" />
+    </head>
+
+Databases in Django / Python / SQLite
+    Keys - Row-Object Names
+        Primary Keys - The Source Definition of this key
+        Foriegn Keys - Same word as primary, but used as a reference to the 
+            primary key in another table.
+    Columns - Have fieldType attribute
+        Can also have constraints
+    Rows - Entries for columns
+    When we setup models, we can then migrate databases
+
+    Example of setting up a model using databases within python code:
+    class Topic(models.models):
+        top_name = models.CharField(max_length=264, unique=True)
+    class Webpage(models.models):
+        category = models.ForiegnKey(Topic) #This is a foriegn key from the topics model
+        name = models.CharField(max_length = 264) 
+        url = models.URLField()
+
+        def __str__(self):
+            return self.name
+
+    Django automatically creates the database according to this model
+        as long as we define the model clearly enough using:
+        python manage.py migrate
+    Then register changes using:
+        python manage.py makemigrations app1
+    Then migrate the database one more time with:
+        python manage.py migrate
+
+    If we want to manage with the admin interface, it needs to be 
+        defined in the admin.py file for the application.
+        from django.contrib import admin
+         from app.models import Model1,Model2
+        admin.site.register(Model1)
+        admin.site.register(Model2)
+
+    We need to create a superuser within the application to use admin tools
+        python manage.py createsuperuser
+        Must provide name, email, password
+
+    We have to populate the models with data, and we can use python module 
+        Faker to automate fake data inputs
+
+Entering Data in Models
+    class Topic(models.Model):
+        top_name = models.CharField(max_length=264, unique)
+
+    Population Models Script
+        install Faker with
+            pip install Faker
+        Faker documentation's format
+            from faker import Faker
+            fake = Faker()
+            fake.name() # Returns "firstName lastName"
+            fake.address() # Returns "#### streetName streetAffix \n cityName, stateAbbreviate zipCode"
+            fake.text() # Returns a paragraph of text
+    Save our script in the root directory
+        ex_ script.py|
+            import os
+            #Import the project settings before writing scripts
+            os.environ.setdefault('DJANGO_SETTINGS_MODULE','first_project.settings')
+            
+            import django
+            #Import django to initialize settings
+            django.setup()
+
+            import random
+            from first_app.models import AccessRecord,Webpage,Topic
+            from faker import Faker
+            fakegen = Faker()
+
+            topics = ['Search','Social','Marketplace','News','Games']
+
+            def add_topic():
+                t = Topic.objects.get_or_create(top_name=random.choice(topics))[0] # retrieves the topic if it exists, or creates it
+                # this returns a tupel, so we select the first entry of the tupel
+                t.save() # saves the entry into the database
+                return t
+
+            def populate(N=5):
+                for entry in range(N):
+                    # get the topic for the entry 
+                    top  = add_topic()
+                    # create the fake data for the entry
+                    fake_url = fakegen.url()
+                    fake_date = fakegen.date()
+                    fake_name = fakegen.company()
+                    # create new webpage entry
+                    webpg = Webpage.objects.get_or_create(topic=top,url=fake_url,name=fake_name)
+                    # create fake access record for the webpage
+                    acc_rec = AccessRecord.objects.get_or_create(name=webpg,date=fake_date)
+
+            if __name__ == '__main__':
+                print("populating script!")
+                populate(20)
+                print("population complete!")
+
+Models Templates and Views Process
+    Step 1
+        We import the files we need to use in the views.py file
+    Step 2
+        We use view to query the model for data 
+    Step 3
+        We pass the results from the model to the template
+    Step 4
+        Edit the template so that it's ready to accept and display data
+    Step 5
+        Map a URL to the view

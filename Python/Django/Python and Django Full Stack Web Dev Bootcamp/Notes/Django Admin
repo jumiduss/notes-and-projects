@@ -1,0 +1,70 @@
+Code Along
+Note, doesn''t work with current django version
+1. project my_video_rental
+2. app videos
+3. add app to settings
+4. app models.py
+    from django.db import models
+    class Movie(models.Model):
+        title = models.CharField(max_length=256)
+        length = models.PositiveIntegerField()
+        release_year = models.PositiveIntegerField()
+        def __str__(self):
+            return self.title
+
+    class Customer(models.Model):
+        first_name = models.CharField(max_length=256)
+        last_name = models.CharField(max_length=256)
+        phone = models.PositiveIntegerField()
+        def __str__(self):
+            return self.first_name + " " + self.last_name
+5. app admin.py
+    from django.contrib import admin
+    from . import models
+
+    admin.site.register(models.Customer)
+    admin.site.register(models.Movie)
+6. createsuperuser
+7. Add 3 random movies and 3 random customers
+#admin templates
+8. Look at django opensource to copy admin directory structure (django/django/contrib/admin/templates/admin/...)
+    my_video_rental
+        templates
+            admin 
+                base_site.html
+9. copy base_site.html to your own folder
+    {% extends "admin/base.html" %}
+
+    {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+    {% block branding %}
+    <div id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></div>
+    {% if user.is_anonymous %}
+    {% include "admin/color_theme_toggle.html" %}
+    {% endif %}
+    {% endblock %}
+
+    {% block nav-global %}{% endblock %}
+10. Change the anchor tag in base_site.html within tag <h1>
+    >VIDEO STORE ADMIN<
+11. Add templates directory to settings 
+    TEMPLATES = [
+        ...
+        'DIRS': [BASE_DIR.joinpath('templates'),]
+    ]
+#ordering fields
+12. Order fields by creating a class in videos.admin
+    class MovieAdmin(admin.ModelAdmin):
+        fields = ['release_year','title','length']
+#adding search
+13. Add a search by adding a search list var in the admin class
+    search_fields = ['title','length']
+#adding filters
+14. Add a filter by adding a list filter var in the admin class
+    list_filter = ['release_year','length','title']
+#adding fields for admins 
+15. Add a list display var to the admin class
+    list_display = ['release_year','length','title']
+#editable lists
+16. Add an editable list var in admin class
+    list_editable = ['length']

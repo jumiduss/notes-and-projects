@@ -1,0 +1,320 @@
+Passwords
+    Using apps: contrib.auth, contrib.contenttypes
+    Never store passwords as plaintext
+    Default encryption is PBKDF2 with SHA256 hash built into django
+    We will use packages bcrypt and django[argon2] for better encryption
+        pip install bcrypt django[argon2]
+    Pass the list of PASSWORD_HASHERS to try in a specific order
+        If you don't want library support, you will go back to BPKDF2
+
+Passwords Code Along
+    1. Make sure the modules are installed, create a project and application within.
+    2. Add the new app to settings.py and verify sercurity plugins are listed in INSTALLED_APPS
+    3. Add your chosen password hashes in a new field in settings.py, and 3 directories
+        NOTE: Static vs Media folders, media folders are for the user's files. static is for the site's files
+        
+        TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
+        STATIC_DIR = os.path.join(BASE_DIR,'static')
+        MEDIA_DIR = os.path.join(BASE_DIR,'media')
+
+        PASSWORD_HASHERS = [
+            'django.contrib.auth.hashers.Argon2PaasswordHasher',
+            'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+            'django.contrib.auth.hashers.BCryptPasswordHasher',
+            'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+            'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+        ]
+
+        AUTH_PASSWORD_VALIDATORS = [
+            ... , 
+            {
+                'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+                OPTIONS':{'min_length':9}'
+            },
+            ...
+        ]
+        TEMPLATES = [
+            {
+                ... ,
+                'DIRS': [TEMPLATE_DIR,],
+                ...
+            }
+        ]
+        STATIC_URL = '/static/'
+        STATICFILES_DIR = [STATIC_DIR,]
+        MEDIA_ROOT = MEDIA_DIR
+        MEDIA_URL = '/media/'
+    4. Create the three directories added to settings
+        mkdir templates static media
+
+
+User Models
+    The user object has:
+        Username
+        Email
+        Password
+        First Name
+        Surname
+        is_active
+        is_staff
+        is_superuser
+        You can add custom features to a user through a class in models.py
+            1. Import User 
+                from django.contrib.auth.models import User
+            2. Create the class for the user attribute
+                class MyClassName(models.Model):
+                    user = models.OneToOneField(User)
+
+                    portfolia = models.URLField(blank=True)
+                    picture = models.ImageField(upload_to='profile_pics')
+
+                    def __str__(self):
+                        return self.user.username
+                The image field allows us to store images to a model object
+                    We need to install the 'pillow' library to work with images in python
+                    If you create the model above, you have to register it in admin.py
+                        admin.site.register(UserProfileInfo)
+            3. Import the model into forms.py 
+                from django import forms
+                from basic_app.models import UserProfileInfo
+
+                class UserProfileInfoForm(forms.ModelForm):
+                    portfolio = forms.URLField(required=False)
+                    picture = forms.ImageField(required=False)
+
+                    class Meta():
+                        model = UserProfileInfo
+                        exclude = ('user',)
+Code Along,
+    Note, Instructor accidentally names both form and model as UserProfileInfo. 
+        This is fixed in a later lecture.
+    1. Within our level_five project, create the models file
+        from django.db import models
+        from django.contrib.auth.models import Users
+
+        class UserProfileInfo(models.Model):
+            user = models.OneToOneField(User)
+            portfolio_site = models.URLField(blank=True)
+            profile_pic = models.ImageField(upload_to='profile_pics',blank=True)
+            def __str__(self):
+                return self.user.username
+
+    2. Create profile_pics folder in media, and install pillow
+    3. Create forms.py
+        from django import forms
+        from django.contrib.auth.models import User
+        from basic_app.models import UserProfileInfo
+
+        class UserForm(forms.ModelForm):
+            password = forms.Charfield(widget=forms.PasswordInput())
+            class Meta():
+                model = User
+                fields = ('username','email','password')
+        class UserProfileInfoForm(forms.ModelForm):
+            class Meta():
+                model = UserProfileInfo
+                fields = ('portfolio_site','profile_pic')
+    4. Create admin.py
+        from django.contrib import admin
+        from basic_app.models import UserProfileInfo
+        admin.site.register(UserProfileInfo)
+    5. Create the html templates
+        mkdir -p templates/basic_app
+        touch login.html registration.html base.html index.html
+    6. Create base.html
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <title></title>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+            </head>
+            <body>
+                <nav class='navbar navbar-default navbar-static-top'>
+                    <div class='container'>
+                        <ul class='nav navbar-nav'>
+                            <li><a class="navbar-brand" href="{% url 'index' %}">DJANGO</a></li>
+                            <li><a class="navbar-link" href="{% url 'admin:index'%}">Admin</a></li>
+                            <li><a class="navbar-link" href="{% url 'basic_app:register' %}">Register</a></li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <div class='container'>
+                    {% block body_block %}
+                    {% endblock %}
+                </div>
+                
+            </body>
+        </html>
+    7. Link index.html to base.html
+        {% extends "basic_app/base.html" %}
+        {% block body_block %}
+        <div class="jumbotron">
+            <h1>Django Level Five</h1>
+        </div>
+        {% endblock %}
+    8. Link registration.html to base.html
+        NOTE: load static replaces staticfiles
+        {% extends "basic_app/base.html" %} 
+        {% load static %}
+        {% block body_block %}
+        <div class="jumbotron">
+            {% if registered %}
+                <h1>Thank you for registering!</h1>
+            {% else %}
+                <h1>Register Here!</h1>
+                <h3>Fill Out the Form</h3>
+                <form method='post' enctype='multipart/form-data' method='post'>
+                    {% csrf_token %}
+                    {{ user_form.as_p }}
+                    {{ profile_form.as_p }}
+                    <input type='submit' name='' value='Register'>
+                </form>
+            {% endif %}
+        </div>
+        {% endblock %}
+    9. Edit the project's urls.py
+        from django.urls import path,include
+        from django.contrib import admin
+        from basic_app import views
+
+        url_patterns = [
+            path('',views.index,name='index'),
+            path('admin/',admin.site.urls),
+            path('basic_app/',include('basic_app.urls')),
+        ]
+    10. Create urls.py in app
+        from django.urls import path
+        from basic_app import views
+
+        app_name = 'basic_app'
+        urlpatterns = [
+            path('register/',views.register,name='register')
+        ]
+    11. Fill in views.py
+            NOTE: We discovered an error here. Look at commented form imports
+            *** Before continuing, change forms.py class UserProfileInfo to UserProfileInfoForm
+        from django.shortcuts import render
+        from basic_app.forms import UserForm,UserProfileInfoForm 
+            #UserProfileInfoFORM instead of the models.py class UserProfileInfo
+        def index(request):
+            return render(request,'basic_app/index.html')
+        def register(request):
+            registered = False
+            if request.method == "POST":
+                user_form = UserForm(data=request.POST)
+                profile_form = UserProfileInfoForm(data=request.POST)
+
+                if user_form.is_valid() and profile_form.is_valid():
+                    user = user_form.save()
+                    user.set_password(user.password) #saves the password with the hash
+                    user.save() #saves the hashed password to the database
+
+                    profile = profile_form.save(commit=False)
+                    profile.user = user #This sets up the OneToOne relationship in the UserProfileInfo model
+                    
+                    if 'profile_pic' in request.FILES: #If files are uploaded, request.FILES finds them to link to the account
+                        #Set the model's attribute profile_pic to the picture uploaded
+                        profile.profile_pic = request.FILES['profile_pic']
+                        profile.save()
+                        registered = True
+                    else:#One of the forms were invalid
+                        print(user_form.errors,profile_form.errors)    
+            else:#The request was not an HTTP post request, so we will setup a new registration form
+                user_form = UserForm()
+                profile_form = UserProfileInfoForm()
+            return render(request,'basic_app/registration.html',
+                                    {'user_form':user_form,'profile_form':profile_form,'registered':registered}) #adding the context dictionary used in the form
+
+                
+Logins Code Along
+    1. Setup Login URL in settings.py
+        LOGIN_URL = '/basic_app/user_login'
+    2. Setup base.html and login.html
+        login.html
+        {% extends 'basic_app/base.html' %}
+        {% block body_block %}
+        <div class="jumbotron">
+            <h1>Please Login</h1>
+            <form action="{% url 'basic_app:user_login' %}" method="post">
+            {% csrf_token %}
+            <label for="username"> Username:</label>
+            <input type="text" name="username" placeholder="Enter Username">
+
+            <label for="password">Password</label>
+            <input type="password" name="password">
+
+            <input type="submit" name="" value="Login">
+            </form>
+        </div>
+    3. Update the app's views.py
+        #Set of imports
+        from django.contrib.auth import authenticate,login,logout
+        from django.http import HttpResponseRedirect,HttpResponse
+        from django.core.urlresolvers import reverse
+        from django.contrib.auth.decorators import login_required
+
+        #Create a new view
+        def user_login(request):
+            if request.method == 'POST':
+                username = request.POST.get('username') #username defined in the html
+                password = request.POST.get('password')
+
+                user = authenticate(username=username,password=password) #define them inside function call to avoid errors
+
+                if user:
+                    if user.is_active:
+                        login(request,user)
+                        return HttpResponseRedirect(reverse('index'))
+                    else:
+                        return HttpResponse("Account Not Active")
+                else:
+                    print("Someone tried to login and failed!")
+                    print("Username: {} and password {}".format(usernmae,password))
+                    return HttpResponse("Invalid login details suppplied!")
+
+            else:
+                return render(request, "basic_app/login.html",{})
+        
+        @login_required
+        def special(request):
+            return HttpResponse("You are logged in, Nice!")
+
+        @login_required #This HAS to be on the line directly above the function
+        def user_logout(request):
+            logout(request)
+            return HttpResponseRedirect(reverse('index'))
+    4. Add logout page and special page to the project's urls.py
+        path('logout/',views.user_logout,name='logout'),
+        path('special/',views.special,name='special'),
+    5. Add login page to the app's urls.py
+        path('user_login/',views.user_login,name='user_login'),
+    6. Add a login link to base.html
+        {% if user.is_authenticated %}
+            <li><a class='navbar-link' href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+            <li><a class='navbar-link' href="{% url 'basic_app:user_login' %}">Login</a></li>
+        {% endif %}
+
+Debug Console
+    To use the live website debugger
+    1. pip install django-debug-toolbar
+    2. add the debug toolbar to settings.py
+    3. add link to debugger in the project''s urls.py
+        ...
+        from django.conf import settings
+        urlpatterns = [...]
+        if settings.DEBUG:
+            import debug_toolbar
+            url_patterns = [
+                path('__debug__/',include(debug_toolbar.urls)),
+            ] + urlpatterns
+    4. Add middleware in settings.py
+        MIDDLEWARE = [
+            ... ,
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+        ]
+    5. Add internal ips to settings.py
+        ...
+        INTERNAL_IPS = ['127.0.0.1'] #type in server ip, ex included to the left  

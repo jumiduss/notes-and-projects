@@ -1,0 +1,465 @@
+Code Along:
+    1. Make a project mysite with app blog and add blog to installed apps
+    2. Migrate, make migrate, migrate, then start site
+    3. Setup models #timezone defaults to zone listed in settings.py
+        from django.db import models
+        from django.utils import timezone
+        from django.urls import reverse
+
+        class Post(models.Model):
+            author = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+            title = models.CharField(max_length=200)
+            text = models.TextField()
+            create_date = models.DateTimeField(default=timezone.now())
+            published_date = models.DateTimeField(blank=True,null=True)
+
+            def publish(self):
+                self.published_date = timezone.now()
+                self.save()
+            
+            def approve_comments(self):
+                return self.comments.filter(approved_comments=True)
+
+            def get_absolute_url(self): #This MUST be get_absolute_url
+                return reverse("post_detail",kwargs={'pk':self.pk})
+
+            
+            def __str__(self):
+                return self.title
+                
+        class Comment(models.Model):
+            post = models.ForeignKey('blog.Post',related_name='comments',on_delete=models.CASCADE)
+            author = models.CharField(max_length=200)
+            text = models.TextField()
+            create_date = models.DateTimeField(default=timezone.now())
+            approved_comment = models.BooleanField(default=False)
+
+            def approve(self):
+                self.approved_comment = True
+                self.save()
+                        
+            def get_absolute_url(self): #This MUST be get_absolute_url
+                return reverse("post_list")
+
+
+            def __str__(self):
+                return self.text
+
+    4. Setup Forms
+        from django import forms
+        from blog.models import Post,Comment
+
+        class PostForm(forms.ModelForm):
+            class Meta():
+                model = Post
+                fields = ('author','title','text')
+                widgets = {
+                    'title':forms.TextInput(attrs={'class':'text'}),
+                    'text':forms.TextArea(attrs={'class':'editable medium-editor-textarea postcontent'})
+                }
+
+        
+        class CommentForm(forms.ModelForm):
+            class Meta():
+                models = Comment
+                fields = ('author','text')
+
+                widgets = {
+                    'author':forms.TextInput(attrs={'class':'textinputclass'}),
+                    'text':forms.TextArea(attrs={'class':'editable medium-editor-textarea'})
+                }
+    5. Add: static and templates folders under the app; css and .js folders under static; registration and blog folders under templates.
+        blog.css
+            .postdate{
+                text-align: center;
+            }
+            .posttitle{
+                font-family: 'Roboto', sans-serif;
+                font-size: 3em;
+                text-align: center;
+            }
+            .postcontent{
+                font-family: 'Roboto', sans-serif;
+                font-size: 1.5em;
+            }
+            .btn-comment{
+                position: absolute;
+                right: 0px;
+            }
+            .techfont {
+                font-family: 'Roboto', sans-serif;
+                font-size: 1.5em;
+                margin-bottom:10px;
+            }
+            .centerstage{
+                margin-left:auto;
+                margin-right:auto;
+            }
+            .loader {
+                position:fixed;
+                left:0;
+                right:0;
+                top:0;
+                bottom:0;
+                filter:hue-rotate(0deg);
+                color:linear-gradient(45deg,#0f8,#08f);
+                animation:hue 10000ms infinite linear;
+            }
+            @keyframes spinify {
+                0% {transform: translate(0px,0px);}
+                33% { transform: translate(0px,24px);
+                    border-radius:100%;
+                    width:10px;
+                    height:10px;}
+                66% {transform:translate(0px,-16px);}
+                88% {transform:translate(0px,4px);}
+                100% {transform:translate(0px,0px);}
+            }
+            @keyframes hue{  0%{filter: hue-rotate(0deg);}
+                        100%{filter:hue-rotate(360deg);}}
+
+    6. Add links to templates static in settings.py, and a login redirect url
+        ...
+        BASE_DIR ...
+        TEMPLATE_DIR = os.path.join(BASE_DIR, 'blog/templates/blog')
+        ...
+        TEMPLATES=[
+            {
+                ...
+                'DIRS':[TEMPLATE_DIR,],
+                ...
+            }
+        ]
+        ...
+        STATIC_URL = '/static/'
+        STATIC_ROOT = os.path.join(BASE_DIR,'static')
+        LOGIN_REDIRECT_URL = '/' #Will edit this later
+    7. Create base.html and about.html files in templates/blog
+    8. Edit views.py
+        from django.shortcuts import render
+        from django.views.generic import (TemplateView)
+        class AboutView(TemplateView):
+            template_name = 'about.html'
+    9. Create urls.py in the app, link it the project''s urls.py
+        from django.contrib import admin
+        from django.urls import path,include
+        from django.contrib.auth.views import LoginView,LogoutView
+
+        urlpatterns = [
+            path('admin/', admin.site.urls),
+            path('',include('blog.urls')),
+            path('accounts/login/',views.LoginView.as_view(template_name="registration/login.html"),name='login'),
+            path('accounts/logout/',views.LogoutView.as_view(),name='logout',kwargs={'next_page':'/'}),
+        ]
+
+    10. Link about.html in the app''s urls.py
+        from django.urls import url
+        from blog import views
+
+        urlpatterns = [
+            path('about/',views.AboutView.as_view(),name='about'),
+        ]
+    NOTE: 11,12,13 cover multiple switches between editing an html file,
+        then editing views.py and the app''s urls.py
+    11. views.py
+        from django.shortcuts import render
+        from blog.models import Post,Comment
+        from blog.forms import PostForm,CommentForm
+        from django.urls import reverse
+        from django.contrib.auth.decorators import login_required
+        from django.contrib.auth.mixins import LoginRequiredMixin
+        from django.views.generic import (TemplateView,ListView,
+                                          DetailView,CreateView,
+                                          UpdateView, DeleteView)
+
+        class AboutView(TemplateView):
+            template_name = 'about.html'
+
+        class PostListView(ListView):
+            model = Post
+            def get_queryset(self):
+                return Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
+#****** This is called Field Lookups ***** __lte is tagged onto published_date and means less than or equal to
+        class Post  View(DetailView):
+            model = Post
+
+        class CreatePostView(LoginRequiredMixin,CreateView):
+            login_url = '/login/'
+            redirect_field_name = 'blog/post_detail.html'
+            form_class = PostForm
+            model = Post
+
+        class PostUpdateView(LoginRequiredMixin,UpdateView):
+            login_url = '/login/'
+            redirect_field_name = 'blog/post_detail.html'
+            form_class = PostForm
+            model = Post
+        
+        class PostDeleteView(LoginRequiredMixin,DeleteView):
+            model = Post
+            success_url = reverse_lazy('post_list')
+        
+        class DraftListView(LoginRequiredMixin,ListView):
+            login_url = '/login/'
+            redirect_field_name = 'blog/post_list.html'
+            model = Post
+            
+            def get_queryset(self):
+                return Post.objects.filter(published_date__isnull=True).order_by('created_date')
+
+
+    12. app''s urls.py
+        from django.urls import path,include
+        from blog import views
+
+        urlpatterns = [
+            path('',views.PostListView.as_view(),name='post_list'),
+            path('about/',views.AboutView.as_view(),name='about'),
+            path('post/<pk>',views.PostDetailView.as_view(),name='post_detail'),
+            path('post/new/',views.CreatePostView().as_view,name='post_new'),
+            path('post/<pk>/update',views.PostUpdateView.as_view(),name='post_edit'),
+            path('post/<pk>/remove',views.PostDeleteView.as_view(),name='post_remove'),
+            path('drafts/',views.DraftListView.as_view(),name='post_draft_list'),
+        ]
+    13. base.html
+            <!DOCTYPE html>
+            {% load static %}
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Blog</title>
+                    <!-- Boostrap and Optional Theme -->
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+                    <!-- Style Editor -->
+                    <script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
+                    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
+                    <!-- Custom CSS -->
+                    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+                    <!-- Fonts -->
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link href="https://fonts.googleapis.com/css2?family=Caveat&family=Libre+Baskerville&family=Roboto:wght@300&display=swap" rel="stylesheet">
+                </head>
+                <body class="loader">
+                <!-- Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light techfont">
+                    <a class="navbar-brand bigbrand" href="{% url 'post_list' %}">My Blog</a>
+                    <a href="{% url 'about' %}">About</a>
+                    <a href="https://www.github.com">Github</a>
+                    <a href="https://www.linkedin.com">LinkedIn</a>
+                    <ul class='nav navbar-nav navbar-right'>
+                        {% if user.is_authenticated %}
+                            <li>
+                                <a href="{% url 'post_new' %}">New Post</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'post_draft_list' %}">Drafts</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                            <li>
+                                <a>Welcome: {{ user.username }}</a>
+                            </li>
+                        {% else %}
+                            <li><a class="nav navbar-right" href="{% url 'login' %}"><span class='glyphicon glyphicon-user'>Login</span></a></li>
+                        {% endif %}
+                
+                </nav>
+
+                <!-- Content Block -->
+                <div class="content container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="blog_posts">
+                                {% block content %}
+                                {% endblock %}
+                
+                </body>
+            </html>
+
+        about.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+                <h1>About this company</h1>
+                <p>Thanks for checking it out!</p>
+            {% endblock %}
+
+        post_detail.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+                <h1 class="posttitle loader">{{ post.title }}</h1>
+                {% if post.published_date %}
+                    <div class="date postdate">
+                        {{ post.published_date }}
+                    </div>
+                {% else %}
+                    <a class="btn btn-default" href="{% url 'post_publish' pk=post.pk %}">Publish</a>
+                {% endif %}
+                <p class='postcontent'>{{ post.title|safe|linebreaksbr}}</p>
+
+                {% if user.is_authenticated %}
+                    <a cass='btn btn-primary' href="{% url 'post_edit' pk=post.pk %}">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </a>
+                {% endif %}
+                <hr>
+                <a class="btn btn-primary btn-comment" href="{% url 'add_comment_to_post' pk=post.pk %}">Add Comment</a>
+                <div class="container">
+                    {% for comment in post.comments.all %}
+                        <br>
+                        {% if user.is_authenticated or comment.approved_comment %}
+                            {{ comment.created_date }}
+                            {% if not comment.approved_comment %}
+                                <a class='btn btn-default' href="{% url 'comment_remove' pk=comment.pk %}">
+                                    <span class='glyphicon glyphincon-remove'></span>
+                                </a>
+                                <a class='btn btn-primary' href="{% url 'comment_approve' pk=comment.pk %}">
+                                    <span class='glyphicon glyphincon-ok'></span>
+                                </a>
+                            {% endif %}
+                            <p>{{ comment.text|safe|linebreaks }}</p>
+                            <p>Posted By: {{ comment.author }}</p>
+                        {% endif %}
+                        {% empty %}
+                            <p>No Comments</p>
+                    {% endfor %}
+                </div>
+            {% endblock %}
+
+        post_form.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+            <h1>New Post</h1>
+            <form class="post-form" method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class='save btn btn-default' name="button">Save</button>
+            </form>
+            
+            <script>var editor = new MediumEditor('.editable');</script>
+            {% endblock %}
+
+        post_list.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+                <div class="centerstage">
+                    {% for post in post_list %}
+                        <div class="post">
+                            <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
+                            <div class="date">
+                                <p>Published on: {{ post.published|date:"D M Y" }}</p>
+                            </div>
+                            <a href="{% url 'post_detail' pk=post.pk %}">Comments: {{ post.approve_comments.count }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endblock %}
+
+        post_draft_list.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+                {% for post in posts %}
+                <div class="post">
+                    <p class="date">created: {{ post.created_date|date:'d-m-Y'}}</p>
+                    <h1><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h1>
+                    <p>{{ post.text|truncatechars:200 }}</p>
+                </div>
+                {% endfor %}
+            {% endblock %}
+
+        post_confirm_delete.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <p>Are you sure you want to delete {{ object }}</p>
+                    <input type='submit' class='btn btn-danger' value="Confirm">
+                </form>
+            {% endblock %}
+
+        comment_form.html
+            {% extends "blog/base.html" %}
+            {% block content %}
+                <h1>New Comment</h1>
+                <form class='post-form' method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class='save btn btn-default'>Post Comment</button>
+                </form>
+                <script>var editor = new MediumEditor('.editable');</script>
+            {% endblock %}
+
+    14. Create login.html under registration
+    15. Create Comment classes in views.py
+        from django.shortcuts import render,get_object_or_404,redirect
+        from django.utils import timezone
+        ...
+        @login_required
+        def add_comment_to_post(request,pk):
+            post = get_object_or_404(Post,pk=pk)
+            if request.method == 'POST':
+                form = CommentForm(request.POST)
+                if form.is_valid():
+                    comment = form.save(commit=False)
+                    comment.post = post
+                    comment.save()
+                    return redirect('post_detail',pk=post.pk)
+            else:
+                form = CommentForm()
+            return render(request,'blog/comment_form.html')
+        @login_required
+        def comment_approve(request,pk):
+            comment = get_object_or_404(Comment,pk=pk)
+            comment.approve()
+            return redirect('post_detail',pk=comment.post.pk)
+        @login_required
+        def comment_remove(reques,pk):
+            comment = get_object_or_404(Comment,pk=pk)
+            post_pk = comment.post.pk
+            comment.delete()
+            return redirect('post_detail',pk=post.pk)
+        @login_required
+        def post_publish(request,pk):
+            post = get_object_or_404(Post,pk=pk)
+            post.publish
+            return redirect('post_detail',pk=pk)
+    16. Add comments to the app''s urls.py
+        path('post/<pk>/comment/',views.add_comment_to_post,name='add_comment_to_post'),
+        path('comment/<pk>/approve/',views.comment_approve,name='comment_approve'),
+        path('comment/<pk>/remove/',views.comment_remove,name='comment_remove'),
+        path('post/<pk>/publish/',views.post_publish,name='post_publish'),
+    17. Authentication System in the project
+        urls.py
+            from django.contrib.auth.views import LoginView,LogoutView
+            ...
+            [
+                ...
+                path('accounts/login/',views.LoginView.as_view(template_name="registration/login.html"),name='login'),
+                path('accounts/logout/',views.LogoutView.as_view(),name='logout',kwargs={'next_page':'/'}),
+            ]
+        login.html
+            {% extends 'blog/base.html' %}
+            {% block content %}
+            <div class="jumbotron">
+                <h2>Please Login</h2>
+                <h3>(Must be SuperUser, please check with the site admin)</h3>
+                {% if form.errors %}
+                    <p>Your username and password didn't match out records. Please try again.</p>
+                {% endif %}
+
+                <form action="{% url 'login' %}" method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" class='btn btn-primary' value='Login'>
+                    <input type="hidden" name="next" value="{{next}}">
+                </form>
+            </div>
+            {% endblock %}
+    18. Setup admin.py
+        from django.contrib import admin
+        from blog.models import Post,Comment
+
+        admin.site.register(Post)
+        admin.site.register(Comment)
