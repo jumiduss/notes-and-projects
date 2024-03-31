@@ -1,0 +1,12 @@
+Setting Up Serial Interface:
+sudo slcan_attach -f -s6 -o /dev/ttyACM(or USB)#
+sudo slcand -S 1000000 ttyACM(or USB)# can0
+sudo ip link set can0 up
+candump can0
+
+Setting Up Socket Can device after creating a udev rule
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+cangen vcan0
+ip addr | grep "can"

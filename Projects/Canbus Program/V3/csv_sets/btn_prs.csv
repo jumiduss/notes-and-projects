@@ -1,0 +1,50 @@
+Button,Byte 0,Byte 1,Byte 2,Byte 3,Byte 4
+1,04,cycles,40,0D,9C
+2,04,cycles,40,0D,8B
+3,04,cycles,40,4D,87
+4,04,cycles,40,4D,80
+5,04,cycles,40,4D,81
+6,04,cycles,40,0D,9D
+7,04,cycles,40,0D,85
+8,04,cycles,40,0D,8E
+9,04,cycles,40,0D,8D
+10,04,cycles,40,4D,86
+11,04,cycles,40,0D,80
+12,04,cycles,40,4D,82
+13,04,cycles,40,0D,90
+14,04,cycles,40,0D,9B
+15,04,cycles,40,0D,8F
+16,04,cycles,40,0D,8C
+17,04,cycles,40,4D,85
+18,04,cycles,40,4D,84
+19,04,cycles,40,4D,83
+20,04,cycles,40,0D,8A
+21,04,cycles,40,0D,86
+22,No Response,No Response,No Response,No Response,No Response
+23,04,cycles,40,0D,A0
+24,04,cycles,40,0D,81
+25,04,cycles,40,0D,82
+26,Hazards,Hazards,Hazards,Hazards,Hazards
+27,03,cycles,20,0D,
+28,No Response,No Response,No Response,No Response,No Response
+29,04,cycles,40,0D,91
+30,04,cycles,40,0D,83
+31,04,cycles,40,0D,95
+32,04,cycles,40,0D,92
+33,04,cycles,40,0D,84
+34,04,cycles,40,0D,85
+35,04,cycles,40,0D,88
+36,04,cycles,40,0D,89
+37,04,cycles,40,0D,86
+38,04,cycles,40,0D,87
+39,Disk Eject,Disk Eject,Disk Eject,Disk Eject,Disk Eject
+40,04,cycles,40,2D,8A
+41,04,cycles,40,2D,85
+42,04,cycles,40,2D,83
+43,04,cycles,40,2D,88
+44,04,cycles,40,2D,94
+45,04,cycles,40,2D,86
+46,04,cycles,40,2D,8B
+47,No Response,No Response,No Response,No Response,No Response
+48,04,cycles,40,2D,8F
+49,04,cycles,40,2D,87

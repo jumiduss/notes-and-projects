@@ -1,0 +1,178 @@
+NOTE: We have removed AT LEAST 6 other ID's from our analysis.
+
+Section 1 - Savvycan Metrics / Patterns
+Between ID 0x681(Controller) and 0x601(AV Unit)
+Time delta between message sent from 0x681, to message sent from 0x601:
+    366050 microseconds
+
+Time delta between message sent from 0x601, to message sent from 0x681:
+    113959 microseconds
+
+This leads to either assumption:
+    A. 0x601 sends connection check to bus controllers.
+    or
+    B. Each controller sends a broadcast message every half second base on it's priority (must look at other id analysis).
+
+Time delta between 0x601 check_comm / broadcast of F1 00 0A:
+    509623 microseconds ~ 2 hz
+
+Time delta between 0x681 response / broadcast of F0 06 0A 01:
+    500009 microseconds ~ 2 hz
+
+
+Section 2 - Behavior Within a Conversation During an Input on CAN ID 0x681
+Example Controller Message Conversation (Taken from: "Controller Reverse Engineering 01.csv" Timestamp column, value: 155889006(row 1056) through 157003923( row 1078)):
+
+index    t (microseconds)   ID          msg(B0 B1 B2 B3 B4 B5) - Rest of frame filled with FF in savvycan
+-1       -285240            0X681       F0 06 0A 01
+ 0             0            0x601       F1 00 0A 01
+ 1         19155            0x681       04 20 80 0D 01
+ 2         20677            0x601       E0 20
+ 3         54834            0x681       04 30 80 0D 01
+ 4         55106            0x601       E0 30
+ 5        119122            0x681       04 40 80 0D 01
+ 6        119165            0x601       E0 40
+ 7        214755            0x681       F0 06 0A 01
+
+This leads to the assumptions:
+    1. When an input on 0x681 is recognized, the message is immediately sent.
+        Justification:
+        1. The shortened delta between a 0x681 response / broadcast:
+            without 0x681 input:
+                509623 microseconds
+            with 0x681 input:
+                304395 microseconds
+            Therefor, approx. 1.67 times faster interval
+
+        2. The shortened delta between 0x601 check_comm / broadcast to 0x681 response / broadcast:
+            without 0x681 input:
+                113959 microseconds
+            with 0x681 input:
+                019155 microseconds
+            Therefor, approx. 5.95 times faster response / broadcast.
+
+
+
+    2. 0x601 sends response message with:
+        Byte 0 - E0
+        Byte 1- Cycle value of message received.
+
+        Justification:
+            1. The shortened delta between 0x681 response / broadcast to 0x601 check_comm / broadcast:
+                without 0x681 input message:
+                    366050 microseconds
+                with 0x681 input message:
+                    1522 microseconds
+                Therefor, approx. 240.5 times faster check_comm / broadcast time.
+
+            2. The shortened delta between a 0x601 check_comm / broadcast:
+                without 0x681 input message:
+                    509623 microseconds
+                with 0x681 input message:
+                     20677 microseconds
+                Therefor, approx. 24 times faster response / broadcast.
+
+    3. Dial rotations do not provide a release message.
+
+        Justification:
+            1. Using testing notes:
+                ID 0x681, 
+                Data: 04 cycles 80 0D 01,
+                corresponds with the clockwise rotation of the small sub controller dial.
+            2. Inconsistent interval times that return to normal without changing data frame (excluding the cycle count(Byte 1))
+                The time decreases during input interval,
+                increases during over time when sending the message:
+                without 0x681 input message:
+                    500009 microseconds
+                index -1 to 1
+                    304395 microseconds
+                index  1 to 3
+                     35679 microseconds (approx. 8.53 times faster)
+                index  3 to 5
+                     64059 microseconds (approx. .557 times faster than index 1 to 3)
+
+Section 3 - Synchronizing off check_comm / broadcast or CAN ID 0x601 clock 
+Example of message timing before and after input messages (Taken from: "Controller Reverse Engineering 01.csv" Timestamp column, value: 144577975(row 846) through 164578437(row 1221)):
+    Question:
+        Is initial timing in 0x601 maintain ed through conversations (specifically with 0x681), or does it start the new cycle after the final confirmation response.
+            -> Original timing is maintained through all input conversations by looking at the return to a near 0 devation on the interval 510,000 microseconds
+
+    Looking at the time delta between 0x601 messages before and after rows discussed in previous section:
+
+    
+Time Delta: Line 846 - 846  |       0 micro-s, Deviation:       0 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 855-846   | 510,073 micro-s, Deviation:     -64 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 864-855   | 510,148 micro-s, Deviation:    -203 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 873-864   | 510,015 micro-s, Deviation:    -209 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 882-873   | 509,785 micro-s, Deviation:      15 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 891-882   | 510,003 micro-s, Deviation:      21 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 900-891   | 510,025 micro-s, Deviation:       5 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 909-900   | 509,980 micro-s, Deviation:      34 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 918-909   | 510,052 micro-s, Deviation:      -9 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 928-918   | 510,598 micro-s, Deviation:    -598 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 937-928   | 509,603 micro-s, Deviation:    -192 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 945-937   |  20,677 micro-s, Deviation:  -20869 micro-s, Message: [0, 8, 'E0', 20, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 947-945   |  34,429 micro-s, Deviation:  -55298 micro-s, Message: [0, 8, 'E0', 30, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 949-947   |  64,059 micro-s, Deviation: -119357 micro-s, Message: [0, 8, 'E0', 40, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 952-949   | 390,820 micro-s, Deviation:    -168 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 961-952   | 509,918 micro-s, Deviation:     -77 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 970-961   | 510,539 micro-s, Deviation:    -607 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 979-970   | 509,393 micro-s, Deviation:       9 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 988-979   | 510,183 micro-s, Deviation:    -165 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 997-988   | 389,200 micro-s, Deviation:  120644 micro-s, Message: [0, 8, 'E0', 50, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 999-997   | 120,844 micro-s, Deviation:    -200 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1008-999  | 510,067 micro-s, Deviation:    -258 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1017-1008 | 509,807 micro-s, Deviation:     -56 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1027-1017 | 499,385 micro-s, Deviation:   10568 micro-s, Message: [0, 8, 'E0', 60, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1034-1027 | 12,687 micro-s, Deviation:    -2119 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1037-1034 | 508,045 micro-s, Deviation:    -155 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+***** Previous Section *****
+Time Delta: Lines 1046-1037 | 510,109 micro-s, Deviation:    -255 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1056-1046 | 415,484 micro-s, Deviation:   94270 micro-s, Message: [0, 8, 'E0', 70, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1057-1056 | 94,874 micro-s, Deviation:     -604 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1066-1057 | 509,978 micro-s, Deviation:    -573 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1076-1066 | 384,704 micro-s, Deviation:  124732 micro-s, Message: [0, 8, 'E0', 10, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1077-1076 | 125,346 micro-s, Deviation:    -614 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1086-1077 | 509,410 micro-s, Deviation:     -15 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+***** Previous Section *****
+Time Delta: Lines 1095-1086 | 510,542 micro-s, Deviation:    -548 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1103-1095 | 48,775 micro-s, Deviation:   -49323 micro-s, Message: [0, 8, 'E0', 20, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1106-1103 | 460,844 micro-s, Deviation:    -158 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1115-1106 | 509,992 micro-s, Deviation:    -141 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1124-1115 | 509,808 micro-s, Deviation:      60 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1134-1124 | 389,579 micro-s, Deviation:  120490 micro-s, Message: [0, 8, 'E0', 30, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1135-1134 | 120,461 micro-s, Deviation:      29 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1144-1135 | 509,956 micro-s, Deviation:      82 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1154-1144 | 510,090 micro-s, Deviation:       1 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1163-1154 | 510,014 micro-s, Deviation:      -4 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1171-1163 | 109,371 micro-s, Deviation: -109375 micro-s, Message: [0, 8, 'E0', 40, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1174-1171 | 400,598 micro-s, Deviation:      36 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1183-1174 | 510,047 micro-s, Deviation:      -2 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1192-1183 | 509,998 micro-s, Deviation:       9 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1201-1192 | 510,034 micro-s, Deviation:     -16 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1210-1201 | 305,515 micro-s, Deviation:  204478 micro-s, Message: [0, 8, 'E0', 50, 'FF', 'FF', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1212-1210 | 204,436 micro-s, Deviation:      42 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+Time Delta: Lines 1221-1212 | 510,098 micro-s, Deviation:     -47 micro-s, Message: [0, 8, 'F1',  0, '0A', '01', 'FF', 'FF', 'FF', 'FF']
+
+    There seems to be an attempt to return to 510,009 microsecond time deltas for CAN ID 0x601.
+    Since they appear to return to a near 0 delta after input message sequences are completed.
+
+
+section 4
+
+General Communication Pattern
+
+    1. Controller sends out a message.
+
+    2. AV Unit replies with a timer check confirmation within 75 microseconds.
+
+    3. Controller sends:
+        A. Next status containing incremented timer value within 3500 microseconds.
+        B. Button release message.
+        C. A broadcast message on the same interval.
+
+    4. Note: If any controller message would conflict with the broadcast message, 
+        It's delayed until after the broadcast is complete.
+        Followup message is 100,000 microseconds
+
+    

@@ -1,0 +1,6 @@
+Button,Byte 0,Byte 1,Byte 2,Byte 3,Speed 1,Speed 2,Speed 3
+11,No Response,cycles,No Response,No Response,No Response,No Response,No Response
+27,04,cycles,80,0D,11,12,13
+30,04,cycles,40,0D,21,22,23
+40,04,cycles,40,2D,51,52,53
+45,04,cycles,40,2D,61,62,63
