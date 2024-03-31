@@ -36,10 +36,12 @@ I have reached points where points 1-4, 6, and 8 are programmatically functional
 
 ## Version Development
 Version 1 of the program resulted in a working interface which performed MOST of the functions needed. I was unable to get any continuous sending functions on the virtual network. 
-![Alt text](https://github.com/jumiduss/notes-and-projects/blob/main/Projects/Canbus Program/project_images/tkinter_gui.png)
+
+<img src="project_images/tkinter_gui.png" alt="TKinter GUI" width=300>
+
 
 Versions 2-4 contain a variety of attempts to simplify my code, and create an asynchronous functionality before I knew it existed. I switched over to Qt based GUI development because it seemed to create better looking interfaces without significant design experience. 
-![Alt text](https://github.com/jumiduss/notes-and-projects/blob/main/Projects/Canbus Program/project_images/qt6_gui.png)
+![QT6 GUI](project_images/qt6_gui.png)
 
 Version 5 is the first version after I read up on asynchronous programming, and was unable to achieve progress. I created a working interface, but kept running into infinite loop errors. One of the three async loops would refuse to behave, regardless of which one was given priority.  
 
