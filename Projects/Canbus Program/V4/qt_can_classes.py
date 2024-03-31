@@ -1,5 +1,4 @@
 import can
-import sys
 from PyQt6.QtWidgets import QMainWindow, QPushButton, QApplication, QVBoxLayout, QWidget
 ###### Looking for the return message of [0xE0. Clock_of_Last_Send, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
@@ -17,105 +16,6 @@ class MyNetwork():
         can.rc['bitrate']= bitrate
         self.bus_agent = can.Bus()
         self.channel = channel
-
-
-
-
-class MyButton(QPushButton):
-    def __init__(self, press_ls, release_ls, controller, btn_name, parent, *args, **kwargs):
-        
-        # Creating the gui element
-        super(MyButton, self).__init__(parent=parent,text=self.name, *args, **kwargs)
-        self.setFixedSize(25,25)
-        
-        
-        # Setting the press and release codes for this btn.
-        self.press = press_ls
-        self.release = release_ls
-        
-        # Adding a controller reference to edit the on_press/on_release messages.
-        self.controller = controller
-        
-        # Setting the button's gui text.
-        self.name = btn_name
-        
-        
-    def on_release(self):
-        '''Removes the option of using the pressed message from the controller, which triggers the controller's next_msg to send the release message.'''
-        self.controller.btn_pressed = None
-        
-    def on_press(self):
-        self.controller.btn_pressed = self.press
-        self.controller.btn_released = self.release
-
-
-
-
-class MyDial():
-    
-    def __init__(self, ccw_ls_ls, cw_ls_ls, press_ls, release_ls, controller, num, display):
-        
-        # Setting the Clockwise, and Counter Clockwise message sets.
-        self.ccw = ccw_ls_ls
-        self.cw = cw_ls_ls
-        self.controller = controller
-        
-        ### Setting up GUI ####
-        
-        # Canvas
-        self.canvas = tk.Canvas(display)
-        self.config()
-        
-        # Creating the dial's center button.
-        self.center_btn = MyButton(press_ls, release_ls, controller, num, self.canvas)
-        
-        # Configuring the center button on the canvas.
-        self.center_btn.config(height=15,width=5)
-        self.center_btn.grid(row=0,column=1)
-        
-        # Creating the dial direction sliders.
-        self.dial_1 = self.create_dial("ccw")
-        self.dial_2 = self.create_dial("cw")
-        
-    def create_dial(self, name):
-        dial = tk.Scale(self.canvas, from_=0, to=3, name=name, orient=tk.VERTICAL, command=self.on_cw)
-        dial.bind("<ButtonRelease>", self.dial_stop)
-        dial.config(width=5)
-        
-        if name == "cw":
-            dial.grid(row=0, column=2)
-        else:
-            dial.grid(row=0, column=0)
-            
-        return dial
-    
-    def dial_stop(self, event):
-        self.dial_1.set(0)
-        self.dial_2.set(0)
-        
-#######################!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #### Can possibly simplify these into one method #####
-    def on_cw(self, event):        
-        
-        event = int(event) # whatever the event slider value is, between 0 and 3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-        # If the dial isn't moving, reset the message on the controller.
-        if event == 0:
-            self.controller.btn_pressed = None
-        else:
-            self.controller.btn_pressed = self.cw[event - 1]
-
-    def on_ccw(self,event):        
-        event = int(event) # whatever the event slider value is, between 0 and 3
-        
-        # If the dial isn't moving, reset the message on the controller.
-        if event == 0:
-            self.controller.btn_pressed = None
-        else:
-            self.controller.btn_pressed = self.ccw[event - 1]
-
-
-
 
 class MyController(MyNetwork):
     

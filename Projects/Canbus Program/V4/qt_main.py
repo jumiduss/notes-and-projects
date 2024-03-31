@@ -1,5 +1,5 @@
 import json
-from qt_can_classes import MyController,MyButton,MyDial,MyNetwork
+from qt_can_classes import MyController,MyNetwork
 from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QMainWindow
 import sys
 import time
