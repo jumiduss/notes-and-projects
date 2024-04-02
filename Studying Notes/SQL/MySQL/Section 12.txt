@@ -1,0 +1,35 @@
+Constraints
+
+    UNIQUE - The entry must be unique within the table.
+
+    CHECK - Checks if condition holds TRUE.
+
+    Named Constraints - A constraint separate from the input line on the table, but explicitly 
+        applied to an input column of the table.
+        The constraint itself has an alias, and checks TRUE on another column.
+    
+    Multi-Column Constraints - checks conditionals between two different input columns.
+
+Modifying Tables
+
+    ALTER TABLE table_name - Specifies a table to be modifiable.  
+    
+    ADD COLUMN column_name column_setting_1 ... - Adds another column to the table.
+
+    DROP COLUMN column_name - Removes a column from a table.
+
+    RENAME TABLE current_table_name TO new_table_name - Renames a table.
+    or could use 
+    ALTER TABLE current_table_name RENAME TO new_table_name;
+
+    ALTER TABLE table_name RENAME COLUMN current_column_name TO new_column_name;
+        Renames a table's column name.
+    
+    ALTER TABLE table_name MODIFY column_name column_setting_1 ...
+        Changes the settings defining a column's data.
+
+    ALTER TABLE table_name ADD CONSTRAINT column_setting_1 CHECK values;
+        Adds a new constraint to a column.
+
+    ALTER TABLE table_name DROP CONSTANT constant_alias;
+        Removes a constraint from a table.

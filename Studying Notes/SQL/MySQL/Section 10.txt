@@ -62,7 +62,9 @@ Data Types
             HOUR - hour number.
 
         DATE_FORMAT
-            A special formatting string for dates.
+
+            A special formatting string for dates. Has a range of
+                1000-01-01 00:00:00 -> 9999-12-31 23:59:59
 
             Special Characters, all special characters begin with %
 
@@ -84,12 +86,107 @@ Data Types
                 m - Month 01, 02, ..., 12
                 p - AM or PM
                 r - Time 12-Hour hh:mm:ss AM/PM
-                S - 
-                s
-                Y
-                U
-                u
-                V
+                S - Seconds 00, ..., 59
+                s - Seconds 00, ..., 59
+                T - Time 24-Hour hh:mm:ss
+                U - Week 00, ..., 53 Sunday is first day WEEK mode 0.
+                u - Week 00, ..., 53 Monday is first day, WEEK mode 1
+                V - Week 01, ..., 53 Sunday is first day, WEEK mode 2.
+                v - Week 01, ..., 53 Monday is first day, WEEK mode 3.
+                W - Weekday name Sunday, ..., Saturday
+                w - Day of week 0, ..., 6 
+                X - Year for the week 0123 Sunday is first day.
+                x - Year for the week 0123 Monday is first day.
+                Y - Year 0123
+                y - Year 01
+                % - A string literal '%'
+
+        DATE Math
+
+            DATEDIFF(date_column_name_1, date_column_name_2);
+                Returns the difference between both dates. 
+            
+            DATE_ADD(date_column_name_1, INTERVAL interval_value interval_type)
+                Returns the addition of a date and some date interval.
+
+            DATE_SUB(date_column_name_1, INTERVAL interval_value interval_type)
+                Returns the subtraction of a date and some date interval.
 
 
+        TIMESTAMPS
 
+            TIMESTAMPS take up less space than DATETIME. 
+            Used for values with date and time parts, with a range of 
+                1970-01-01 00:00:00 -> 2038-01-19 03:14:07
+            
+
+            TIMESTAMPS automatically convert times to UTC for storage.
+            TIMESTAMPS can be used for auto-updating column access time (as can DATETIME.)
+                CREATE TABLE t1 (
+                    ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    st DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+                );
+
+Exercises:
+
+1. What is a good use case for CHAR? (just give an example)
+    
+    The CHAR datatype is useful for strings with a known limit of characters. 
+
+2. Fill in the blanks:
+    CREATE TABLE inventory (
+        item_name ________,
+        price ____________,
+        quantity _________
+    );
+    Note: price is always under 1,000,000
+
+    CREATE TABLE inventory (
+        item_name VARCHAR,
+        price MEDIUMINT,
+        quantity INT
+    );
+
+3. What's the difference between DATETIME and TIMESTAMP?
+
+    DATETIME has a wider range of dates that TIMESTAMP, but TIMESTAMP is a smaller storage size.
+
+4. Print out the current time.
+
+    SELECT CURRENT_TIME;
+
+5. Print out the current date.
+
+    SELECT CURRENT_DATE;
+
+6. Print out the current day of the week (numeric.)
+
+    SELECT DAY_OF_WEEK(CURRENT_DATE);
+    
+7. Print out the current day of the week (name.)
+
+    SELECT DAYNAME(CURRENT_DATE);
+
+8. Print out the current day and time using the format: 
+    <mm>/<dd>/<yyyy>.
+
+    SELECT DATE_FORMAT(CURRENT_DATE, '%m/%d/%Y');
+
+9. Print out the current day and time using the format: 
+    <month_name> <numeric_with_position_suffix> at <h>:<mm>.
+
+    SELECT CONCAT(
+        DATE_FORMAT(CURRENT_DATE, '%M %D'), 
+        ' at ', 
+        TIME_FORMAT(CURRENT_TIME, '%l:%i'));
+
+10. Create a tweets table that stores:
+    a. the Tweet's content,
+    b. a Username,
+    c. the time the Tweet was created.
+
+    CREATE TABLE tweet(
+        content CHAR(144),
+        username VARCHAR(50),
+        time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );

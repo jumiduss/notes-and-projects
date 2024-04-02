@@ -1,0 +1,84 @@
+Tables are continued from section 14.
+
+Views 
+    A virtual table, created from a query, that allows us to operate on it as if it were a table. 
+
+    ex:
+        Taking this query:
+            
+            SELECT title, released_year, genre, rating, first_name, last_name FROM reviews
+            JOIN series ON series.id = reviews.series_id
+            JOIN reviewers ON reviewers.id = reviews.reviewer_id
+            GROUP BY title;
+
+        Creating a view from it:
+
+            CREATE VIEW full_reviews AS
+            SELECT title, released_year, genre, rating, first_name, last_name FROM reviews
+            JOIN series ON series.id = reviews.series_id
+            JOIN reviewers ON reviewers.id = reviews.reviewer_id
+            GROUP BY title;
+
+        Accessing the View:
+
+            SELECT * FROM full_reviews;
+    
+    We cannot delete table data from a view.
+        Views can be inserted and updated, but it wont update the tables the views were based upon.
+        Rows can be deleted from a view.
+
+    Altering Views
+
+        CREATE OR REPLACE view_name AS ...; - Replaces the view_name's assigned value
+
+        ALTER VIEW view_name AS ...; - Updates an attribute of the view.
+ 
+        DROP VIEW view_name; - Removes the View variable, but not the data it was created from.
+
+GROUP BY Clauses
+
+    HAVING - Filters the groups we are returned by GROUP BY.
+    ex:
+        SELECT
+            title,
+            AVG(rating)
+        FROM full_reviews
+        GROUP BY title HAVING COUNT(rating) > 7;
+    
+    WITH ROLL UP - Adds something like a total row for the return.
+    ex:
+        SELECT title, AVG(rating) FROM full_reviews
+        GROUP BY title WITH ROLLUP;
+
+Modes
+
+    Affect the syntax SQL uses, and the data validation checks performed.
+    To see the settings of your specific mode:
+        SELECT @@TYPE_NAME.mode_name;
+
+        TYPE_NAME can be GLOBAL or SESSION
+        mode_name can be sql_mode
+    
+    To set your mode:
+        SET GLOBAL sql_mode = 'modes';
+        SET SESSION sql_mode = 'modes';
+
+    Special Mode -> STRICT_TRANS_TABLES
+        
+        Controls how MySQL handles invalid or missing values in data-change statements like INSERT or UPDATE.
+        This mode also affects other mode values by forcing bad input restrictions.
+
+        ex:
+            SET SESSION sql_mode = '';
+            SELECT @@SESSION.sql_mode;
+            returns nothing
+
+            Trying to insert an invalid set of row data to a field doesn't return an error.
+                It sets a warning message, and inputs the bad data into the table.
+        
+        STRICT_TRANS_TABLES doesn't allow bad data from being entered into the table if it conflicts with the column type.
+    
+    Other Modes
+
+        ONLY FULL GROUP BY - Controls which columns can be selected when using GROUP BY
+        NO_ZERO_IN_DATE - Controls whether a date field can have a 00 value for any date field

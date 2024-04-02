@@ -1,0 +1,104 @@
+Window Functions
+
+    Table Creation
+
+        CREATE TABLE employees (
+            emp_no INT PRIMARY KEY AUTO_INCREMENT,
+            department VARCHAR(20),
+            salary INT
+        );
+        
+        INSERT INTO employees (department, salary) VALUES
+        ('engineering', 80000),
+        ('engineering', 69000),
+        ('engineering', 70000),
+        ('engineering', 103000),
+        ('engineering', 67000),
+        ('engineering', 89000),
+        ('engineering', 91000),
+        ('sales', 59000),
+        ('sales', 70000),
+        ('sales', 159000),
+        ('sales', 72000),
+        ('sales', 60000),
+        ('sales', 61000),
+        ('sales', 61000),
+        ('customer service', 38000),
+        ('customer service', 45000),
+        ('customer service', 61000),
+        ('customer service', 40000),
+        ('customer service', 31000),
+        ('customer service', 56000),
+        ('customer service', 55000);
+
+
+
+    OVER()
+
+        For each row in a query, perform an operation on a row using related rows.
+        Rows do not get reduced, or collapsed, but they are still organized into sections.
+        OVER creates a window, aka group, and gives a value for each row.
+        OVER with empty parenthesis, creates a window over all rows.
+
+        ex:
+            SELECT emp_no, department, salary, AVG(salary) OVER(PARTITION BY department)
+            AS department_average FROM emps;
+
+            returns
+            emp_no   department             salary      department_average
+            20       customer service       56000        55500.0000
+            21       customer service       55000        55500.0000
+            8        sales                  59000        59500.0000
+            12       sales                  60000        59500.0000
+
+            Verses
+
+            SELECT department, AVG(salary) FROM emps GROUP BY department;
+
+            returns
+            department         AVG
+            sales              59500.0000
+            customer service   55500.0000
+        
+    
+        PARTITION BY specifies how a window is applied over the queried rows.
+
+        ORDER BY specifies how each window should be organized. (should be listed after PARTITION BY inside parenthesis)
+
+    Functions Only For Windows
+
+        RANK - returns the rank of the row within it's partition.
+            Values that are the same are listed as the same rank.
+            Rank goes before the OVER function.
+
+        ROW_NUMBER - Like RANK but doesn't allow two of the same rank number.
+
+        DENSE_RANK - Like RANK without skipping numbers when ties occur.
+    
+    NTILE(integer_value) column_name
+
+        Divides a partition into some number of groups based off some metric.
+        NTILE goes before OVER function.
+
+    FIRST_VALUE(column_name)
+
+        We want the column_name of the row with the first position within it's OVER group. 
+        FIRST_VALUE goes before OVER function. 
+    
+    LAST_VALUE(column_name)
+
+        We want the column_name of the row with the last position within it's OVER group.
+    
+    NTH_VALUE(column_name)
+
+        The same as FIRST_VALUE and LAST_VALUE, but at the n-th term.
+
+    LAG(column_name)
+
+        Delays linking the current iteration result of some column_name/operation until the next term.
+
+    ... some_operation LEAD(column_name) ... OVER(...) ... 
+
+        LEAD is the opposite of LAG. It takes the next indexed position for the current index position.  
+
+    

@@ -1,0 +1,115 @@
+Logical Operators
+
+    Comparison Operators
+    
+        != or NOT LIKE - NOT
+        > - Greater Than
+        >= - Greater Than OR Equal To
+        < - Less Than
+        <= - Less Than OR Equal To
+
+    Logical Operators
+
+        && - AND
+        OR - OR
+        BETWEEN -  A <= Query <= B
+
+    Date Comparisons
+
+        Cast time queries from text to TIME datatype when using comparison operators.
+
+        ex:
+            SELECT * FROM table_name WHERE column_name
+            BETWEEN CAST('time_1' AS TIME) 
+            AND CAST('time_2' AS TIME);
+
+    Case Statements
+
+        Like if else statements for queries.
+        ex:
+            SELECT column_name_1, column_name_2,
+                CASE
+                    WHEN column_name_2 >= numeric_value THEN "return_this_value"
+                    ELSE "return_this_other_value"
+                END AS "alias_name"
+            FROM table_name;
+
+
+    Other Operators
+
+        IN - Iterate over a set of values.
+        NOT IN - Opposite of IN.
+        % - Modulo - the remainder from a division.
+            ex: ...
+                WHERE column_name >= 2000 AND column_name % 2 != 0;
+        IS NULL - selects where the result is a NULL value/type.
+
+Exercises:
+
+Without evaluating in MySQL, what will the following selections return:
+1. SELECT 10 != 10;
+    Nothing is returned.
+
+2. SELECT 15 > 14 AND 99 - 5 <= 94;
+    Nothing is returned.
+
+3. SELECT 1 IN (5,3) OR 9 BETWEEN 8 AND 10;
+    Returns 9.
+
+For the remaining exercises, answer the prompt.
+
+4. Select all books written before 1980 (exclusive.)
+
+    SELECT * FROM bookshelf WHERE released_year < 1980;
+
+5. Select all books written by Eggers or Chabon.
+
+    SELECT * FROM bookshelf WHERE author_lname = 'Eggers' OR author_lname = 'Chabon';
+
+6. Select all books written by Lahiri, published after 2000.
+
+    SELECT * FROM bookshelf WHERE author_lname = 'Lahiri' AND released_year > 2000;
+
+7. Select all books with page counts between 100 and 200.
+
+    SELECT * FROM bookshelf WHERE page_count BETWEEN 100 AND 200;
+
+8. Select all books where author_lname starts with a 'C' or an 'S'.
+
+    SELECT * FROM bookshelf WHERE LEFT(author_lname, 1) IN ('C', 'S'); 
+
+9. If the title contains:
+    'stories', return 'Short Stories',
+    'Just Kids and A Heartbreaking Work', return 'Memoir',
+    all other titles, return 'Novel'.
+
+    SELECT title,
+        CASE    
+            WHEN title LIKE '%stories%' THEN 'Short Stories'
+            OR WHEN title = 'Just Kids and A Heartbreaking Work' THEN 'Memoir'
+            ELSE 'Novel'
+        END AS 'book type'
+    FROM bookshelf; 
+
+10. Return a table with the author_fname, author_lname, and <quantity> of book<s> they've written.
+
+    SELECT author_fname, author_lname, 
+    CONCAT(COUNT(*), 
+        CASE
+            WHEN COUNT(*) = 1 THEN ' book'
+            ELSE ' books'
+        END) AS "COUNT"
+    FROM bookshelf GROUP BY author_lname, author_fname;
+
+    Author's solution
+    SELECT author_fname, author_lname,
+        CASE
+            WHEN COUNT(*) = 1 THEN '1 book'
+            ELSE CONCAT(COUNT(*), ' books')
+        END AS count
+    FROM books
+    WHERE author_lname IS NOT NULL
+    GROUP BY author_fname, author_lname;
+
+    The main difference is filtering out NOT NULL last names, which I didn't consider a possible result.
+    Other differences are due to order of operations.

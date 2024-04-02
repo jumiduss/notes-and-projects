@@ -1,0 +1,250 @@
+Keys
+
+    Primary Key
+        Within the table, the Primary key is unique for this table.
+    
+    Foreign Key
+        Another table's primary key that relates information to that name identifier.
+
+    On Deletion
+        We run into errors when deleting records that hold relationships.
+        ex:
+            Every order must be attached to a customer.
+            If we delete a customer from customers, we will return an
+                error because an order is linked to an non-existent 'customer.id'.  
+
+            To resolve this issues, adding 
+                ON DELETE CASCADE
+                will remove the record when the 'customer.id' is deleted from the first table. 
+            (
+                ...
+                FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE
+            );
+
+
+One to One Relationships
+
+    Not very common, but used for basic information.
+    ex:
+        Only two tables, data has exactly one connection to another table.
+        Table 1:
+            Email
+            Username
+            Password
+            Name
+
+        Table 2:
+            All other detailed information.
+            Usually included:
+            Email
+            Username
+
+Many to Many Relationship - Section 14
+
+    Two entities have multiple relationships between each other.
+
+    ex:
+        One author can write multiple books.
+        Multiple authors can write one book.
+
+
+One to Many Relationship
+
+    Most common type of relationship.
+
+    ex:or
+        One book can have thousands of reviews.
+
+    The lecture's working database.
+
+        Relationship: 
+            A Customer and Their Orders
+
+        Information:
+            Customer ID 
+            Customer First Name
+            Customer Last Name
+            Customer Email
+            Purchase Date
+            Purchase Price
+
+        Approach:
+            Use the Customer ID as the relation for two tables.
+
+            Table 1: Customer Information
+                Customer ID
+                First Name
+                Last Name
+                Email
+            
+            Table 2: Orders
+                Order ID
+                Purchase Date
+                Purchase Price
+                Customer ID
+
+        Database Creation
+
+            CREATE DATABASE shop;
+            USE shop;
+
+            CREATE TABLE customers (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                first_name VARCHAR(50),
+                last_name VARCHAR(50),
+                email VARCHAR(50)
+            );
+
+            CREATE TABLE orders (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                order_date DATE,
+                amount DECIMAL(8,2),
+                customer_id INT,
+                FOREIGN KEY (customer_id) REFERENCES customers(id)
+            );
+
+            INSERT INTO customers (first_name, last_name, email)
+            VALUES ('Boy', 'George', 'george@gmail.com'),
+                   ('George', 'Michael', 'gm@gmail.com'),
+                   ('David', 'Bowie', 'david@gmail.com'),
+                   ('Blue', 'Steele', 'blue@gmail.com'),
+                   ('Bette', 'Davis', 'bette@aol.com');
+            
+            INSERT INTO orders (order_date, amount, customer_id)
+            VALUES ('2016-02-10', 99.99, 1),
+                   ('2017-11-11', 35.50, 1),
+                   ('2014-12-12', 800.67, 2),
+                   ('2015-01-03', 12.50, 2),
+                   ('1999-04-11', 450.25, 5);
+    
+        Searching Through Multiple Tables
+            
+            Searching for 'Boy', 'George'
+            
+            Method 1:
+                SELECT id FROM customers WHERE last_name='George', first_name='Boy'; 
+                    returns id = 1.
+                SELECT * FROM orders WHERE customer_id=1;
+                    returns two orders.
+            
+            Method 2:
+                SELECT * FROM orders WHERE customer_id = (SELECT id FROM customers WHERE first_name='Boy' AND last_name='George');
+                    returns the same two orders.
+
+            Method 3: (Example of Inner Join) 
+                SELECT * FROM customers, orders WHERE first_name='Boy' AND last_name='GEORGE';
+                    returns 5 orders because 'Boy' 'George' has multiple customer_id.
+            
+Joins 
+    (Still using the store database from the last section.)
+
+    Cross Join - Returns all records from both tables.
+        ex:
+        SELECT * FROM customers, orders;
+
+    Inner Join - Returns all records from both tables that match the condition.
+        ex:
+            SELECT * FROM customers
+            JOIN orders
+                ON customers.id = orders.customer_id;            
+                Note: We can also explicitly write 'INNER JOIN', but MySQL assumes the type.
+
+        ex: INNER JOIN Tables With GROUP BY
+            SELECT first_name, last_name order_date, SUM(amount) FROM customers
+            JOIN orders ON orders.customer_id = customers.id
+            GROUP BY first_name, last_name;
+
+    Left Join - Returns all records from A, and matching records from B.
+        ex:
+            SELECT first_name, last_name, order_date, amount FROM customers
+            LEFT JOIN orders ON orders.customer_id=customers.id;
+
+        ex: LEFT JOIN Tables With GROUP BY
+            SELECT first_name, last_name, IFNULL(SUM(amount), 0) FROM customers
+            LEFT JOIN orders ON customers.id = orders.customer_id
+            GROUP BY first_name, last_name;
+                Note: order of 'orders.customer_id = customers.id' doesn't matter 
+
+    Right Join - Returns all records from B, and matching records from A.
+        We get a NULL row for records in B that can NOT be matched in A.
+
+IFNULL(column_name, value)
+    For every row that you get null, substitute this value.
+
+
+
+Exercises:
+1. Write this schema:
+
+Table 1: students
+    id
+    first_name
+Table 2: paper
+    title
+    grade
+    student_id - foreign key
+
+
+    CREATE TABLE students (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        first_name VARCHAR(50)
+    );
+    
+    CREATE TABLE papers (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(50),
+        grade INT,
+        student_id INT,
+        FOREIGN KEY (student_id) REFERENCES students(id)
+    );
+
+2. Insert This Data:
+    INSERT INTO students (first_name) VALUES 
+    ('Caleb'), ('Samantha'), ('Raj'), ('Carlos'), ('Lisa');
+     
+    INSERT INTO papers (student_id, title, grade ) VALUES
+    (1, 'My First Book Report', 60),
+    (1, 'My Second Book Report', 75),
+    (2, 'Russian Lit Through The Ages', 94),
+    (2, 'De Montaigne and The Art of The Essay', 98),
+    (4, 'Borges and Magical Realism', 89);
+
+    Completed
+
+3. Print These Joins:
+    a. <first_name> <title> <grade> - Sort by grade in descending order.
+
+        SELECT first_name, title, grade FROM students 
+        JOIN papers ON students.id = papers.student_id 
+        ORDER BY grade DESC;
+
+    b. <first_name> <title> <grade> - returns null titles and grades.
+        
+        SELECT first_name, title, grade FROM students
+        LEFT JOIN papers ON students.id = papers.student_id
+        ORDER BY students.id;
+
+    c. <first_name> <title> <grade> - returns missing for null titles, and 0 for null grades.
+
+        SELECT first_name, IFNULL(title,'MISSING'), IFNULL(grade,0) FROM students
+        LEFT JOIN papers ON students.id = papers.student_id
+        ORDER BY students.id;
+
+    d. <first_name> <average> - returns the average each student received on their papers.
+        
+        SELECT first_name, AVG(IFNULL(grade,0)) AS 'average' FROM students 
+        LEFT JOIN papers ON students.id = papers.student_id 
+        GROUP BY first_name 
+        ORDER BY average DESC;
+
+    e. <first_name> <average> <passing_status> - returns PASSING or FAILING  if grade is over 70.
+
+        SELECT first_name, AVG(IFNULL(grade,0)) AS average,
+        CASE
+            WHEN AVG(IFNULL(grade,0)) > 70 THEN 'PASSING'
+            ELSE 'FAILING'
+        END AS passing_status
+        FROM students 
+        LEFT JOIN papers ON students.id = papers.student_id 
+        GROUP BY first_name 
+        ORDER BY average DESC;
