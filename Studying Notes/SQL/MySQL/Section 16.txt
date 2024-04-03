@@ -41,7 +41,8 @@ Window Functions
         OVER with empty parenthesis, creates a window over all rows.
 
         ex:
-            SELECT emp_no, department, salary, AVG(salary) OVER(PARTITION BY department)
+            SELECT emp_no, department, salary, 
+            AVG(salary) OVER(PARTITION BY department)
             AS department_average FROM emps;
 
             returns

@@ -120,3 +120,8 @@ Schema Design
         );
 
 Inserting Data
+
+    Because the dataset is too large to paste it into the mariadb cli, I have to import the commands in a sql file.
+
+    Importing the dataset with mariadb cli:
+        source /root_path_to_folder/ig_clone_data.sql

@@ -1,2 +1,206 @@
-Exercises on the database created in Section 17.
+Based on the database created in section 17, complete the following challenges.
 
+    Copy of the table structures.
+        users 
+            id (pk)
+            username
+            created_at
+        photos
+            id (pk)
+            image_url
+            created_at
+            user_id (fk)
+        comments
+            id (pk)
+            comment_text
+            created_at 
+            photo_id (fk)
+            user_id (fk)
+        likes
+            user_id (pk and fk)
+            photo_id (pk and fk)
+            created_at 
+        follows
+            follower_id (pk and fk)
+            followee_id (pk and fk)
+            created_at
+        tags
+            id (pk)
+            tag_name
+            created_at
+        photo_tags
+            photo_id (pk and fk)
+            tag_id (pk and fk)
+
+
+
+Challenge 1: Find the 5 oldest users.
+
+    Process:
+        1. Query the users table.
+            SELECT * FROM users;
+        2. Select the column username.
+            SELECT username FROM users;
+        3. Sort by created_at with ASCENDING.
+            SELECT username FROM users ORDER BY created_at;
+        4. Select the first five results.
+            SELECT username FROM users ORDER BY created_at LIMIT 5;
+
+Challenge 2: What day of the week do most users register on.
+
+    Process:
+        1. Query the users table.
+            SELECT * FROM users;
+        2. Select the column created_at.
+            SELECT created_at FROM users;
+        3. Perform the DAYOFWEEK function on the dates
+            SELECT DAYOFWEEK(created_at) AS day_num FROM users;
+        4. Group the results by the day number.
+            SELECT DAYOFWEEK(created_at) AS day_num FROM users GROUP BY day_num;
+        5. Count the number of id for each day of the week.
+            SELECT 
+                DAYOFWEEK(created_at) AS day_num, 
+                COUNT(id) AS count 
+            FROM users 
+            GROUP BY day_num;
+
+Challenge 3: Return the set of users that have never posted a photo.
+
+    Process:
+        1. Query the users table.
+            SELECT * FROM users;
+        2. Left join the photos table to the users table. (This shows NULL)
+            SELECT username, image_url 
+            FROM users 
+            LEFT JOIN photos ON users.id = photos.user_id;
+
+        3. Select users with a NULL image_url.
+            SELECT username FROM users
+            LEFT JOIN photos ON users.id = photos.user_id
+            WHERE ISNULL(image_url);
+
+Challenge 4: Return the username and photo id of the photo with the most likes.
+
+    Process:
+        1. Query the likes table.
+            SELECT * FROM likes;
+        2. Select the photo_id column.
+            SELECT photo_id FROM likes;
+        3. Group the results by photo_id.
+            SELECT photo_id FROM likes GROUP BY photo_id;
+        4. Count the number of likes in each group.
+            SELECT photo_id, COUNT(photo_id) 
+            FROM likes GROUP BY photo_id;
+
+        5. Sort by the count -> DESCENDING, and select the highest count.
+            SELECT photo_id, COUNT(photo_id) AS 'count'
+            FROM likes GROUP BY photo_id ORDER BY count DESC LIMIT 1;
+
+        6. Join the users and photos table without previous sorting.
+            SELECT * FROM likes
+            JOIN photos ON photos.id = likes.photo_id
+            JOIN users ON users.id = photos.user_id;
+
+        7. Add the join operations to the sorting operations. 
+            SELECT photo_id, COUNT(photo_id) AS 'count'
+            JOIN photos ON photos.id = likes.photo_id
+            JOIN users ON users.id = photos.user_id
+            FROM likes GROUP BY photo_id ORDER BY count DESC LIMIT 1;   
+
+        8. Return the username, photo_id, and likes_count.
+            SELECT username, photo_id, COUNT(photo_id) AS 'likes_count'
+            FROM likes 
+            JOIN photos ON photos.id = likes.photo_id
+            JOIN users ON users.id = photos.user_id  
+            GROUP BY photo_id 
+            ORDER BY likes_count DESC LIMIT 1;
+
+Challenge 5: How many times does the average user post.
+
+    Process:
+        1. Query the photos table.
+            SELECT * FROM photos;
+        2. Group by user_id.
+            SELECT * FROM photos GROUP BY user_id;
+        3. Count the number of posts per user.
+            SELECT COUNT(id) AS average_post_count FROM photos GROUP BY user_id;
+        4. Create a view of 3 and take the average from it's results.
+            CREATE VIEW average_user_post_count AS
+            SELECT COUNT(id) AS average_post_count FROM photos GROUP BY user_id;
+
+        5. Average the view's column.
+            SELECT AVG(average_post_count) AS average_posts_per_user 
+            FROM average_user_post_count;
+
+Challenge 6: What are the top 5 most common hashtags.
+
+    Process:
+        1. Query the hashtags table;
+            SELECT * FROM photo_tags;
+        2. Group by tag_id.
+            SELECT * FROM photo_tags GROUP BY photo_id;
+        3. Count the number of each tag id
+            SELECT tag_id, COUNT(photo_id) AS 'tag_count'
+            FROM photo_tags 
+            GROUP BY tag_id;
+
+        4. Sort by tag_count -> DESCENDING.
+            SELECT tag_id, COUNT(photo_id) AS 'tag_count'
+            FROM photo_tags 
+            GROUP BY tag_id
+            ORDER BY tag_count DESC;
+
+        5. Take the top 5 from the return of 4.
+            SELECT tag_id, COUNT(photo_id) AS 'tag_count'
+            FROM photo_tags 
+            GROUP BY tag_id
+            ORDER BY tag_count DESC
+            LIMIT 5;
+        
+        6. Join tags with photo_tags.
+            SELECT * FROM photo_tags
+            JOIN tags ON tags.id=photo_tags.tag_id;
+        
+        7. Add the join operations to the sorting operations.
+
+            SELECT tag_id, COUNT(photo_id) AS 'tag_count'
+            FROM photo_tags 
+            JOIN tags ON tags.id=photo_tags.tag_id
+            GROUP BY tag_id
+            ORDER BY tag_count DESC
+            LIMIT 5;
+
+        8. Return the columns tag_name and tag_count.
+
+            SELECT tag_name, COUNT(photo_id) AS 'tag_count'
+            FROM photo_tags 
+            JOIN tags ON tags.id=photo_tags.tag_id
+            GROUP BY tag_id
+            ORDER BY tag_count DESC
+            LIMIT 5;
+
+Challenge 7: Find users that have liked all photos on the site. 
+
+    Process:
+        NOTE: we didn't discuss the function HAVING prior to this challenge, and
+            it was brought up in the solution video of this challenge.
+        1. Query the users table.
+            SELECT * FROM users;
+
+        2. Join the likes table to users table.
+            SELECT username, COUNT(photo_id) AS 'like_count' 
+            FROM users
+            JOIN likes ON likes.user_id = users.id;
+
+        3. Group rows by the user's name. 
+            SELECT username, COUNT(photo_id) AS 'like_count' 
+            FROM users
+            JOIN likes ON likes.user_id = users.id;
+            GROUP BY username
+
+        4. Use the new function HAVING to return a query after rows have been grouped. 
+            SELECT username, COUNT(photo_id) AS 'like_count' 
+            FROM users
+            JOIN likes ON likes.user_id = users.id;
+            GROUP BY username
+            HAVING like_count = (SELECT COUNT(*) FROM photos);
