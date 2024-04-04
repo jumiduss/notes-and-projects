@@ -1,0 +1,96 @@
+
+Goals:
+    1. Find all unique signals.
+        NOTE: Byte 2 cycles by 0x10, from 0x10 to 0x70, for each repeated message when a button is held.
+
+
+
+
+
+
+Process to reach Each Goal:
+    1. Find all unique signals:
+
+        A. Query the data_signals table.
+            SELECT * FROM data_signals;
+
+        B. Convert <byte_field_*> numbers to a hexadecimal string.  
+            NOTE: I'm repeating the same operation too much, must be an easier way to repeat operation on multiple columns.
+
+            SELECT 
+                bus_device_id AS bus_id,
+                LPAD(CONV(byte_field_one, 10, 16), 2, 0) AS b1, 
+                LPAD(CONV(byte_field_two, 10, 16), 2, 0) AS b2, 
+                LPAD(CONV(byte_field_three, 10, 16), 2, 0) AS b3, 
+                LPAD(CONV(byte_field_four, 10, 16), 2, 0) AS b4, 
+                LPAD(CONV(byte_field_five, 10, 16), 2, 0) AS b5, 
+                LPAD(CONV(byte_field_six, 10, 16), 2, 0) AS b6,
+                LPAD(CONV(byte_field_seven, 10, 16), 2, 0) AS b7,
+                LPAD(CONV(byte_field_eight, 10, 16), 2, 0) AS b8
+            FROM data_signals;
+
+        C. Concatenate the byte strings together.
+            
+            SELECT 
+                bus_device_id AS bus_id, 
+                CONCAT_WS(' ',
+                LPAD(CONV(byte_field_one, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_two, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_three, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_four, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_five, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_six, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_seven, 10, 16), 2, 0),
+                LPAD(CONV(byte_field_eight, 10, 16), 2, 0)) AS byte_string
+            FROM data_signals;
+        
+        D. Return Only Unique Messages
+
+
+            SELECT DISTINCT
+                bus_device_id AS bus_id, 
+                CONCAT_WS(' ',
+                LPAD(CONV(byte_field_one, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_two, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_three, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_four, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_five, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_six, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_seven, 10, 16), 2, 0),
+                LPAD(CONV(byte_field_eight, 10, 16), 2, 0)) AS byte_string
+            FROM data_signals;
+
+                returns 702 messages.
+        
+        E. Return Only Unique Messages Without Including <byte_field_two>.
+            This is necessary to catch the repeating broadcast messages that cycle values 0x10 through 0x70 (0x10 step).
+
+            SELECT DISTINCT
+                bus_device_id AS bus_id,
+                CONCAT_WS(' ',
+                LPAD(CONV(byte_field_one, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_three, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_four, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_five, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_six, 10, 16), 2, 0), 
+                LPAD(CONV(byte_field_seven, 10, 16), 2, 0),
+                LPAD(CONV(byte_field_eight, 10, 16), 2, 0)) AS byte_string
+            FROM data_signals;
+
+                returns 154 messages.
+
+        F. Query E but 
+        G. Return the XOR equivalent to query results D and E.
+
+            SELECT DISTINCT
+                bus_device_id AS bus_id, 
+                LPAD(CONV(byte_field_one, 10, 16), 2, 0) AS b1, 
+                LPAD(CONV(byte_field_two, 10, 16), 2, 0) AS 'b2', 
+                LPAD(CONV(byte_field_three, 10, 16), 2, 0) AS b3, 
+                LPAD(CONV(byte_field_four, 10, 16), 2, 0) AS b4, 
+                LPAD(CONV(byte_field_five, 10, 16), 2, 0) AS b5, 
+                LPAD(CONV(byte_field_six, 10, 16), 2, 0) AS b6,
+                LPAD(CONV(byte_field_seven, 10, 16), 2, 0) AS b7,
+                LPAD(CONV(byte_field_eight, 10, 16), 2, 0) AS b8
+            FROM data_signals
+            HAVING b2 NOT IN (10,20,30,40,50,60,70);

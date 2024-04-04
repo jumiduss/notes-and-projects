@@ -17,6 +17,13 @@ Data Types
             INTEGER = INT -> -2147483648 to 2147483647 -> 4294967295 unsigned -> 4 Bytes
             BIGINT -> -2^63 to ((2^63) - 1) -> ((2^64) - 1) unsigned -> 8 Bytes
 
+            Setting an integer as unsigned
+                ...(
+                    ...
+                    column_name INT UNSIGNED;
+                    ...
+                )
+
         DECIMAL
             Can specify number of digits pre and post decimal.
             DECIMAL(5,2) is equivalent to 12345.12

@@ -1,0 +1,62 @@
+stackoverflow Question for Importing CSV:
+        https://stackoverflow.com/questions/11077801/how-to-import-a-csv-file-into-a-mysql-table
+
+
+
+
+How I will import my CSV table:
+
+    1. Create the canbus database and use it.
+
+        CREATE DATABASE canbus;
+        USE canbus;
+        
+    2. Create the table data_signals.
+        
+        Table data_signals' Structure:
+            id
+            bus_device_id
+            byte_field_one
+            byte_field_two
+            byte_field_three
+            byte_field_four
+            byte_field_five
+            byte_field_six
+            byte_field_seven
+            byte_field_eight
+
+        MySQL Code:
+        
+            CREATE TABLE data_signals(
+                id INT AUTO_INCREMENT,
+                bus_device_id SMALLINT UNSIGNED NOT NULL,
+                byte_field_one TINYINT UNSIGNED NOT NULL,
+                byte_field_two TINYINT UNSIGNED NOT NULL,
+                byte_field_three TINYINT UNSIGNED NOT NULL,
+                byte_field_four TINYINT UNSIGNED NOT NULL,
+                byte_field_five TINYINT UNSIGNED NOT NULL,
+                byte_field_six TINYINT UNSIGNED NOT NULL,
+                byte_field_seven TINYINT UNSIGNED NOT NULL,
+                byte_field_eight TINYINT UNSIGNED NOT NULL,
+                PRIMARY KEY(id)
+            );
+
+    3. Import the Log File and convert the hexadecimal data to decimal. 
+
+        MYSQL SCRIPT
+            LOAD DATA LOCAL INFILE 'path_to_file/Controller Reverse Engineering 01.csv'
+            INTO TABLE data_signals
+            FIELDS TERMINATED BY ','
+            LINES TERMINATED BY '\n'
+            IGNORE 1 LINES 
+            (@dummy1, @var_bus, @dummy2, @dummy3, @dummy4, @dummy5, @var_b1, 
+            @var_b2, @var_b3, @var_b4, @var_b5, @var_b6, @var_b7, @var_b8)    
+            SET bus_device_id = CONV(@var_bus, 16, 10),
+            byte_field_one = CONV(@var_b1, 16, 10),
+            byte_field_two = CONV(@var_b2, 16, 10),
+            byte_field_three = CONV(@var_b3, 16, 10),
+            byte_field_four = CONV(@var_b4, 16, 10),
+            byte_field_five = CONV(@var_b5, 16, 10),
+            byte_field_six = CONV(@var_b6, 16, 10),
+            byte_field_seven = CONV(@var_b7, 16, 10),
+            byte_field_eight = CONV(@var_b8, 16, 10);
