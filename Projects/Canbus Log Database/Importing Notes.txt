@@ -11,11 +11,16 @@ How I will import my CSV table:
         CREATE DATABASE canbus;
         USE canbus;
         
-    2. Create the table data_signals.
+    2. Create the base table logs.
         
-        Table data_signals' Structure:
-            id
+        Table logs' Structure:
+
+            received_time_stamp
             bus_device_id
+            is_extended_id
+            send_direction
+            bus_id
+            data_length
             byte_field_one
             byte_field_two
             byte_field_three
@@ -25,38 +30,110 @@ How I will import my CSV table:
             byte_field_seven
             byte_field_eight
 
-        MySQL Code:
+            FLAT VERSION
+                received_time_stamp, bus_device_id, is_extended_id, send_direction, bus_id, data_length, byte_field_one, byte_field_two, byte_field_three, byte_field_four, byte_field_five, byte_field_six, byte_field_seven, byte_field_eight
+
+        MySQL:
         
-            CREATE TABLE data_signals(
-                id INT AUTO_INCREMENT,
-                bus_device_id SMALLINT UNSIGNED NOT NULL,
-                byte_field_one TINYINT UNSIGNED NOT NULL,
-                byte_field_two TINYINT UNSIGNED NOT NULL,
-                byte_field_three TINYINT UNSIGNED NOT NULL,
-                byte_field_four TINYINT UNSIGNED NOT NULL,
-                byte_field_five TINYINT UNSIGNED NOT NULL,
-                byte_field_six TINYINT UNSIGNED NOT NULL,
-                byte_field_seven TINYINT UNSIGNED NOT NULL,
-                byte_field_eight TINYINT UNSIGNED NOT NULL,
-                PRIMARY KEY(id)
+            CREATE TABLE logs(
+                received_time_stamp BIGINT UNSIGNED NOT NULL,
+                bus_device_id VARCHAR(20) NOT NULL,
+                is_extended_id VARCHAR(5) NOT NULL,
+                send_direction CHAR(2) NOT NULL,
+                bus_id TINYINT NOT NULL,
+                data_length TINYINT NOT NULL,
+                byte_field_one CHAR(2) NOT NULL,
+                byte_field_two CHAR(2) NOT NULL,
+                byte_field_three CHAR(2) NOT NULL,
+                byte_field_four CHAR(2) NOT NULL,
+                byte_field_five CHAR(2) NOT NULL,
+                byte_field_six CHAR(2) NOT NULL,
+                byte_field_seven CHAR(2) NOT NULL,
+                byte_field_eight CHAR(2) NOT NULL,
+                PRIMARY KEY(received_time_stamp)
             );
 
     3. Import the Log File and convert the hexadecimal data to decimal. 
 
-        MYSQL SCRIPT
-            LOAD DATA LOCAL INFILE 'path_to_file/Controller Reverse Engineering 01.csv'
-            INTO TABLE data_signals
-            FIELDS TERMINATED BY ','
-            LINES TERMINATED BY '\n'
-            IGNORE 1 LINES 
-            (@dummy1, @var_bus, @dummy2, @dummy3, @dummy4, @dummy5, @var_b1, 
-            @var_b2, @var_b3, @var_b4, @var_b5, @var_b6, @var_b7, @var_b8)    
-            SET bus_device_id = CONV(@var_bus, 16, 10),
-            byte_field_one = CONV(@var_b1, 16, 10),
-            byte_field_two = CONV(@var_b2, 16, 10),
-            byte_field_three = CONV(@var_b3, 16, 10),
-            byte_field_four = CONV(@var_b4, 16, 10),
-            byte_field_five = CONV(@var_b5, 16, 10),
-            byte_field_six = CONV(@var_b6, 16, 10),
-            byte_field_seven = CONV(@var_b7, 16, 10),
-            byte_field_eight = CONV(@var_b8, 16, 10);
+        LOAD DATA LOCAL INFILE 'path_to_file/Controller Reverse Engineering 01.csv'
+        LOAD DATA LOCAL INFILE '/home/jd/Documents/GitRepo/notes-and-projects/Projects/Canbus Log Database/Controller Reverse Engineering 01.csv'
+        INTO TABLE logs
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 LINES
+        (received_time_stamp, 
+        bus_device_id,
+        is_extended_id,
+        send_direction,
+        bus_id,
+        data_length,
+        byte_field_one,
+        byte_field_two,
+        byte_field_three,
+        byte_field_four,
+        byte_field_five,
+        byte_field_six,
+        byte_field_seven,
+        byte_field_eight);
+        
+        Two warnings returned caused by duplicate primary keys for time_stamp_microseconds.
+            This seemed like an impossibility for data to be recorded/received at the exact same time
+                given bus networks protocol, so it may be due a log program error.
+        I added the skipped rows by incrementing the timestamp by 1 microsecond for the message
+            recorded last between the two, for each duplicated timestamp.
+            This was done within the "Controller Reverse Engineering 01.csv" file, not the database.
+
+
+    4. Create table with cleaned, relevant data from the logs table.
+        
+        Table frames' Structure:
+
+            id
+            time_stamp
+            device_id
+            byte_one
+            byte_two
+            byte_three
+            byte_four
+            byte_five
+            byte_six
+            byte_seven
+            byte_eight
+            byte_string
+
+            FLAT VERSION
+            id, time_stamp, device_id, byte_one, byte_two, byte_three, byte_four, byte_five, byte_six, byte_seven, byte_eight, byte_string
+
+        MySQL:
+            
+            CREATE TABLE frames(
+                id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+                time_stamp BIGINT UNSIGNED NOT NULL,
+                device_id VARCHAR UNSIGNED NOT NULL,
+                byte_one TINYINT UNSIGNED NOT NULL,
+                byte_two TINYINT UNSIGNED NOT NULL,
+                byte_three TINYINT UNSIGNED NOT NULL,
+                byte_four TINYINT UNSIGNED NOT NULL,
+                byte_five TINYINT UNSIGNED NOT NULL,
+                byte_six TINYINT UNSIGNED NOT NULL,
+                byte_seven TINYINT UNSIGNED NOT NULL,
+                byte_eight TINYINT UNSIGNED NOT NULL,
+                byte_string VARCHAR(31) NOT NULL
+            );
+
+            INSERT INTO frames(time_stamp, device_id, byte_one, byte_two, byte_three, 
+                byte_four, byte_five, byte_six, byte_seven, byte_eight, byte_string)
+            SELECT
+                received_time_stamp,
+                CONCAT('0x', CONV(CONV(bus_device_id, 16, 10), 10, 16)),
+                CONV(byte_field_one, 16, 10),
+                CONV(byte_field_two, 16, 10),
+                CONV(byte_field_three, 16, 10),
+                CONV(byte_field_four, 16, 10),
+                CONV(byte_field_five, 16, 10),
+                CONV(byte_field_six, 16, 10),
+                CONV(byte_field_seven, 16, 10),
+                CONV(byte_field_eight, 16, 10),
+                CONCAT_WS(' ', byte_field_one, byte_field_two, byte_field_three, byte_field_four, 
+                    byte_field_five, byte_field_six, byte_field_seven, byte_field_eight)
+            FROM logs;
