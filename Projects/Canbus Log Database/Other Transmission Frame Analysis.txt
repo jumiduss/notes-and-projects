@@ -1,0 +1,39 @@
+Looking specifically at the unique messages from "Searching Notes.txt Part 4"
+
++-----------+----------------------+-------+-----------------+---------+
+| device_id | byte_str             | count | Message         |  Type   |
++-----------+----------------------+-------+-----------------+---------+
+AVHU Primary Bus Initialization Messages?
+| 0x601     | 03 00 21 FF FF FF FF |     2 |                 |         |
+| 0x601     | 03 00 2C FF FF FF FF |     2 |                 |         |
+
+AVHU Primary Bus Commands ?
+| 0x601     | 05 60 0D 00 00 FF FF |     4 |                 |         |
+| 0x601     | 05 60 0D 20 00 FF FF |     3 |                 |         |
+| 0x601     | 05 60 0D 20 88 FF FF |     3 |                 |         |
+| 0x601     | 05 60 0D 22 00 FF FF |     1 |                 |         |
+| 0x601     | 05 60 0D 62 88 FF FF |     2 |                 |         |
+| 0x601     | 05 60 0D 82 88 FF FF |     2 |                 |         |
+| 0x601     | 05 60 0D A0 10 FF FF |     1 |                 |         |
+| 0x601     | 05 60 0D A0 20 FF FF |     1 |                 |         |
+| 0x601     | 05 60 0D A0 88 FF FF |     7 |                 |         |
+| 0x601     | 05 60 0D A2 88 FF FF |     8 |                 |         |
+| 0x601     | 05 60 0D A4 00 FF FF |     2 |                 |         |
+| 0x601     | 05 60 0D B2 88 FF FF |     2 |                 |         |
+| 0x601     | 05 60 0D E0 08 FF FF |     2 |                 |         |
+| 0x601     | 05 60 0D E2 08 FF FF |     1 |                 |         |
+| 0x601     | 05 60 0D E2 88 FF FF |     5 |                 |         |
+
+AVHU Secondary Bus Initialization Messages?
+| 0x621     | 03 00 21 FF FF FF FF |     3 |                 |         |
+| 0x621     | 03 00 2C FF FF FF FF |     3 |                 |         |
+AVHU Secondary Bus Acknowledgement Message?
+| 0x621     | E0 FF FF FF FF FF FF |    15 | ACK Message?    | Response|
+
+Sonar System?
+Sonar System Triggers? 
+| 0x6A1     | 04 80 0D 00 FF FF FF |     6 |                 |         |
+| 0x6A1     | 07 00 20 00 05 02 00 |     3 |                 |         |
+| 0x6A1     | 07 00 2C 00 05 02 00 |     3 |                 |         |
+| 0x6A1     | 07 60 0D 00 00 00 00 |     3 |                 |         |
++-----------+----------------------+-------+-----------------+---------+

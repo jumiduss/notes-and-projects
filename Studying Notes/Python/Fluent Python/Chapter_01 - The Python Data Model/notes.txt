@@ -1,0 +1,74 @@
+Special Methods
+
+    Used for:
+
+        Collections
+        Attribute Access
+        Iteration (including asynchronous iteration with 'async for')
+        Operator Overloading
+        Function and Method Invocation
+        String Representation and Formatting
+        Asynchronous Programming Using 'await'
+        Object Creation and Destruction
+        Managed Contexts Using 'with' or 'async with' Statements
+
+
+    'Magic Method' is slang for a special method.
+    'Dunder' is slang for double underscore before and after.
+    Dunder methods are magic/special methods within a class.
+    
+
+    More often than not, special methods are called implicitly.
+    ex:
+        for i in x  ->  may call x.__getitem__()
+    
+    Special methods are called by the python interpreter, not the programmer.
+    ex:
+        Programmers Call:
+            len(name)
+        The Interpreter Calls:
+            __len__
+    
+    The only special method frequently used by programmers is:
+        super().__init__()
+
+
+    Important uses of special methods:
+        Emulating Numeric Types          - see 'enumerating_numerics.ipynb'
+        String Representation of Objects - see 'card_deck.ipynb'
+        Implementing Collections         - see 'card_deck.ipynb'
+        Boolean Value of an Object       - see below
+
+
+Boolean Value of a Custom Type
+
+    bool(x) is used by Python to determine a value's "truthiness".
+    If bool is not implemented, it will use 0 or any_integer from len
+        to decide the bool value.
+
+    ex:
+    def __bool(self):
+        return bool(self.x or self.y)
+    
+Collection API
+
+    ABCs - Abstract Base Classes
+
+    A collection is built from 3 ABCs:
+        Sequence - formalizes the interface of list and str. 
+            The only ABC that is reversible.
+        Mapping - used by dict, collections.defaultdict, ... 
+            Creates another ABC: Reversible.
+        Set - the interface for set and frozen-set types.
+    
+    A collection is used to help create ABCs:
+        Iterable - supports unpacking and other forms of iteration.
+            Also built with Reversible.
+        Sized - supports the len function.
+        Container - supports the in operator.
+    
+Why isn't len a method?
+
+    "Practicality Beats Purity"
+    No methods are called for built-in objects of CPython.
+    The length is simply read from a C struct for speed.

@@ -1,0 +1,37 @@
+
+Properties 
+    90 Degree Grid
+    3x3 Cells
+    Cell Values 1-4
+
+    Layout:
+
+        a   b   c
+        d   e   f
+        g   h   i
+
+
+System of Linear Equations
+
+x_a + x_b + 000 + x_d + 000 + 000 + 000 + 000 = a
+x_a + x_b + x_c + x_d + x_f + 000 + 000 + 000 = b
+000 + x_b + x_c + 000 + x_f + 000 + 000 + 000 = c
+x_a + x_b + 000 + x_d + 000 + x_g + x_h + 000 = d
+000 + x_b + x_c + 000 + x_f + 000 + x_h + x_i = f
+000 + 000 + 000 + x_d + 000 + x_g + x_h + 000 = g
+000 + 000 + 000 + x_d + x_f + x_g + x_h + x_i = h
+000 + 000 + 000 + 000 + x_f + 000 + x_h + x_i = i
+
+Note: e is dependent and can be represented as a linear combination of all other cells.
+
+Boolean Arrays:
+[
+    [1,1,0,1,0,0,0,0,a],
+    [1,1,1,1,1,0,0,0,b],
+    [0,1,1,0,1,0,0,0,c],
+    [1,1,0,1,0,1,1,0,d],
+    [0,1,1,0,1,0,1,1,f],
+    [0,0,0,1,0,1,1,0,g],
+    [0,0,0,1,1,1,1,1,h],
+    [0,0,0,0,1,0,1,1,i]
+]

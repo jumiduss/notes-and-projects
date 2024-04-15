@@ -1,0 +1,71 @@
+Get all cells to a value of 1.
+Each level has a different quantity and/or grid orientation.
+A cell, and the cells adjacent to it by the grid angle, can increment the cell's value by one.
+The goal is to make all cells have a value of 1.
+
+Level 1
+    90 Degree Grid
+    3x3 Cells
+    Cell Values 1-4
+
+    a   b   c
+    d   e   f
+    g   h   i
+    
+
+
+Level 2
+    90 Degree Grid
+    4x4 Cells
+    Cell Values 1-4
+
+    a   b   c   d
+    e   f   g   h
+    i   j   k   l
+    m   n   o   p
+
+
+Level 3
+    60 Degree Hex Grid
+    Grid Edge of 4
+    Cell Values 1-2
+
+          00  01  02  03
+        04  05  06  07  08
+      09  0A  0B  0C  0D  0E
+    0F  A0  A1  A2  A3  A4  A5
+      A6  A7  A8  A9  AA  AB
+        AC  AD  AF  B0  B1
+          B2  B3  B4  B5
+
+Level 4
+    60 Degree Hex Grid
+    Grid Edge of 4
+    Cell Values of 1-6
+
+          00  01  02  03
+        04  05  06  07  08
+      09  0A  0B  0C  0D  0E
+    0F  A0  A1  A2  A3  A4  A5
+      A6  A7  A8  A9  AA  AB
+        AC  AD  AF  B0  B1
+          B2  B3  B4  B5
+
+Create a system of linear equations that show the input affect on cell values.
+Use a list of named tuples that stores each cell's attributes of:
+  boolean array that represents the equation's line value
+  current cell state
+
+ex:
+  Three_Cell = collections.namedtuple('Three_Cell', ['variables', 'state'])
+
+
+Three ways are allowed to enter starting cell values:
+
+  North South East West
+  Up Down Right Left
+  Key Stroke Arrow Up
+
+
+Confirmation of values before solving.
+  Supplies an image of given values in arrow and numeric notations.

@@ -1,12 +1,14 @@
 Looking specifically at the unique messages from "Searching Notes.txt Part 4"
+    NOTE: Added on the columns Message and Type
 
 +-----------+----------------------+-------+-----------------+---------+
 | device_id | byte_str             | count | Message         |  Type   |
 +-----------+----------------------+-------+-----------------+---------+
-| 0x681     | 03 20 0D FF FF FF FF |    43 | AVHU ON OFF     | Press   |
+On Off Command - Toggle
+| 0x681     | 03 20 0D FF FF FF FF |    43 | AVHU ON OFF     | Toggle  |
 
-
-
+Small Controller And Radio Presets
+Release
 | 0x681     | 04 40 0D 00 FF FF FF |     8 | ENTER (Dial)    | Release |
 | 0x681     | 04 40 0D 01 FF FF FF |     2 | BACK            | Release | 
 | 0x681     | 04 40 0D 02 FF FF FF |     3 | VOICE           | Release | 
@@ -34,7 +36,7 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 40 0D 20 FF FF FF |    15 | DISC AUX        | Release | 
 | 0x681     | 04 40 0D 35 FF FF FF |     6 | + (Sign)        | Release | 
 | 0x681     | 04 40 0D 36 FF FF FF |     9 | - (Sign)        | Release | 
-
+Press
 | 0x681     | 04 40 0D 80 FF FF FF |   212 | ENTER (Dial)    | Press   |
 | 0x681     | 04 40 0D 81 FF FF FF |    51 | BACK            | Press   |
 | 0x681     | 04 40 0D 82 FF FF FF |    24 | VOICE           | Press   |
@@ -64,6 +66,8 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 40 0D B6 FF FF FF |    94 | - (Sign)        | Press   |
 
 
+AC Controller
+Release
 | 0x681     | 04 40 2D 03 FF FF FF |     2 | FAN SPEED +     | Release |
 | 0x681     | 04 40 2D 05 FF FF FF |     9 | A/C Toggle      | Release |
 | 0x681     | 04 40 2D 06 FF FF FF |     5 | DUAL (AC Right) | Release |
@@ -71,9 +75,9 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 40 2D 08 FF FF FF |     3 | FAN SPEED - ????| Release |
 | 0x681     | 04 40 2D 0A FF FF FF |    14 | AUTO (AC Left)  | Release |
 | 0x681     | 04 40 2D 0B FF FF FF |     4 | AC OFF          | Release |
-| 0x681     | 04 40 2D 0F FF FF FF |     8 | REAT DEFROST    | Release |
+| 0x681     | 04 40 2D 0F FF FF FF |     8 | REAR DEFROST    | Release |
 | 0x681     | 04 40 2D 14 FF FF FF |     2 | FRONT DEFROST   | Release |
-
+Press
 | 0x681     | 04 40 2D 83 FF FF FF |    48 | FAN SPEED +     | Press   |
 | 0x681     | 04 40 2D 85 FF FF FF |   155 | A/C Toggle      | Press   |
 | 0x681     | 04 40 2D 86 FF FF FF |   114 | DUAL (AC Right) | Press   |
@@ -81,10 +85,12 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 40 2D 88 FF FF FF |    21 | FAN SPEED - ????| Press   |
 | 0x681     | 04 40 2D 8A FF FF FF |   194 | AUTO (AC Left)  | Press   |
 | 0x681     | 04 40 2D 8B FF FF FF |    57 | AC OFF          | Press   |
-| 0x681     | 04 40 2D 8F FF FF FF |   133 | REAT DEFROST    | Press   |
+| 0x681     | 04 40 2D 8F FF FF FF |   133 | REAR DEFROST    | Press   |
 | 0x681     | 04 40 2D 94 FF FF FF |    34 | FRONT DEFROST   | Press   |
 
 
+Small Controller Dial Buttons
+Release
 | 0x681     | 04 40 4D 00 FF FF FF |     5 | Menu Up         | Release |
 | 0x681     | 04 40 4D 01 FF FF FF |     5 | Menu Up-Right   | Release |
 | 0x681     | 04 40 4D 02 FF FF FF |    18 | Menu Right      | Release |
@@ -93,7 +99,7 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 40 4D 05 FF FF FF |     3 | Menu Down-Left  | Release |
 | 0x681     | 04 40 4D 06 FF FF FF |     3 | Menu Left       | Release |
 | 0x681     | 04 40 4D 07 FF FF FF |     5 | Menu Up-Left    | Release |
-
+Press
 | 0x681     | 04 40 4D 80 FF FF FF |    85 | Menu Up         | Press   |
 | 0x681     | 04 40 4D 81 FF FF FF |   142 | Menu Up-Right   | Press   |
 | 0x681     | 04 40 4D 82 FF FF FF |   406 | Menu Right      | Press   |
@@ -104,7 +110,8 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 40 4D 87 FF FF FF |    74 | Menu Up-Left    | Press   |
 
 
-
+Dial Turns With Speeds
+Clockwise
 | 0x681     | 04 80 0D 01 FF FF FF |   627 | Menu CW S1      | Dial    |
 | 0x681     | 04 80 0D 02 FF FF FF |     6 | Menu CW S2      | Dial    |
 | 0x681     | 04 80 0D 03 FF FF FF | Added | Menu CW S3      | Dial    |
@@ -120,7 +127,7 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 80 0D 61 FF FF FF |    29 | AC (R) CW S1    | Dial    |
 | 0x681     | 04 80 0D 62 FF FF FF |     8 | AC (R) CW S2    | Dial    |
 | 0x681     | 04 80 0D 63 FF FF FF |     5 | AC (R) CW S3    | Dial    |
-
+Counter-Clockwise
 | 0x681     | 04 80 0D 81 FF FF FF |   213 | MENU CCW S1     | Dial    |
 | 0x681     | 04 80 0D 82 FF FF FF | Added | MENU CCW S2     | Dial    |
 | 0x681     | 04 80 0D 83 FF FF FF | Added | MENU CCW S3     | Dial    |
@@ -137,7 +144,6 @@ Looking specifically at the unique messages from "Searching Notes.txt Part 4"
 | 0x681     | 04 80 0D E2 FF FF FF |    11 | AC (R) CCW S2   | Dial    |
 | 0x681     | 04 80 0D E3 FF FF FF |     3 | AC (R) CCW S3   | Dial    |
 
-
-
+Response Message?
 | 0x681     | E0 FF FF FF FF FF FF |    48 | ACK Message?    | Response|
 +-----------+----------------------+-------+-----------------+---------+

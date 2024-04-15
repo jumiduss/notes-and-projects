@@ -12,13 +12,15 @@ Glossary:
 
 Goals:
 
-    1. Find all unique signals.
-    2. Find the behavior / pattern of the Initialization sequence.
-    3. Map the AVC's payload to the AVHU's action.
+    1. Find all unique device_id. 
+    2. Find all unique signals.
+    3. Find the behavior / pattern of the Initialization sequence.
+    4. Map the AVC's payload to the AVHU's action.
 
 Notes:
 
-    1. Find all unique signals.
+    1. Database query for distinct device_id.
+    2. Find all unique signals.
 
         A. Five types of messages on the network.
             i: Initialization 
@@ -59,11 +61,11 @@ Notes:
             ii: The payload of the ACK message contains the same cycle value of byte_field_two as the "Input Transmission" message.
             iii: The relevant payload values seem to be byte_field_one and byte_field_two.
 
-    2. Find the behavior / pattern of the Initialization sequence.
+    3. Find the behavior / pattern of the Initialization sequence.
 
         A. Seems to occur only on the network's creation. Will add more notes once I begin further analysis.
 
-    3. Map the AVC's payload to the AVHU's action.
+    4. Map the AVC's payload to the AVHU's action.
 
         A. The inputs this project is targeting are solely from the bus_device_id 0x681.
 
@@ -74,6 +76,8 @@ Notes:
         D. Use included photo of the AVC's front.
 
         E. Correlate the position from the canbus program's file, and AVC's front photo.
+
+        F. This has been completed in the 0x681 Transmission Frame Analysis.
 
 
 Process to reach Each Goal:
@@ -102,7 +106,10 @@ Process to reach Each Goal:
             As a list:
             ('0x601','0x604','0x60B','0x60D','0x610','0x613','0x621','0x681','0x6A1')
 
-    2. Find all unique signals: Initialization
+    2. Find all unique signals:
+
+
+        Find all unique signals: Initialization
 
         A. Query frames.
             SELECT * FROM frames;
@@ -128,187 +135,10 @@ Process to reach Each Goal:
             | 3650841183 |
             +------------+
 
-        C. Return 50 messages after the first time_stamp in B, display '' if byte values = 255
-            SELECT id, time_stamp, device_id,
-                CASE 
-                    WHEN byte_one = 255 THEN ''
-                    ELSE LPAD(CONV(byte_one, 10, 16), 2, '0')
-                END AS byte_one,
-                CASE 
-                    WHEN byte_two = 255 THEN ''
-                    ELSE LPAD(CONV(byte_two, 10, 16), 2, '0')
-                END AS byte_two,
-                CASE 
-                    WHEN byte_three = 255 THEN ''
-                    ELSE LPAD(CONV(byte_three, 10, 16), 2, '0')
-                END AS byte_three,
-                CASE 
-                    WHEN byte_four = 255 THEN ''
-                    ELSE LPAD(CONV(byte_four, 10, 16), 2, '0')
-                END AS byte_four,
-                CASE 
-                    WHEN byte_five = 255 THEN ''
-                    ELSE LPAD(CONV(byte_five, 10, 16), 2, '0')
-                END AS byte_five,
-                CASE 
-                    WHEN byte_six = 255 THEN ''
-                    ELSE LPAD(CONV(byte_six, 10, 16), 2, '0')
-                END AS byte_six,
-                CASE 
-                    WHEN byte_seven = 255 THEN ''
-                    ELSE LPAD(CONV(byte_seven, 10, 16), 2, '0')
-                END AS byte_seven,
-                CASE 
-                    WHEN byte_eight = 255 THEN ''
-                    ELSE LPAD(CONV(byte_eight, 10, 16), 2, '0')
-                END AS byte_eight,
-                byte_string
-             FROM frames WHERE time_stamp >= 100092821 LIMIT 50;
+        C. 
 
-
-            After selectively removing already know periodic messages, this query returned:
-
-                +----+------------+-----------+----------+----------+------------+-----------+-----------+----------+------------+------------+-------------------------+
-                | id | time_stamp | device_id | byte_one | byte_two | byte_three | byte_four | byte_five | byte_six | byte_seven | byte_eight | byte_string             |
-                +----+------------+-----------+----------+----------+------------+-----------+-----------+----------+------------+------------+-------------------------+
-                | 29 |  100092821 | 0x601     | 03       | 00       | 00         | 21        |           |          |            |            | 03 00 00 21 FF FF FF FF |
-                | 30 |  100107248 | 0x681     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-                | 31 |  100121502 | 0x681     | 07       | 00       | 00         | 20        | 0B        | 02       | 01         | 00         | 07 00 00 20 0B 02 01 00 |
-                | 32 |  100121549 | 0x601     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-                
-                | 33 |  100133163 | 0x601     | 03       | 10       | 00         | 2C        |           |          |            |            | 03 10 00 2C FF FF FF FF |
-                | 34 |  100137429 | 0x681     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-                
-                | 35 |  100151481 | 0x681     | 07       | 10       | 00         | 2C        | 0B        | 02       | 01         | 00         | 07 10 00 2C 0B 02 01 00 |
-                | 36 |  100152808 | 0x601     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-                
-                | 37 |  100173293 | 0x601     | 05       | 20       | 60         | 0D        | 00        | 00       |            |            | 05 20 60 0D 00 00 FF FF |
-                | 38 |  100177785 | 0x681     | E0       | 20       |            |           |           |          |            |            | E0 20 FF FF FF FF FF FF |
-                
-                
-                
-                | 39 |  100348685 | 0x6A1     | F0       | 06       | 0A         | 01        |           |          |            |            | F0 06 0A 01 FF FF FF FF |
-                | 40 |  100348947 | 0x621     | F1       | 00       | 0A         | 01        |           |          |            |            | F1 00 0A 01 FF FF FF FF |
-                | 41 |  100360674 | 0x6A1     | F0       | 06       | 0A         | 01        |           |          |            |            | F0 06 0A 01 FF FF FF FF |
-
-
-                | 42 |  100362549 | 0x621     | 03       | 00       | 00         | 21        |           |          |            |            | 03 00 00 21 FF FF FF FF |
-                | 43 |  100372655 | 0x6A1     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-                | 44 |  100384695 | 0x6A1     | 07       | 00       | 00         | 20        | 00        | 05       | 02         | 00         | 07 00 00 20 00 05 02 00 |
-                | 45 |  100384942 | 0x621     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-                | 52 |  100396672 | 0x6A1     | 07       | 10       | 00         | 2C        | 00        | 05       | 02         | 00         | 07 10 00 2C 00 05 02 00 |
-                | 54 |  100423266 | 0x621     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-            
-                | 55 |  100425077 | 0x6A1     | 04       | 20       | 80         | 0D        | 00        |          |            |            | 04 20 80 0D 00 FF FF FF |
-                | 56 |  100443302 | 0x621     | E0       | 20       |            |           |           |          |            |            | E0 20 FF FF FF FF FF FF |
-            
-                | 57 |  100445374 | 0x6A1     | 07       | 30       | 60         | 0D        | 00        | 00       | 00         | 00         | 07 30 60 0D 00 00 00 00 |
-                | 58 |  100463195 | 0x621     | E0       | 30       |            |           |           |          |            |            | E0 30 FF FF FF FF FF FF |
-            
-                | 59 |  100482769 | 0x621     | 03       | 10       | 00         | 2C        |           |          |            |            | 03 10 00 2C FF FF FF FF |
-                | 60 |  100484822 | 0x6A1     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-                +----+------------+-----------+----------+----------+------------+-----------+-----------+----------+------------+------------+-------------------------+
         
-
-        D. Return 50 messages after time_stamp '3409339170' in B, display '' if byte values = 255
-            SELECT id, time_stamp, device_id,
-                CASE 
-                    WHEN byte_one = 255 THEN ''
-                    ELSE LPAD(CONV(byte_one, 10, 16), 2, '0')
-                END AS byte_one,
-                CASE 
-                    WHEN byte_two = 255 THEN ''
-                    ELSE LPAD(CONV(byte_two, 10, 16), 2, '0')
-                END AS byte_two,
-                CASE 
-                    WHEN byte_three = 255 THEN ''
-                    ELSE LPAD(CONV(byte_three, 10, 16), 2, '0')
-                END AS byte_three,
-                CASE 
-                    WHEN byte_four = 255 THEN ''
-                    ELSE LPAD(CONV(byte_four, 10, 16), 2, '0')
-                END AS byte_four,
-                CASE 
-                    WHEN byte_five = 255 THEN ''
-                    ELSE LPAD(CONV(byte_five, 10, 16), 2, '0')
-                END AS byte_five,
-                CASE 
-                    WHEN byte_six = 255 THEN ''
-                    ELSE LPAD(CONV(byte_six, 10, 16), 2, '0')
-                END AS byte_six,
-                CASE 
-                    WHEN byte_seven = 255 THEN ''
-                    ELSE LPAD(CONV(byte_seven, 10, 16), 2, '0')
-                END AS byte_seven,
-                CASE 
-                    WHEN byte_eight = 255 THEN ''
-                    ELSE LPAD(CONV(byte_eight, 10, 16), 2, '0')
-                END AS byte_eight,
-                byte_string
-             FROM frames WHERE time_stamp >= 3409315026 LIMIT 50;
-
-
-        After selectively removing already know periodic messages, this query returned:
-
-            +-------+------------+-----------+----------+----------+------------+-----------+-----------+----------+------------+------------+-------------------------+
-            | id    | time_stamp | device_id | byte_one | byte_two | byte_three | byte_four | byte_five | byte_six | byte_seven | byte_eight | byte_string             |
-            +-------+------------+-----------+----------+----------+------------+-----------+-----------+----------+------------+------------+-------------------------+
-            | 71972 | 3409315026 | 0x621     | 03       | 00       | 00         | 21        |           |          |            |            | 03 00 00 21 FF FF FF FF |
-            | 71974 | 3409327083 | 0x6A1     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-            | 71975 | 3409339170 | 0x6A1     | 07       | 00       | 00         | 20        | 00        | 05       | 02         | 00         | 07 00 00 20 00 05 02 00 |
-            | 71976 | 3409339399 | 0x621     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-            | 71977 | 3409351158 | 0x6A1     | 07       | 10       | 00         | 2C        | 00        | 05       | 02         | 00         | 07 10 00 2C 00 05 02 00 |
-            | 71978 | 3409355052 | 0x621     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-
-            | 71979 | 3409363658 | 0x6A1     | 04       | 20       | 80         | 0D        | 00        |          |            |            | 04 20 80 0D 00 FF FF FF |
-            | 71980 | 3409375184 | 0x621     | E0       | 20       |            |           |           |          |            |            | E0 20 FF FF FF FF FF FF |
-
-            | 71981 | 3409377310 | 0x6A1     | 07       | 30       | 60         | 0D        | 00        | 00       | 00         | 00         | 07 30 60 0D 00 00 00 00 |
-            | 71982 | 3409395159 | 0x621     | E0       | 30       |            |           |           |          |            |            | E0 30 FF FF FF FF FF FF |
-
-            | 71990 | 3409434573 | 0x621     | 03       | 10       | 00         | 2C        |           |          |            |            | 03 10 00 2C FF FF FF FF |
-            | 71991 | 3409437094 | 0x6A1     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-
-
-
-            | 71992 | 3409530016 | 0x681     | F0       | 06       | 0A         | 01        |           |          |            |            | F0 06 0A 01 FF FF FF FF |
-            | 71993 | 3409530255 | 0x601     | F1       | 00       | 0A         | 01        |           |          |            |            | F1 00 0A 01 FF FF FF FF |
-            | 71994 | 3409544263 | 0x681     | F0       | 06       | 0A         | 01        |           |          |            |            | F0 06 0A 01 FF FF FF FF |
-
-
-            | 71995 | 3409544726 | 0x601     | 03       | 00       | 00         | 21        |           |          |            |            | 03 00 00 21 FF FF FF FF |
-            | 71996 | 3409560317 | 0x681     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-            | 71997 | 3409574804 | 0x681     | 07       | 00       | 00         | 20        | 0B        | 02       | 01         | 00         | 07 00 00 20 0B 02 01 00 |
-            | 71998 | 3409574827 | 0x601     | E0       | 00       |            |           |           |          |            |            | E0 00 FF FF FF FF FF FF |
-
-            | 71999 | 3409590649 | 0x681     | 07       | 10       | 00         | 2C        | 0B        | 02       | 01         | 00         | 07 10 00 2C 0B 02 01 00 |
-            | 72000 | 3409595146 | 0x601     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-
-            | 72001 | 3409614602 | 0x601     | 03       | 10       | 00         | 2C        |           |          |            |            | 03 10 00 2C FF FF FF FF |
-            | 72002 | 3409620124 | 0x681     | E0       | 10       |            |           |           |          |            |            | E0 10 FF FF FF FF FF FF |
-
-            | 72003 | 3409634505 | 0x601     | 05       | 20       | 60         | 0D        | 00        | 00       |            |            | 05 20 60 0D 00 00 FF FF |
-            | 72004 | 3409640033 | 0x681     | E0       | 20       |            |           |           |          |            |            | E0 20 FF FF FF FF FF FF |
-
-            | 72005 | 3409656423 | 0x601     | 05       | 30       | 60         | 0D        | A2        | 88       |            |            | 05 30 60 0D A2 88 FF FF |
-            | 72006 | 3409660696 | 0x681     | E0       | 30       |            |           |           |          |            |            | E0 30 FF FF FF FF FF FF |
-            +-------+------------+-----------+----------+----------+------------+-----------+-----------+----------+------------+------------+-------------------------+
-        
-        E. Post query analysis:
-
-            i. 0x601 and 0x621 begin initialization the the data-payload of '03 00 00 21 FF FF FF FF'.
-            ii. 0x681 and 0x6A1 reply with the data-payload structure of '07 cycle_byte 00 xx xx xx xx' 
-            iii. 0x681 and 0x6A1 change their byte 4 from 20 to 2C 
-            iv. 0x681 replies with 'xx xx xx xx 0B 02 01 00' as what seems to be it's controller ID.
-            v. 0x6A1 replies with 'xx xx xx xx 00 05 02 00' as what seems to be it's controller ID.
-
-    3. Find all unique signals: Cyclical Broadcast
+        Find all unique signals: Cyclical Broadcast
 
         A. Query frames.
             SELECT * FROM frames;
@@ -340,7 +170,8 @@ Process to reach Each Goal:
 
             All other bus devices have a periodic message of 'F1 00 0A 01 FF FF FF FF'.
         
-    4.  Find all unique signals: Input Transmission - Type 1
+
+        Find all unique signals: Input Transmission - Type 1 & 2
 
         A. Query frames.
             SELECT * FROM frames;
@@ -358,7 +189,7 @@ Process to reach Each Goal:
 
         C. Group messages by their device_id, then byte_str.
 
-            SELECT 
+            SELECT
                 device_id,
                 CONCAT(LEFT(byte_string, 3), RIGHT(byte_string, 17)) AS 'byte_str',
                 COUNT(CONCAT(LEFT(byte_string, 3), RIGHT(byte_string, 17))) AS count
@@ -506,10 +337,141 @@ Process to reach Each Goal:
             | 0x681     | 04 80 0D E1 FF FF FF |    93 |
             | 0x681     | 04 80 0D E2 FF FF FF |    11 |
             | 0x681     | 04 80 0D E3 FF FF FF |     3 |
-            | 0x681     | E0 FF FF FF FF FF FF |    48 |
             | 0x6A1     | 04 80 0D 00 FF FF FF |     6 |
             | 0x6A1     | 07 00 20 00 05 02 00 |     3 |
             | 0x6A1     | 07 00 2C 00 05 02 00 |     3 |
             | 0x6A1     | 07 60 0D 00 00 00 00 |     3 |
-            | 0x6A1     | E0 FF FF FF FF FF FF |     6 |
             +-----------+----------------------+-------+
+
+    3. Find the behavior / pattern of the Initialization sequence.
+        A. Return 50 messages after the first time_stamp in B, display '' if byte values = 255
+            SELECT id, time_stamp, device_id, byte_string
+            FROM frames WHERE time_stamp >= 100092821 LIMIT 50;
+
+
+            After selectively removing already know periodic messages, this query returned:
+
+                +----+------------+-----------+-------------------------+
+                | id | time_stamp | device_id | byte_string             |
+                +----+------------+-----------+-------------------------+
+                | 29 |  100092821 | 0x601     | 03 00 00 21 FF FF FF FF |
+                | 30 |  100107248 | 0x681     | E0 00 FF FF FF FF FF FF |
+
+                | 31 |  100121502 | 0x681     | 07 00 00 20 0B 02 01 00 |
+                | 32 |  100121549 | 0x601     | E0 00 FF FF FF FF FF FF |
+                
+                | 33 |  100133163 | 0x601     | 03 10 00 2C FF FF FF FF |
+                | 34 |  100137429 | 0x681     | E0 10 FF FF FF FF FF FF |
+                
+                | 35 |  100151481 | 0x681     | 07 10 00 2C 0B 02 01 00 |
+                | 36 |  100152808 | 0x601     | E0 10 FF FF FF FF FF FF | 
+
+                | 37 |  100173293 | 0x601     | 05 20 60 0D 00 00 FF FF |
+                | 38 |  100177785 | 0x681     | E0 20 FF FF FF FF FF FF |
+                
+
+                | 39 |  100348685 | 0x6A1     | F0 06 0A 01 FF FF FF FF |
+                | 40 |  100348947 | 0x621     | F1 00 0A 01 FF FF FF FF |
+                | 41 |  100360674 | 0x6A1     | F0 06 0A 01 FF FF FF FF |
+
+
+                | 42 |  100362549 | 0x621     | 03 00 00 21 FF FF FF FF |
+                | 43 |  100372655 | 0x6A1     | E0 00 FF FF FF FF FF FF |
+
+                | 44 |  100384695 | 0x6A1     | 07 00 00 20 00 05 02 00 |
+                | 45 |  100384942 | 0x621     | E0 00 FF FF FF FF FF FF |
+                
+                | 52 |  100396672 | 0x6A1     | 07 10 00 2C 00 05 02 00 |
+                | 54 |  100423266 | 0x621     | E0 10 FF FF FF FF FF FF |
+                
+                | 55 |  100425077 | 0x6A1     | 04 20 80 0D 00 FF FF FF |
+                | 56 |  100443302 | 0x621     | E0 20 FF FF FF FF FF FF |
+                
+                | 57 |  100445374 | 0x6A1     | 07 30 60 0D 00 00 00 00 |
+                | 58 |  100463195 | 0x621     | E0 30 FF FF FF FF FF FF |
+                
+                | 59 |  100482769 | 0x621     | 03 10 00 2C FF FF FF FF |
+                | 60 |  100484822 | 0x6A1     | E0 10 FF FF FF FF FF FF |
+                +----+------------+-----------+-------------------------+
+        
+
+        B. Return 50 messages after time_stamp '3409339170' in B, display '' if byte values = 255
+            SELECT id, time_stamp, device_id,byte_string
+            FROM frames WHERE time_stamp >= 3409315026 LIMIT 50;
+
+
+            After selectively removing already know periodic messages, this query returned:
+
+            +-------+------------+-----------+-------------------------+
+            | id    | time_stamp | device_id | byte_string             |
+            +-------+------------+-----------+-------------------------+
+            | 71972 | 3409315026 | 0x621     | 03 00 00 21 FF FF FF FF |
+            | 71974 | 3409327083 | 0x6A1     | E0 00 FF FF FF FF FF FF |
+
+            | 71975 | 3409339170 | 0x6A1     | 07 00 00 20 00 05 02 00 |
+            | 71976 | 3409339399 | 0x621     | E0 00 FF FF FF FF FF FF |
+
+            | 71977 | 3409351158 | 0x6A1     | 07 10 00 2C 00 05 02 00 |
+            | 71978 | 3409355052 | 0x621     | E0 10 FF FF FF FF FF FF |
+
+            | 71979 | 3409363658 | 0x6A1     | 04 20 80 0D 00 FF FF FF |
+            | 71980 | 3409375184 | 0x621     | E0 20 FF FF FF FF FF FF |
+
+            | 71981 | 3409377310 | 0x6A1     | 07 30 60 0D 00 00 00 00 |
+            | 71982 | 3409395159 | 0x621     | E0 30 FF FF FF FF FF FF |
+
+            | 71990 | 3409434573 | 0x621     | 03 10 00 2C FF FF FF FF |
+            | 71991 | 3409437094 | 0x6A1     | E0 10 FF FF FF FF FF FF |
+
+
+            | 71992 | 3409530016 | 0x681     | F0 06 0A 01 FF FF FF FF |
+            | 71993 | 3409530255 | 0x601     | F1 00 0A 01 FF FF FF FF |
+            | 71994 | 3409544263 | 0x681     | F0 06 0A 01 FF FF FF FF |
+
+
+            | 71995 | 3409544726 | 0x601     | 03 00 00 21 FF FF FF FF |
+            | 71996 | 3409560317 | 0x681     | E0 00 FF FF FF FF FF FF |
+
+            | 71997 | 3409574804 | 0x681     | 07 00 00 20 0B 02 01 00 |
+            | 71998 | 3409574827 | 0x601     | E0 00 FF FF FF FF FF FF |
+
+            | 71999 | 3409590649 | 0x681     | 07 10 00 2C 0B 02 01 00 |
+            | 72000 | 3409595146 | 0x601     | E0 10 FF FF FF FF FF FF |
+
+            | 72001 | 3409614602 | 0x601     | 03 10 00 2C FF FF FF FF |
+            | 72002 | 3409620124 | 0x681     | E0 10 FF FF FF FF FF FF |
+
+            | 72003 | 3409634505 | 0x601     | 05 20 60 0D 00 00 FF FF |
+            | 72004 | 3409640033 | 0x681     | E0 20 FF FF FF FF FF FF |
+
+            | 72005 | 3409656423 | 0x601     | 05 30 60 0D A2 88 FF FF |
+            | 72006 | 3409660696 | 0x681     | E0 30 FF FF FF FF FF FF |
+            +-------+------------+-----------+-------------------------+
+        
+        C. Post query analysis:
+
+            i. 0x601 and 0x621 begin initialization the the data-payload of '03 00 00 21 FF FF FF FF'.
+            ii. 0x681 and 0x6A1 reply with the data-payload structure of '07 cycle_byte 00 xx xx xx xx' 
+            iii. 0x681 and 0x6A1 change their byte 4 from 20 to 2C 
+            iv. 0x681 replies with 'xx xx xx xx 0B 02 01 00' as what seems to be it's controller ID.
+            v. 0x6A1 replies with 'xx xx xx xx 00 05 02 00' as what seems to be it's controller ID.
+    
+        D. Conversation Format:
+
+            i. Conversation starter from head-unit.
+            ii. ACK response with clock.
+            iii. Conversation start from controller.
+            iv. ACK response with clock.
+            v. Increment clock.
+            vi. Second conversation message from head-unit.
+            vii. ACK response with clock.
+            viii. Second conversation message from controller.
+            ix. ACK response with clock. 
+            x. Increment clock.
+            xi. End conversation message from controller.
+            xii. ACK response with clock.
+            xiii. End conversation message from controller.
+            ixx. ACK response with clock.
+
+
+    4. See 0x681 "Transmission Frame Analysis.txt" for the mapping of AVC messages to AVHU actions.

@@ -1,0 +1,206 @@
+Before Python, Guido van Rossum contributed to a beginner's programming language called ABC.
+    This is where many "pythonic" ideas originated, like:
+        Generic Operations on Different Sequence Types
+        Built-in Tuple and Mapping Types
+        Structure by Indentation
+        Strong Typing Without Variable Declarations
+        etc...
+
+This chapter focuses on a small subjection of sequences that is built on in later chapters. 
+
+
+Overview of Sequence Types
+
+    Container - can hold items of different types, including containers.
+        Hold references to the object it contains.
+
+    Flat - can hold items of one simple type, ex: str, bytes, etc.
+        Stores contents in their own memory space, not distinct objects.
+
+    Note: Python objects in memory have a metadata header.
+        Why is this important? Example for a 64-bit Python install:
+
+            var_a: float = value
+            # Float Header:
+                # ob_refcnt - reference count 
+                # ob_type   - pointer to the object's type
+                # ob_fval   - a C double holding the float's value
+                # Each field takes 8 bytes
+            array_of_floats = [var_1, var_2, ..., var_n]
+            # Saves one header, and a set of raw values
+            tuple_of_floats = (var_1, var_2, ..., var_n)
+            # Saves one header per value.
+
+    Can also group sequence types by mutability.
+
+        Mutable - Create Sequences
+            __setitem__
+            __delitem__
+            insert
+            append
+            reverse
+            extend
+            pop
+            remove
+            __iadd__
+        
+        Sequence - Create Collections or Reversible
+            __getitem__
+            __contains__
+            __iter__
+            __reversed__
+            index
+            count
+        
+        Collection
+            __contains__
+            __len__
+            __iter__
+        
+        Reversible
+            __reversed__
+
+
+List Comprehensions and Generator Expressions
+
+    List Comprehension and Generator Expressions are quick ways to build sequences.
+
+    List Comprehensions and Readability
+
+        List Comprehensions should be used only when their readability is clearer than a for loop.
+        ex:
+            symbols = '!@#$%^'
+            codes = []
+            for symbol in symbols:
+                codes.append(ord(symbol))
+            
+            Verses
+
+            symbols = '!@#$%^'
+            codes = [ord(symbol) for symbol in symbols]
+
+        List Comprehensions shouldn't be longer than a line.
+
+    Local Scope within Comprehensions and Generator Expressions
+
+        Both have a local scope, but if variables are assigned with the walrus operator ' := '
+            they will remain accessible after the Comprehension or Expression is returned.
+            See 'examples.ipynb'
+
+    Listcomps Versus map and filter
+
+        Listcomps do everything that map and filter do but with less effort than lambda.
+        Listcomps in this example are also faster than map and filter.
+        See 'examples.ipynb'
+
+    Cartesian Products
+
+        Listcomps can build lists of two or more iterables.
+        Cartesian Products are tuples made from items from every input iterable.
+            The length of the list is equal to the product of the input lists.
+        ex:
+            The Cartesian Product of the sets, [Ace, King, Queen], [Spades, Clubs, Hearts, Diamonds]: 
+            [(Ace, Spade), (Ace, Club), ..., (Queen, Diamonds)] - Length of 3*4 = 12.
+        
+        See 'examples.ipynb'
+
+    Generator Expressions
+
+        Genexp - shorthand for Generator Expression
+
+        Genexps save memory by yielding items one at a time using the iterator protocol,
+            instead of building the whole list just to feed data into another constructor one
+                at a time.
+
+        Genexps use the same syntax as Listcomps, but are enclosed in parenthesis.
+            See 'examples.ipynb'
+
+
+Tuples as Records Versus Tuples as Immutable Lists
+
+    As Records
+
+        Each item in the tuple holds data for one field, and the item's position gives it meaning.
+        If a tuple is used as a collection of fields, order is explicitly important.
+            See 'examples.ipynb'
+
+
+    As Immutable Lists
+        
+        Used for:
+            Clarity - a tuples length will never change.
+            Performance - uses less memory than a list of the same length, and allows Python to optimize.
+        
+        References in a tuple cannot be deleted or replaced.
+            If the reference itself is mutable, like a list inside of a tuple, if that changes
+                so does the tuple. 
+            See 'examples.ipynb'
+
+        Are tuples more efficient than lists in Python?
+
+            1. Evaluation:
+                a tuple literal, the Python compiler generates bytecode for a tuple constant in one operation.
+                a list literal, the generated bytecode pushes each element as a separate
+                     constant to the data stack, then builds the list.
+            2. Referencing:
+                a tuple: t, tuple(t) returns a reference to the same t. There's no need to copy.
+                a list: l, list(l) 's constructor must create a new copy of l.
+            
+            3. Memory Space:
+                a tuple instance is allocated the exact memory space needed.
+                a list instance is allocated more space to amortize the cost of future appends.
+
+            4.  Pointer Referencing:
+                tuple references to items are stored in an array within the tuple struct 
+                list references to items are stored in a pointer array because
+                    items could be stored elsewhere if the list grows large enough.
+                    This extra indirection makes the CPU cache less effective.
+            
+    Shared Methods Between tuples and lists:
+        s.__add__(s2)               - s + s2 - Concatenation
+        s.__contains__(e)           - is e in s
+        s.count(e)                  - Counts occurrences of e in s
+        s.__getitem__(p)            - s[p] - gets item in s at index position p
+        s.index(e)                  - Finds the position of element e in s
+        s.__iter__()                - Gets the iterator
+        s.__len__()                 - len(s) - The number of elements
+        s.__mul__(n)                - s * n - Repeated concatenation
+        s.__rmul__(n)               - n * s - Reversed concatenation
+
+    Tuple Only Methods:
+        s.__getnewargs__()          - Support for optimized serialization with pickle
+
+    List Only Methods:
+        s.__iadd__(s2)              - s += s2 - In-place concatenation
+        s.append(e)                 - Append on element after the last element in s
+        s.clear()                   - Delete all items in s
+        s.copy()                    - Shallow copy of the list
+        s.__delitem__(p)            - Remove items at index position p in s
+        s.extend(it)                - Append items from iterable 'it' after the last element in s
+        s.insert(p, e)              - Insert element e before the item at index position p
+        s.__imul__(n)               - s *= n - In-place repeated concatenation
+        s.pop([p])                  - Remove and return the last item, or the item at the optional index position p
+        s.remove(e)                 - Remove the first occurrence of element e in s
+        s.reverse()                 - Reverse the order of the items in place in s
+        s.__reversed__()            - Get iterator to scan items from last to first in s
+        s.__setitem__(p, e)         - s[p] = e - Put element e in index position p, overwriting the current value, in s
+        s.sort([key], [reverse])    - Sort items in place in s, with optional kwargs key and reverse
+
+
+Unpacking Sequences and Iterables
+
+    Unpacking avoids error-prone use of indexes to extract elements from sequences.
+    Unpacking works with any iterable object as the data source.
+        This also works for iterators that don't support index notation []
+    
+    One Requirement - Each iterable yields exactly one item per variable receiving the index.
+        The only excepting is using * .
+
+    See 'examples.ipynb'
+
+
+
+ Sequence Patterns
+
+
+Specialized Sequence Types
