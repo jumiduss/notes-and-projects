@@ -1,0 +1,11 @@
+
+Chapter 2:
+'A very deep iterable and type match with extraction' by Guido van Rossum
+'Pattern Matching in lis.py: A Case Study' Page 669 (lis.py by Peter Norvig)
+'python cookbook' by David Beazley and Brian Jones 
+'Sorting HOW TO' in Python official documentation.
+'Pattern Matching with Sequences' by Carol Willing
+'Less copies in python with the buffer protocol and memoryview' by Eli Bendersky
+'Python Data Science Handbook' by Jake VanderPlas
+'Python for Data Analysis' by Wes McKinney
+'From Python to Numpy' by Nicolas Rougier

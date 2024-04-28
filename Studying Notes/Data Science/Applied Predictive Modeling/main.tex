@@ -1,0 +1,69 @@
+\documentclass[12pt, a4paper]{article}
+    \usepackage{subfiles}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage{amsthm}
+    \usepackage{amsmath}
+
+    \newtheorem{definition}{Definition}
+    \newtheoremstyle{mystyle}%                      % Name
+    {}%                                             % Space above
+    {}%                                             % Space below
+    {}%                                             % Body font
+    {}%                                             % Indent amount
+    {}%                                    % Theorem head font
+    {}%                                             % Punctuation after theorem head
+    {\newline}%                                     % Space after theorem head, ' ', or \newline
+    {\thmname{#1}\thmnumber{#2}\thmnote{#3}}      % Theorem head spec (can be left empty, meaning `normal')
+    
+    \theoremstyle{mystyle}
+
+    \title{Applied Predictive Modeling Notes}
+    \author{Judah}
+    \date{04/17/24}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+    
+\section{Introduction}
+    \subfile{sections/chapter_1/chapter_1}
+
+\part{General Strategies}
+    \section{A Tour of the Predictive Modeling Process}
+    \subfile{sections/chapter_2/chapter_2}
+    
+    \section{Data Pre-processing}
+    \subfile{sections/chapter_3/chapter_3}
+
+    \section{Over-Fitting and Model Tuning}
+    \subfile{sections/chapter_4/chapter_4}
+
+% \part{Regression Models}
+%     \subfile{sections/chapter_5/chapter_5}
+%     \subfile{sections/chapter_6/chapter_6}
+%     \subfile{sections/chapter_7/chapter_7}
+%     \subfile{sections/chapter_8/chapter_8}
+%     \subfile{sections/chapter_9/chapter_9}
+%     \subfile{sections/chapter_10/chapter_10}
+
+% \part{Classification Models}
+%     \subfile{sections/chapter_11/chapter_11}
+%     \subfile{sections/chapter_12/chapter_12}
+%     \subfile{sections/chapter_13/chapter_13}
+%     \subfile{sections/chapter_14/chapter_14}
+%     \subfile{sections/chapter_15/chapter_15}
+%     \subfile{sections/chapter_16/chapter_16}
+%     \subfile{sections/chapter_17/chapter_17}
+
+% \part{Other Considerations}
+%     \subfile{sections/chapter_18/chapter_18}
+%     \subfile{sections/chapter_19/chapter_19}
+%     \subfile{sections/chapter_20/chapter_20}
+
+
+
+
+
+\end{document}

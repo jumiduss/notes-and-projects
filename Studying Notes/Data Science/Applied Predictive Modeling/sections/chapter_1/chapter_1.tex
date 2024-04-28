@@ -1,0 +1,93 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+    \begin{definition}[Predictive Modeling]
+        The process of developing a mathematical tool or model that generates an accurate prediction.
+    \end{definition}
+
+    \textbf{Why do predictive models fail?}
+    \begin{enumerate}
+        \item Inadequate pre-processing of the data.
+        \item Inadequate model validation.
+        \item Unjustified extrapolation, e.g.:the application of the model -> data is in an application not seen by the model.
+        \item Over-fitting the model to the existing data.
+    \end{enumerate}
+
+\subsection{Prediction Versus Interpretation}
+    \textbf{For applications that require accurate predictions:}
+    \begin{itemize}
+        \item Historical Data --- Interested in accurately projecting the chances of future events, not why they occurred.
+        \item Pricing Homes on Zillow --- Interested in accurate price estimates, not how they predicted them.
+        \item Medical --- Predict patient response to a treatment based on a significant number of factors.  
+    \end{itemize}
+    Secondary considerations are given to the interpretation of the data, not primary. 
+    Higher accuracy models are more complex, and as a consequence reduce interpretability.
+
+\subsection{Ingredients of Predictive Models}
+    \begin{itemize}
+        \item The best models are influenced and produced by modelers with expert knowledge and field context of the problem.
+        \item These modelers can pre-filter irrelevant information and place more meaningful constraints on data sets.
+        \item Modelers can also put personal biases on data.
+        \item Predictive modeling is not a substitute for intuition, but a complement.
+        \item Traditional experts make better decisions with results of statistical prediction.
+    \end{itemize}
+
+\subsection{Terminology}
+    \begin{definition}[Sample, Data Point, Observation, Instance]
+        A single independent unit of data (A Customer), or a subset of data points (A Training Sample).
+    \end{definition}
+    \begin{definition}[Training Set]
+        Contains the data used to develop models.
+    \end{definition}
+    \begin{definition}[Validation Set]
+        Contains the data used to evaluate the performance of the final set of candidate models.
+    \end{definition}
+    \begin{definition}[Predictors, independent Variables, Atrtributes, Descriptors]
+        The data used as input for the prediction equation.
+    \end{definition}
+    \begin{definition}[Outcome, Dependent Variables, Target, Class, Response]
+        The outcome event, or quantity that is being predicted.
+    \end{definition}
+    \begin{definition}[Continuous Data]
+        Has natural, numeric scales. Ex: Blood pressure, cost, quantity. 
+    \end{definition}
+    \begin{definition}[Categorical, Nominal, Attribute, or Descrete Data]
+        Has specific values without scale.
+    \end{definition}
+    \begin{definition}[Model-Building, -Training, Parameter Estimation]
+        The process of using data to determine values of model equations.
+    \end{definition}
+
+\subsection{Notation}
+\begin{enumerate}
+    \item $ n = $ the number of data points.
+    \item $ P = $ the number of predictors.
+    \item $ y_i = $ the \textit{i}th observed value of the outcome, $ i=1\dots n $.
+    \item $ \hat{y}_i = $ the predicted outcome of the \textit{i}th data point, $ i=1\dots n $.
+    \item $ \overline{y} = $ the average or sample mean of the \textit{n} observed values of the outcome.
+    \item \textbf{y} = a vector of all \textit{n} outcome values.
+    \item $ x_{ij} =  $ the value of the \textit{j}th predictor for the \textit{i}th data point, $ i=1\dots n $ and $ j=1\dots P $.
+    \item $ \textbf{x}_i = $ a collection of the \textit{P} predictors for the \textit{i}th data point, $ i=1\dots n $.
+    \item $ \textbf{X} = $ a matrix of \textit{P} predictors for all data points; this matrix has \textit{n} rows and \textit{P} columns.
+    \item $ \textbf{X}' = $ the transpose of \textbf{X}; this matrix has \textit{P} rows and \textit{n} columns.
+\end{enumerate}
+\subsection{Other Notational Guidelines}
+\begin{enumerate}
+    \item $ C = $ the number of classes in a categorical outcome.
+    \item $ C_l = $ the value of the \textit{l}th class level.
+    \item $ p = $ the probability of an event.
+    \item $ p_l = $ the probability of the \textit{l}th event.
+    \item $ P_r[.] =  $ the probability of event.
+    \item $ \sum_{i=1}^{n} = $ the summation operator over the index \textit{i}.
+    \item $ \bf{\Sigma} = $ the theoretical covariance matrix.
+    \item $ E[\cdot] = $ the expected value of [$ \cdot $].
+    \item $ f(\cdot) = $ a function of [$ \cdot $]; $ g(\cdot) $ and $ h(\cdot) $ also represent functions throughout the text.
+    \item $ \beta = $ an unknown or theoretical model coefficient.
+    \item $ b = $ an estimated model coefficient based on a sample of data points.
+\end{enumerate}
+
+
+
+
+
+\end{document}

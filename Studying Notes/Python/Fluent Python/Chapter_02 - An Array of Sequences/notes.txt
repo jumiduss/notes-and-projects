@@ -200,7 +200,331 @@ Unpacking Sequences and Iterables
 
 
 
- Sequence Patterns
+ Sequenced Pattern Matching
+
+    For some robot class. THis method accepts commands sent as a sequence of words
+        and numbers. After splitting into parts and parsing numbers, you have a message
+            like ['BEEPER', 440, 3]
+        Here's an example method to handle these commands:
+
+        def handle_command(self, message):
+            match message:
+                case ['BEEPER', frequency, times]:
+                    self.beep(times, frequency)
+                case ['NECK', angle]:
+                    self.rotate_neck(angle)
+                case['LED', ident, intensity]:
+                    self.leds[ident].set_brightness(ident, intensity)
+                case['LED', ident, red, green, blue]:
+                    self.leds[ident].set_color(ident,red,green,blue)
+                case _:
+                    raise InvalidCommand(message)
+
+    match/case statements look like switch/case statements from C, but it improves on 
+        switch/case by destructuring the imported data.
+
+    See 'examples.ipynb'
+
+    A sequence pattern matches the subject if the following apply:
+        1. The subject is a sequence
+        2. The subject and the pattern have the same number of items
+        3. Each corresponding item matches, included nested items. 
+
+    Sequence patterns can be any combination of tuples, lists, or nested tuples/lists with nested tuples/lists.
+    
+    Sequence pattern matches use parenthesis and square brackets interchangeably,
+        avoid repeating brackets/parenthesis if possible. 
+
+    Note: Instances of str, bytes, bytearray are handled as one value by match.
+        ex: int 987 is treated as one value, not a list of three numbers.
+
+    Patterns don't destructure iterables that aren't sequences.
+
+    The '_' is the only variable that can appear more than once in a pattern.
+
+    You can alias/keyword any part of a pattern with 'as'.
+        ex: case [name, _, _, (lat, lon) as coord]
+            # you can now reference '(lat, lon)' with the name coord.
+
+    We can make patterns more specific with type casting.
+        ex: case [str(name), _, _, (float(lat), float(lon))]: 
+                ...
+        
+        Pattern Matching treats these 'str, float' not as constructors, but type checks.
+    
+    Matching against the start and end of a sequence with globs.
+        ex: case [str(name), *_, (float(lat), float(lon))]:
+                ...
+
+        Note: Let's say we used *extra instead of _*, this would bind all items to a list
+            under the name 'extra'.
+
+    The optional guard clause in the above examples:
+        match record:
+            case [name, _, _, (lat, lon)] if long <= 0:
+                print(f'{name:15} | {lat:9.4f} | {lon:9.4f}')
+        
+        This blocks the print statement only if the pattern matches 'truthly'.
+    
+
+Pattern Matching in an Interpreter
+
+    lis.py is an interpreter for a subset of the 'Scheme' dialect used in Lisp.
+        Peter Norvig did this in a succinct 132 lines o f code.
+    
+        We can compare the if/elif unpacking with match/case within this code.
 
 
-Specialized Sequence Types
+    from lis.py
+        parse('(gcd 18 45)')
+        #returns ['gcd', 18, 45]
+        parse('''
+            (define double
+                (lambda (n)
+                    (* n 2)))
+        ''')
+        #returns ['define', 'double', ['lambda', ['n'], ['*', 'n', 2]]]
+
+    evaluate from lis.py
+
+        def evaluate(exp: Expression, env: Environment) -> Any:
+            "Evaluate an expression in an environment."
+            if isinstance(exp, Symbol):
+                return env[exp]
+            #   ... lines omitted
+            elif exp[0] == 'quote':
+                (_, x) = exp
+                return x
+            elif exp[0] == 'if':
+                (_, test, consequence, alternative) = exp
+                if evaluate(test, env):
+                    return evaluate(consequence, env)
+                else:
+                    return evaluate(alternative, env)
+            elif exp[0] == 'lambda':
+                (_, parms, *body) = exp
+                return Procedure(parms, body, env)
+            elif exp[0] == 'define':
+                (_, name, value_exp) = exp
+                env[name] = evaluate(value_exp, env)
+            # ... more lines omitted 
+
+        Note: Each elif statement checks the first list item, unpacks the list, and ignores the first item.
+
+    Comparing this with pattern matching in Python 3.10 and above:
+
+        def evaluate(exp: Expression, env: Environment) -> Any:
+            "Evaluate an expression in an environment."
+            match exp:
+            #   ... lines omitted
+            case ['quote', x]:
+                return x
+            case ['if', test, consequence, alternative]:
+                if evaluate(test, env):
+                    return evaluate(consequence, env)
+                else:
+                    return evaluate(alternative, env)
+            case ['lambda', [*parms], *body] if body:
+                return Procedure(parms, body, env)
+            case ['define', Symbol() as name, value_exp]:
+                env[name] = evaluate(value_exp, env)
+            #   ... more lines omitted
+
+        We are able to use much more detailed pattern matching, de-clutter the code, and increase readability.
+
+
+Alternative Pattern Matching
+
+    Syntax of a lambda Scheme
+        (lambda (params...) body1 body2 ...)
+
+    Simple Pattern
+        case ['lambda', parms, *body] if body:
+
+        This matches ANY value in the parms position, including the first 'x' in this invalid list:
+            ['lambda', 'x', ['*', 'x', 2]]
+        The nested list after the lambda holds the name of the formal parameters.
+            It MUST be a list, even if it is a list of len() = 1, or empty.
+
+    In a sequence pattern, the '*' can only appear once per sequence. It can be nested to avoid this limitation.
+        case ['lambda', [*parms], *body] if body:
+            return Procedure(parms, body, env)
+
+    Shortcut Syntax for Function Definition
+
+        (define (name parm ...) body1 body2 ...)
+    
+        case ['define', [Symbol() as name, *parms], *body] if body:
+            env[name = Procedure(parms, body, env)]
+
+        Pattern matching is an example of declarative programming. The code describes what you want to match, not how.
+    
+    Scheme Syntactic Forms and Case Patterns to Handle Them:
+
+        (quot exp)                                  ['quote', exp]
+        (if test conseq alt)                        ['if', test, conseq, alt]
+        (lambda (parms ...) body1 body2 ...)        ['lambda', [*parms], *body] if body
+        (define name exp)                           ['define', Symbol() as name, exp]
+        (define (name parms ...) body1 body2 ...)   ['define', [Symbol() as name, *parms], *body] if body
+
+
+Slicing
+
+    Why Slices and Ranges exclude the last item? 
+        Zero-base indexing.
+
+    Index Slicing
+        var_name[<index->index+1>]
+        var_name[<start_index>:<stop_index>]
+        var_name[<start:stop:step_per_index_returned]
+        var_name[::step_per_index_returned] # returns all indices in the set at the step int.
+    
+    Slicing can also return multiple slicing operations if you separate slices with commas.
+    ex:
+        a[start_1:end_1:stop_1, start_2:stop_2:end_2]
+    
+        This is used especially by NumPy for 2 dimensional array slicing for slicing the intersect join of columns and row slices.
+    
+    Using '. . .' can be used to create something functionally similar to f(x_1, ..., x_n) in slicing.
+        This mimics something like this in code. var_name[x_1, :, :, :, :] 
+
+
+    See 'examples.ipynb'
+
+Using * and + with Sequences
+
+    + and * always create new objects, and never change their operands.
+
+    Automatic the creation of nested tuples with * can result in duplicate references to the same item.
+
+    See 'examples.ipynb'
+
+    +=
+        += uses the method __iadd__ - in place addition.
+        If __iadd__ is implemented:
+            a += b is changed in place - i.e. a.extend(b)
+        If __iadd__ is not implemented, it calls __add__ as a fallback.
+            a += b -> a = a + b -> creates a new object equal to a + b, then binds the result to a.
+
+        For mutable sequences, there's a good chance __iadd__ is implemented, for immutable sequences, it's unknown which method is used.  
+
+        ex. 
+        t = (1,2, [30,40])
+        t[2] += [50,60]
+        # t becomes (1,2, [30,40,50,60]) AND produces a TypeError.
+
+            This fails because the nested list succeeds __iadd__, but fails when updating the tuple. 
+        
+    Best Practices
+        
+        Avoid putting mutable items in tuples.
+        Augmented assignment is not an atomic operation.
+        Inspecting Python bytecode can be extremely useful.
+
+list.sort Verses the sorted Built-In
+
+    list.sort sorts a list in-place, then returns nothing.
+    sorted creates a new sorted list, and returns it.
+
+    Both methods take the optional keywords:
+
+        reverse - If true, items are returned in descending order.
+        key - one-argument function that is applied to each item to produce it's sorting key.
+
+When a List Is Not the Answer
+
+    Note: If your code frequently checks item existence in a list, using a set can be faster for membership checking large data sets. 
+
+    Arrays
+
+        When a list only contains numbers.
+        Arrays contain list operations plus extra methods for faster loading / saving like .frombytes, .tofile. 
+        ex. It takes about 0.1 seconds to load 10 million double-precision floats from a binary file created with array.tofile.
+
+        Additional Methods and Attributes in arrays not in lists:
+
+            s.byteswap()     - Swap bytes of all items in array for endian-ness conversion.
+            s.__copy__()     - Support for s.copy().
+            s.__deepcopy__() - Optimized support for copy.deepcopy().
+            s.frombytes(b)   - Append items from byte sequence interpreted as packed machine values.
+            s.fromfile(f,n)  - Append n items from binary file f interpreted as packed machine values.
+            s.fromlist(l)    - Append items from list; if one causes TypeError, none are appended.
+            s.itemize        - Length in bytes of each array item.
+            s.tobytes()      - Return items as packed machine values in a bytes object.
+            s.tofile(f)      - Save items as packed machine values to binary file f.
+            s.tolist()       - Return items as numeric objects in a list.
+            s.typecode       - One-character string identifying the C type of the items. 
+
+
+        Methods and Attributes in lists but not arrays:
+
+            s.clear()
+            s.copy()
+            s.__reversed__()
+            s.sort([key], [reverse])
+        
+        Note: As of Python 3.10, array doesn't have in-place sort, so use the following:
+            a = array.array(a.typecode, sorted(a)) 
+            This keeps an array sorted while adding items to itself.
+
+    Memory Views
+
+        A memoryview is a generalized NumPy array structure in base Python. It's a shared-memory sequence
+            type that lets you slice arrays without copying bytes.
+            memoryview.cast allows you to change the way multiple bytes are read / written as units without moving bytes around.
+            memoryview.cast returns a new memoryview object, always sharing the same memory.
+
+    NumPy
+
+        A library that implements multi-dimensional, homogeneous arrays and matrix types 
+            that hold numbers and records with efficient element-wise operations.
+            
+        SciPy is a library written over NumPy that offers algorithms from linear algebra, numerical calculus, and statistics.
+            It's fast, reliable, and is built of C and Fortran for an interactive prompt, high-level api, 
+                and industrial strength --- optimized number crunching. 
+
+        Pandas is also built on top of Numpy.
+
+    Deques and Other Queues
+
+        Deque - Double Ended Queue
+        Deque allows the removal of the 0-index item without the cost of shifting the entire list in memory.
+
+        Additional Methods and Attributes in deques and not in lists:
+
+            s.appendleft(e) - Append one element to the left (before first).
+            s.__copy__() - Support for copy.copy().
+            s.extendleft(i) - Append items from iterable i to the left.
+            s.popleft() - Remove and return the first item.
+            s.rotate(n) - Move n items from one end to the other (like shifting the queue).
+
+        Methods and Attributes in lists but not deques:
+
+            s.__add__(s2)
+            s.__contains__(e)
+            s.copy()
+            s.index(e)
+            s.insert(p, e)
+            s.__mul__(n)
+            s.__imul__(n)
+            s.__rmul__(n)
+            s.sort([key], [reverse])
+
+        Other deque like queues in Python.
+            queue - Synchronized (thread-safe) classes SimpleQueue, Queue, LifoQueue, PriorityQueue.
+                Safe communication between threads, and all except SimpleQueue can be bounded by
+                    providing max size argument greater than 0 to the constructor.
+                They don't discard items like deque, i.e. they wait until some other thread makes room
+                    by taking an item from the queue.
+            multiprocessing - Implements it's own un-bounded SimpleQueue and bounded Queue---
+                similar to Queue, but for inter-process communications.
+                Includes a specialized multiprocessing.JoinableQueue for task management.
+            asyncio - Provides Queue, LifoQueue, PriorityQueue, and JoinableQueue with API
+                inspired by the classes in queue and multiprocessing modules, but adapted for
+                managing tasks in asynchronous programming.  
+            heapq
+                Provides functions like heappush and heappop for mutable sequences.
+
+Summary
+
+    Tuples are used as records with unnamed fields, and immutable lists.

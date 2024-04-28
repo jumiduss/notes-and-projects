@@ -1,0 +1,146 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\paragraph{}
+    Different models have different sensitivities to predictor types. How the predictors are entered 
+    into the model matter. Data pre-processing is determined by the model. For instance, tree-based models
+    are notably insensitive to the characteristics of predictor data, and opposite of linear regression 
+    models which are very restricted.
+
+    \begin{definition}[(Un-)Supervised Data Processing]
+        The outcome variable is (or isn't) considered by the pre-processing techniques.
+    \end{definition}
+
+    \begin{definition}[Feature Engineering]
+        The process of how predictors are encoded.
+    \end{definition}
+
+\paragraph{Examples of Date Encoding}
+    \begin{itemize}
+        \item The number of days from a reference date.
+        \item Isolating the day, day of week, month, year as separate predictors.
+        \item The numeric day of the year (ignoring the calendar year).
+        \item Whether the date was within the school year (opposed to holidays or summer sessions).
+    \end{itemize}
+
+
+\subsection{The Chapter's Case Study: Cell Segmentation in High-Content Screening}
+
+    \textbf{Contextual Notes From the Reading}
+    \begin{itemize}
+        \item Examination of a sample under a microscope to assess the desired outcome.
+        \item Automated, high-throughput assessment of cell characteristics can produce misleading results.
+        \item Issues related to segmentation of cells resulted in false-positive reading of cell damage.
+    \end{itemize}
+
+\subsection{Data Transformations for Individual Predictors}
+
+    Transformations of predictor variables can be used for modeling techniques with strict requirements, 
+    or for difficult data used in specific models. The following discusses transformations used in this chapter's case study.
+
+    \paragraph{Centering and Scaling}
+    \begin{definition}[Centering]
+        Centering the predictor set is the result of: taking averaging the predictor set, and subtracting this value from all predictor variables. The resulting mean of the set of predictor variables is zero.
+        Let $ \textbf{x}_i = \{x_1, x_2, \dots, a_n\}$ be the set of predictor variables, then the centered set of predictor variables is equal to:
+        \[ S = A  - \frac{\sum_{i=1}^{n}\{\textbf{x}_i\}}{n}\]
+    \end{definition}
+    \begin{definition}[Scaling]
+        Scaling the predictor set is a result of dividing each variable by the standard deviation. 
+        This forces all variables to have a common scale, and improve numerical stability of some calculations.
+        The only downside could be a loss of interpretability since the data is no longer in it's original unit. 
+    \end{definition}
+
+    \paragraph{Transformations to Resolve Skewness}
+    \begin{definition}[Skewness]
+        The \textbf{skew} of a distribution tells the bias-location of the dataset. 
+        For example, right skewed is biased towards larger values, and un-skewed is roughly symmetric.
+        Let $ \textbf{x}_i= \{x_1, x_2, \dots, x_n\} $, then the \textbf{skewness} of the set is:
+        \[skewness = \frac{\sum{(\textbf{x}_i -\bar{x})}^3}{(n-1)v^{3/2}},\]
+        where \[v=\frac{\sum{(\textbf{x}_i -\bar{x})}^2}{(n-1)}.\]
+    \end{definition}
+    You can adjust the skew of a data set by applying a transformation with an equation; ex: log, ln, sqrt, inverse, etc \dots
+    You could also have a system of transformations on different ranges of data.
+
+    \paragraph{Box and Cox Transformation Family}
+        The use of statistical methods to determine which transform should be used to center a data set.
+    \[ x^{*} = \begin{cases}
+    \frac{x^\lambda}{\lambda} & \text{ if } \lambda \not = 0 \\
+    \log{x} & \text{ if } \lambda=0 \\
+    \end{cases} \]
+    if $ \lambda =2$, then square transform; $ \lambda =1/2$, then square-root transform; $ \lambda = -1$, inverse transform; etc \dots
+
+\subsection{Data Transformations for Multiple Predictors}
+    Transformations on groups of predictors on entire sets.
+
+    \paragraph{Transformations to Resolve Outliers}
+    
+    \begin{definition}[Outliers]
+        Samples that are exceptionally far from the mainstream of the data.
+    \end{definition}
+    When an outlier is suspected:
+    \begin{enumerate}
+        \item See if the number is feasible / scientifically valid; i.e blood pressure cannot be negative.
+        \item Verify there haven't been errors in recording the data.
+        \item Perceived outliers may be due to the skew within small sample sizes.
+        \item Sampled data could be comparatively clustered compared to the larger set.
+    \end{enumerate}
+    
+    \quad Note that tree models are resistant to outliers.
+
+    We can minimize outliers by transforming the data's spacial span by dividing the samples by it's squared norm.
+    \[ x^*_{ij} = \frac{x_{ij}}{\sum_{j=1}^{P}x^2_{ij}}.\]
+
+    The denominator measures the square distance to the center of the predictor's distribution. This 
+    transforms the data as a group, so removing predictors after the transformation can be problematic.
+
+    \paragraph{Data Reduction and Feature Extraction}
+    \begin{definition}[Data Reduction Techniques]
+        Reduce data by generating a smaller set of predictors that capture the majority of the information stored in the original variables.
+        New predictors tend to be functions of the original predictors. This is also called \textbf{Feature Extraction} or \textbf{Signal Extraction}.
+    \end{definition}
+
+    \begin{definition}[PC (Principal Components)]
+        Linear combinations of predictors that capture the largest possible variance from a data set.
+    \end{definition}
+    \begin{definition}[Loading]
+        The weight associated with each PC in a Principal Component Analysis, that signifies the importance of each factor on the dataset. 
+    \end{definition}
+    \begin{definition}[PCA (Principal component analysis)]
+        Principal component analysis creates a set of uncorrelated PCs. PCA seeks predictor-set variation without regard to further understanding of model objectives.
+        It can result in irrelevant sets towards the main objective --- an unsupervised technique.    
+    \end{definition}
+
+    
+    The \textit{j}th PC can be written as:
+    \[PC_j = \sum_{k=1}^{n}(a_{jk}*P_k) \]
+
+    Where $ a_k $ represents the loading, and $ P_k $ represents the \textit{j}th predictor.
+    Loadings close to zero represent predictors with low contributions to the variability in the data set.
+    
+
+\subsection{Dealing with Missing Values}
+
+
+
+
+
+
+\subsection{Removing Predictors}
+
+\subsection{Adding Predictors}
+    
+\subsection{Binning Predictors}
+    
+\subsection{Computing}
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

@@ -1,0 +1,11 @@
+the size of effects
+logistic and linear regression
+concepts of dimensional data modeling
+product analysis
+ab testing
+machine learning
+eg boost
+random forest
+cleand and query data
+idempotent pipelines and high throughput
+

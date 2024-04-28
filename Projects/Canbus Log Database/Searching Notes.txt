@@ -358,7 +358,7 @@ Process to reach Each Goal:
                 | 30 |  100107248 | 0x681     | E0 00 FF FF FF FF FF FF |
 
                 | 31 |  100121502 | 0x681     | 07 00 00 20 0B 02 01 00 |
-                | 32 |  100121549 | 0x601     | E0 00 FF FF FF FF FF FF |
+                | 32 |  100121549 | 0x601     | E0 00 FF FF oFF FF FF FF |
                 
                 | 33 |  100133163 | 0x601     | 03 10 00 2C FF FF FF FF |
                 | 34 |  100137429 | 0x681     | E0 10 FF FF FF FF FF FF |

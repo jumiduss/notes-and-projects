@@ -1,0 +1,394 @@
+Modern dict Syntax
+
+    dict Comprehensions
+
+        Similar to list comprehensions.
+        See examples.ipynb
+
+    Unpacking Mappings
+
+        We can apply ** to more than one argument in a function call.
+        It can be used inside a dict literal, and used multiple times in a function call.
+        See examples.ipynb
+
+    Merging Mappings with |
+
+        | and |= merge mappings like a 'union' set operation.
+        if the order is d1 | d2, if duplicate mappings exist, the key-value pair in d2 overwrites d1.
+        using |= overwrites the mapping with the key-values of d2.   
+
+        See examples.ipynb
+    
+Pattern Matching with Mappings
+
+    Patterns for mappings look like dict literals, but can match any instances of collections.abc.Mapping
+    This type of pattern matching if often used reading data from JSON files and databases. 
+    We can use ** (once at the end) to catch all remaining dict literals.
+    See examples.ipynb
+
+Standard API of Mapping Types
+
+    MutableMapping
+
+        Commands
+            __setitem__
+            __delitem__
+            clear
+            pop
+            popitem
+            setdefault
+            update
+    
+    Mapping
+        Created from MutableMapping
+
+        Commands
+            __getitem__
+            __contains__
+            __eq__
+            __ne__
+            get
+            items
+            keys
+            values
+    
+    Collection
+        Created from Mapping
+
+        Commands
+            __contains__
+            __iter__
+            __len__
+    
+    Implementing a Custom Mapping
+
+        Easier to extend collections.UserDict or wrap a dict by composition than sub-classing
+            any of these ABCs.
+            collections.UserDict class (and all standard -library concrete mapping classes)
+                encapsulate a basic dict, which is built on a hash table.
+            Keys MUST be hashable.
+
+        Hashable
+
+            Hashable - when an object has a has code which never changes during it's lifetime.
+            Hashable objects have a __hash__() method.
+            They can be compared to other objects with __eq__().
+                Objects that return True with __eq__ have the same hash value.
+            
+            Numerics, and flat-immutable types (str and bytes) are hashable also.
+
+            Containers are hashable if they are immutable, and the contained objects are also hashable.
+
+                frozenset's are always hashable.
+            
+            Hash codes can vary based on the Python version.
+            Hash codes can only be guaranteed consistent within a singular process,
+                and only if they were setup correctly.
+            
+            User-defined types are hashable, and it's value is based on their id().
+                If an object has a custom __eq__() dependent on it's state, it's hashable
+                    iff it's __hash__() always returns the same code.
+            
+    Common Mapping Methods Based on Type
+    
+        All Types:
+            d.clear() - Remove all items.
+            d.__contains__(k) - k in d.
+            d.copy() - Shallow copy.
+            d.__delitem__(k) - del d[k] -- remove item with key k.
+            d.fromkeys(it, [initial]) - New mapping from keys in iterable, with optional initial value (defaults to None).
+            d.get(k, [default]) - Get item with key k, return default or None if missing.
+            d.__getitem__(k) - d[k] -- get item with key k.
+            d.items() - get view over items -- (key, value) pairs. 
+            d.__iter__() - Get iterator over keys.
+            d.keys() - Get view over keys.
+            d.__len__() - len(d) -- number of items.
+            d.__or__(other) - Support for d1 | d2 to create new dict merging d1 and d2 (Python >= 3.9).
+            d.__ior__(other) - Support for d1 |= d2 to update d1 with d2 (Python >= 3.9)
+            d.pop(k, [default]) - Remove and return value at k, or default or None if missing.
+            d.popitem() - Remove and return the last inserted item as (key, value).
+            d.__reversed__() - Support for reverse(d) -- returns iterator for keys from last to first inserted.
+            d.__ror__(other) - Support for other | dd -- reversed union operator (Python >= 3.9).
+            d.setdefault(k, [default]) - If k in d, return d[k]; else set d[k] = default and return it.
+            d.__setitem__(k, v) - d[k] = v -- put v at k.
+            d.update(m, [**kwargs]) - Update d with items from mapping or iterable of (key, value) pairs.
+                Note: This is a good example of duck typing:
+                    It checks if m has a keys method, 
+                    if true assume mapping, 
+                    else update() falls to iterating over m, assuming it has (key, value) pairs.  
+            d.values() - Get view over values.
+
+
+        dict Specific:
+
+
+        defaultdict Specific:
+            d.__copy__() - Support for copy.copy(d)
+            d.default_factory - Callable invoked by __missing__ to set missing values.
+            d.__missing__(k) - Called when __getitem__() cannot find the key.
+        
+        OrderedDict Specific:
+            d.move_to_end(k, [last]) - Move k first or last position (last is True by default).
+    
+    Inserting and Updating Mutable Values
+
+        dict access with d[k] raises an error when k isn't an existing key.
+        When you want to return a mutable value and update it,
+            1. Get the list of occurrences of the key.
+            2. Set it to [] if not found.
+            3. setdefault returns the value that can be updated without a second search.
+
+Automatic Handling of Missing Keys
+
+    defaultdict
+
+        Creates items with a default value on demand whenever a missing key is searched with d[k].
+        When instantiating a defaultdict, you provide a callable to produce a default value when
+            __getitem__ as pass a none-existent key argument.
+    
+        See examples.ipynb
+
+    __missing__()
+
+        Can be applied by sub-classing dict, and dict.__getitem__() will call it when a key
+            is not found instead of raises a KeyError exception.
+        
+Variations of dict
+
+    collections.OrderedDict
+
+        Most commonly used for backwards compatibility with previous Python versions.
+        
+        A list of documentation specified differences OrderedDict provides over dict.    
+            The equality operation checks for matching order.
+            popitem() has a different signature, and accepts another optional argument
+                to specify which item is popped.
+            A new move_to_end() to reposition an element to an endpoint.
+            Is good at reordering operations, making it better suited for access tracking.
+        
+    collections.ChainMap
+
+        Holds a list of mappings that can be searched as one.
+        Useful for implementing interpreters for languages with nested scopes.
+            Each map represents a scope context, from the innermost to the outermost.
+
+        Lookups are performed on each input mapping in the order it appears in the constructor.
+            It succeeds as soon as the key is found in one of those mappings.
+
+        ChainMap doesn't copy input mappings, but holds a reference to them.
+        
+        See examples.ipynb
+
+    collections.Counter
+
+        A mapping that holds an integer count for each key.
+            Updating an existing key adds to its' count.
+        
+        Can be used to count instances of a hashable object, or as a multi-set.
+
+        Counter implements + and - operators to combine tallies, and 
+            other methods like most_common([n]) - returns an ordered list of tuples
+                that contains the most common items, and their counts.
+        
+        See examples.ipynb
+
+    shelve.Shelf
+    
+        Provides persistent storage for a mapping of string keys to Python objects 
+            serialized in the pickle binary format.
+            Shelve is used because that's where pickle jars are stored... lol
+        
+        shelve.open returns a shelve.Shelf instance, a key value DBM with the following characteristics:
+
+            shelve.Shelf subclasses abc.MutableMapping, so it provides the essential methods of mapping types.
+            shelve.Shelf provides more I/O methods like sync and close.
+            Shelf instances contain a context manager, and can use a 'with' block.
+            Keys and values are saved whenever a new value is assigned to a key.
+            Keys must be strings.
+            Values must be objects that pickle can serialize.
+
+    Sub-classing UserDict Instead of dict
+
+        New mapping types are best created by sub-classing collections.UserDict than dict.
+            UserDict has better methods we can inherit.
+
+        UserDict does not inherit from dict, but uses a composition of a dict instance called data,
+            and data is what holds the actual dict items.
+            This also avoids recursion issues from __setitem__, and simplifies the code of __contains__,
+
+        MutableMapping.update can be called directly, or initiated to load the instance from other
+            mappings, iterable pairs, and key word arguments.
+
+        Mapping.get is inherited, and wont need to be defined as in the dict subclass example.
+
+        See examples.ipynb
+    
+Immutable Mappings
+
+    Usage case is found when setting GPIO pins, preventing inadvertent updates to 
+        hardware specific software references.
+
+    types module provides MappingProxyType, which returns a mappingproxy instance when given a mapping.
+        Updates to the original mapping can be seen with the proxy, but cannot be made through the proxy.
+
+        See examples.ipynb
+
+Dictionary Views
+
+    Read only projections of the internal data structures used in the dict implementation.
+        .keys(), .values(), .items() return instances of dict_keys, dict_values, dict_items.
+
+    This dict view classes cannot be accessed or subclassed.
+
+    See examples.ipynb
+
+Practical Consequences of How dict Works
+
+    Keys MUST hashable objects (AKA: implement proper __hash__ and __eq__)
+
+    Item access by key is very fast by Python deriving the index from the hash.
+
+    Key ordering is preserved as a consequence of more compact memory brought in by CPython.
+
+    dicts have significant memory overhead.
+        The most compact memory structure is an array of pointers to items.
+        Otherwise, a hash table is needed to store more data per entry, and python must keep
+            one third of the hash table rows empty to be efficient.
+    
+    To save memory, avoid creating instance attributes outside of the __init__ method.
+
+    Instances of a class can share a common hash table, stored within the class.
+        The hash table is shared by the __dict__ of each new instance.
+        Adding attributes after __init__ forces Python to create a new hash table
+            just for this specific dict.
+
+Set Theory
+
+    Sets are a collection of unique objects.
+        They are an underused sibling of frozenset.
+        Sets are not hashable.
+    
+    Set Literals
+
+        {1, 2, ...} - literals look like the math notation for sets.
+            Only exception are empty sets, written as set(), not {}
+                {} creates an empty dict.
+
+        Standard string representation of sets always uses the {...} notation.
+
+    Set Comprehension
+
+        See examples.ipynb
+
+Practical Consequences of How Sets Work 
+
+    Set elements must be hashable objects.
+    Membership testing is very efficient within sets.
+    Sets have a significant memory overhead compared to low-level array pointers,
+        which are more compact but harder to search beyond a handful of elements.
+    Element ordering depends on the order of insertion, but it is not useful
+        in a reliable way. 
+    Adding elements to a set may change the order of existing elements.
+
+
+Set Operations
+
+    MutableSet
+        add
+        discard
+        remove
+        pop
+        clear
+        __ior__
+        __iand__
+        __ixor__
+        __isub__
+    Set - based off MutableSet
+        isdisjoint
+        __le__
+        __lt__
+        __gt__
+        __ge__
+        __eq__
+        __ne__
+        __and__
+        __or__
+        __sub__
+        __xor__
+    Collection - based off Set
+        __contains__
+        __iter__
+        __len__
+
+
+    Math Operations
+        s & z  - s.__and__(z)                           - intersection of s and z
+        z & s  - s.__rand__(z)                          - reversed & operator
+               - s.intersection(it, ...)                - intersection of s and all sets built from iterables it, etc... 
+        s &= z - s.__iand__(z)                          - s updated with intersection of s and z 
+               - s.intersection_update(it, ...)         - s updated with intersection of s and all sets built from iterables it, etc...
+        s | z  - s.__or__(z)                            - Union of s and z
+        z | s  - s.__ror__(z)                           - Reversed |
+               - s.union(it, ...)                       - Union of s and all sets built from iterables it, etc...
+        s |= z - s.__ior__(z)                           - s updated with union of s and z
+               - s.update(it, ...)                      - s updated with union of s and all sets built from iterables it, etc...
+        s - z  - s.__sub__                              - Relative complement or difference between s and z
+        z - s  - s.__rsub__                             - Reversed - operator
+               - s.difference(it, ...)                  - Difference between s and all sets built from iterables it, etc...
+        s -= z - s.__isub__(z)                          - s updated with difference between s and z
+               - s.difference_update(it, ...)           - Difference between s and all sets built from iterables it, etc...
+        s ^ z  - s.__xor__(z)                           - Symmetric difference (the complement of the intersection of s & z)
+        z ^ s  - s.__rxor__(z)                          - Reversed ^ operator
+               - s.symmetric_difference(z)              - Complement of s & set(it)
+        s^= z  - s.__ixor__(z)                          - s updated with the symmetric difference of s and z
+               - s.symmetric_difference_update(it, ...) - s updated with symmetric difference of s and all sets built from iterables it, etc...
+
+    Predicate Operations
+        (disjoint) - s.isdisjoint(z)   - s and z are disjoint (no elements in common)
+        e in s     - s.__contains__(e) - Element e is a member of s
+        s <= z     - s.__le__(z)       - s is a subset of the z set
+                   - s.issubset(it)    - is is a subset of the set built from the iterable it
+        s < z      - s.__lt__(z)       - s is a proper subset of the set z
+        s >= z     - s.__ge__(z)       - s is a superset of the set z
+                   - s.issuperset(it)  - s is a superset of the set built from the iterable it.
+        s > z      - s.__gt__(z)       - s is a proper superset of the set z
+
+    Additional Set Methods
+        s.add(e)     - Add element e to s
+        s.clear()    - Remove all elements of s
+        s.discard(e) - remove element e from s if it is present
+        s.pop()      - Remove and return an element from s, raising KeyError if the set s is empty.
+        s.remove(e)  - Remove element e from s, raising KeyError if e not in s.
+        
+        (The following are also in frozenset)
+        s.copy()     - Shallow copy of s
+        s.__iter__() - Get iterator over s
+        s.__len__()  - len(s)
+
+Set Operations on dict Views
+
+    frozenset Only:
+        s.copy()
+        s.difference(it, ...)
+        s.intersection(it, ...)
+        s.isdisjoint(z)
+        s.issubset(it)
+        s.issuperset(it)
+        s.symmetric_difference(it)
+        s.union(it, ...)
+
+    dict_keys and dict_items Only:
+        s.__reversed__()
+
+    Offered by frozenset, dict_keys, and dict_items:
+        s.__and__(z)
+        s.__rand__(z)
+        s.__contains__()
+        s.__iter__()
+        s.__len__()
+        s.__or__(z)
+        s.__ror__()
+        s.__rsub__(z)
+        s.__sub__(z)
+        s.__xor__()
+        s.__rxor__()
