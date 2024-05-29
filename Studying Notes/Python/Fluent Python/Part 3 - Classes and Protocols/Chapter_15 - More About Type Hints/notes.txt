@@ -1,0 +1,113 @@
+Overloaded Signatures
+
+    Functions may accept different combinations of arguments.
+
+    @typing.overload allows annotation for those different argument combinations.
+
+    ex:
+        @overload
+        def sum(__iterable: Iterable[_T]) -> Union[_T, int]: ...
+        @overload
+        def sum(__iterable: Iterable[_T], start: _S) -> Union[_T, _S]: ...
+    
+        The ellipsis, aka '...', functions as the syntax requirement for the function body.
+
+    Type hints allow MyPy to flag possible error prone calls, but having to write so many lines
+        to support a type checker can discourage people from writing convenient and flexible code.
+
+    See examples.ipynb
+
+TypedDict
+
+    TypedDict provides:
+        Class-like syntax to annotate a dict with type hints for each value of each field.
+        A constructor that tells the type checker to expect a dict with the keys and values as specified.
+
+    At runtime, TypedDict's constructor has the same effect as calling dict.
+        The fields in the pseudo class definition don't create instance attributes.
+        You can't write initializers with default values for the fields.
+        Method definitions aren't allowed.
+    
+    Note: TypedDict is not a replacement for data validation.
+
+    See examples.ipynb
+
+
+Type Casting
+
+    typing.cast() provides another way to handle type checking malfunctions or incorrect type hints.
+
+    Casts are used to silence spurious type checker warnings and give the checker a little help
+        when it can't understand what's going on.
+
+        See examples.ipynb
+    
+    MyPy is usually correct when it reports an error, so don't get used to silencing it with cast.
+    'cast()' or '# type: ignore' can be used to silence MyPy errors.
+
+Reading Type Hints At Runtime
+
+    Two issues are raised:
+        Importing modules uses more CPU and memory when type hints are used.
+        Referring to types not yet defined requires using strings instead of actual types.
+    
+    Using __future__.annotations solves both of these issues.
+
+    Python at large scales want the benefits of static type hinting without the price at import.
+    Type hints as strings reduce loading cost, but increase I/O.
+
+Implementing a Generic Class
+
+    Basic Jargon for Generic Types:
+        Generic Type - A type declared with one or more variable types.
+            EX: LottoBlower[T], abc.Mapping[HT, VT]
+        Formal Type Parameter - The type variables that appear in a generic type declaration.
+            EX: KT and VT in abc.Mapping[KT, VT]
+        Parameterized Type - A type declared with actual type parameters.
+            EX: LottoBlower[int], abc.Mapping[str, float]
+        Actual Type Parameter - The actual types given as parameters when a parameterized type is declared.
+            EX: The int in LottoBlower[int]
+        
+        See examples.ipynb
+
+Variance
+    
+    Relevant to library authors who want to support new generic container types, or provide
+        callback-based API.
+        You can avoid complexity by supporting ONLY invariant containers like the standard library.
+    
+    Invariant Types - When there are no supertype or subtype relationship between two parameterized types --
+        regardless of the relationship that may exist between actual parameters.
+        EX: If L is invariant, L[A] is not a super- or sub- type of L[B]
+
+    Covariant Types - When type B is consistent with type A, and neither type is Any.
+        Relationships are sometimes expressed like:
+            A :> B - A is a supertype of B
+            B <: A - B is a subtype of A
+
+            L is covariant if L[A] :> L[B]
+
+    Contravariant Types - When the subtype relationship is reversed if the actual type parameters.
+        L[A] <: L[B]
+        EX: Refuse :> Biodegradable
+            TrashCan[Refuse] <: TrashCan[Biodegradable]
+    
+    Variance Rules of Thumb:
+        
+        1. If a formal type parameter defines a type for data that 
+            comes out of an object, it CAN be covariant.
+
+        2. If a formal type parameter defines a type for data that 
+            goes into the object after initial construction, it CAN be contravariant
+
+        3. If a formal type parameter defines a type for data that
+            comes out of the object and the same parameter defines a type for data that
+            goes into the object, it MUST be invariant.
+        
+        4. To err on the safe side, make formal type parameters invariant.
+
+        See examples.ipynb
+
+Implementing a Generic Static Protocol
+
+    See examples.ipynb

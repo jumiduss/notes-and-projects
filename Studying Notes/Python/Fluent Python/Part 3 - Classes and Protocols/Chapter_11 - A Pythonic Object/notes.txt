@@ -1,0 +1,152 @@
+Object Representations
+
+    Python has two main ways of getting a string representation of an object:
+        repr() - Return a string that represents the object, that the developer sees.
+        str() - Returns a string that represents the object, that the user sees.
+
+    Alternative Object views:
+        __bytes__ - returns a byte sequence analogous to str()
+        __format__ - used by f-string, format(), and str.format() to use special code to format.
+
+Vector Class Redux
+
+    See examples.ipynb
+
+An Alternative Constructor
+
+    See examples.ipynb
+
+classmethod Versus staticmethod
+    
+    classmethod - Used to define a method that operates on a class, and not instances of the class.
+        It receives the class itself as the first argument.
+        It's most common use is for alternative constructors.
+
+    staticmethod - Changes a method to receive no special first argument.
+        Just like a normal function that happens to live inside a class.
+
+    See examples.ipynb
+
+Formatted Displays
+
+    format_spec is a formatting specifier which is either:
+        a. The second argument in format(my_obj, format_spec)
+        b. What appears after the colon in a replacement field delimited with 
+            {} inside an f-string, fmt, or fmt.str.format().
+
+    Built-in Format Types
+        Supported by int:
+            'b' - base 2 representation
+            'x' - base 16 representation
+        Supported by float:
+            'f' - fixed-point 
+            '%' - percentage display
+
+    datetime Formatting
+        See Python documentation for the long list of supported formatting.
+
+    Adding Specific Formatting Support 
+
+        See examples.ipynb
+
+A Hashable Vector2d
+
+    Adding a double underscore before a class property makes it private.
+    Access private properties from outside a class by using the @property decorator on a variable method.
+
+    We need our class properties to be private so they can be hashable.
+    After making them private, we can add a __hashable__ method to the class. 
+
+    See examples.ipynb
+
+Supported Positional Pattern Matching
+
+    Adding the class property __match_args__ specifies the arguments and their positions to match
+        inside of switch-case pattern matching.
+
+    See examples.ipynb
+
+Private and "Protected" Attributes in Python
+
+    Private Variables in Python are used as a way to prevent overwriting class attributes.
+
+    The format of writing a private variable in Python:
+        Two leading underscores, and zero or one trailing underscore.
+        __a_variable_name
+        __a_variable_name_
+    
+    This is NOT for security. Name mangling is ONLY for preventing accidental attribute access.
+
+    Private names can be very useful for debugging.
+
+    Some people say it is better to use a single leading underscore with more specific variable naming.
+        The only reason this is wrong is because the leading double underscore is processed by the interpreter.
+
+Saving Memory with __slots__
+
+    General Notes 
+        __slots__ class instances have no __dict__, which saves memory by reducing a significant memory overhead.
+
+        We can set class attributes assigned to __slots__ normally.
+        Trying to assign an attribute not listed in __slots__ raises an AttributeError.
+
+        Sub-classing a __slots__ class WILL create __dict__, but wont add attributes to __dict__ after assignment
+        Sub-classing a __slots__ class WILL allow unlisted class attribute assignment.
+
+        See examples.ipynb
+
+    The Issues with __slots__
+
+        1. You must remember to re-declare __slots__ for each subclass to prevent __dict__ creation.
+        2. Instances will only be able to have the attributes listed in the __slots__ assignment.
+        3. Classes using __slots__ cannot use @cached_property decorator.
+        4. Instances cannot be targets of weak references.
+
+Overriding Class Attributes
+
+    Class attributes cannot be modified directly through class instances.
+        If we tried to modify a class attribute in an instance, it would
+            create an instance attribute of the same name.
+        From the instance attribute creation, there would no longer be access to the
+            original class attribute that "overwrote", but still incur the resource cost.
+
+    To change a class attribute directly:
+        
+        a_class_name.a_attribute_name = a_attribute_value
+            This changes the default value for all class instances
+
+        class a_subclass_name(a_class_name):
+            a_attribute_name = a_attribute_value
+        
+                Subclasses have access to public class variables.
+                We can use this feature to update class attribute values directly THROUGH the subclass.
+
+        THE FOLLOWING DOES NOT WORK
+            a_instance = a_class_name(...)
+            a_instance.a_attribute_name = a_attribute_value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,174 @@
+The Big Picture
+
+    Starting threads and processes is easy, but keeping track of the flow of information is hard. 
+    Often you start threads with loops so you're not wasting resources.
+
+    The goal is to turn threads into workers that enter a loop and wait for inputs to work on.
+
+    Questions:
+        How do you make a worker quit?
+        How do you make it quit without interrupting a job before completion?
+
+    Coroutines are cheap to start, difficult to monitor. 
+
+A Bit of Jargon
+
+    Concurrency - The ability to handle multiple pending tasks, making progress one at a time or in parallel
+        so each of them eventually succeed or fail.
+        Can be single-core.
+    Parallelism - The ability to execute multiple computations at the same time.
+        Needs multi-core.
+    Execution Unit - General term for objects that execute code concurrently, each with
+        independent states and call stacks.
+        Python natively supports 3 types: processes, threads, coroutines.
+    Process - A program instance while running. Uses memory and CPU time.
+        Processes communicate through pipes, sockets, or memory mapped files which all carry raw bytes.
+        Python objects MUST be converted (serialized) to raw bytes which is costly and slow, if not impossible.
+        Python processes are also isolated from one another.
+        Processes can spawn subprocesses, in a parent-child relationship.
+        Processes can allow 'preemptive multitasking', which suspends processes periodically to allow others to run.
+    Thread - An execution unit within a single process. 
+        On start, a process uses a single thread; the main thread.
+        A process can create more threads to operate concurrently with OS APIs.
+        Threads can share the same memory space, which shares Python objects without converting to raw bytes.
+            This can also lead to corrupted data when different threads update at the same time.
+        Threads enable preemptive multitasking, and consume less resources while doing the same job.
+    Coroutine - A function that can suspend itself and resume itself later.
+        Classic coroutines are built from generator functions.
+        Native coroutines are defined with 'async def'.
+        Python coroutines usually run within a single thread under the supervision of
+            an event loop within the same thread.
+        Asynchronous programming provides event loops and support for non-blocking, coroutine based I/O.
+        Coroutines support cooperative multitasking - each coroutine must cede control with yield or await
+            so another routine can proceed concurrently.
+        Blocking code (in a coroutine) blocks the execution of the event loop and all other coroutines.
+            This is the opposite of preemptive multitasking.
+        Each coroutine consumes less resources than a thread or process doing the same job.
+    Queue- A data structure that allows us to get and put items, usually in FIFO order.
+        Queues separate execution units to exchange application data and control messages.
+        Queue usage varies based on the concurrency model used.
+    Lock - An object that execution units can use to synchronize their actions and avoid data corruption.
+        While updating a shared data structure, the running code should hold an associated lock.
+            This assures the program will halt until the lock is reached before accessing the same data structure.
+    Contention - Dispute over a limited asset.
+        Tends to happen when multiple execution units try to access a shared resource, like a lock or storage.
+        CPU contention can occur when compute intensive processes or threads must wait for the OS scheduler
+            to give them a share of the CPU time.
+
+    How This Jargon Applies to Python Programming:
+        1. Each python interpreter instance is a process.
+            You can start additional process with multiprocessing, or concurrent.futures.
+            Python subprocess library launches process to run external programs, regardless of their written language.
+        2. The interpreter uses a single thread to run the user's program, AND the memory garbage collector.
+            You can start addition threads with threading, or concurrent.futures.
+        3. Access to object references counts and other internal interpreter state is controlled by a lock,
+            named the Global Interpreter Lock (GIL).
+            Only one Python thread can hold the GIL at any time, and ONLY ONE thread can execute code, 
+                regardless of the CPU's architecture.
+        4. To prevent a thread's indefinite holding of the GIL, Python's bytecode interpreter pauses the
+            thread every 5 ms by default.
+            Threads can try to regain control of the GIL, which is chosen by the OS scheduler.
+        5. When writing Python code, we cannot control the GIL.
+            Built in functions and extensions from other languages, that interface with C, can.
+        6. Every Python standard library function that makes a syscall releases the GIL.
+            This included disk I/O, network I/O, and time.sleep().
+        7. Extensions that integrate at the Python/C API level can also launch other non-Python threads
+            not affected by the GIL.
+            These threads typically cannot carry Python objects.
+        8. The GIL has a relatively small effect on networking because there's a relatively large latency
+            on network I/O compared to memory I/O.
+            Threads also tend to spend a long time waiting regardless, so execution often can be interleaved
+                without major impact on the overall throughput.
+        9. Contention over the GIL slows down compute-intensive threads.
+            Sequential, single-threaded code is simpler and faster for such tasks.
+        10. To run CPU-intensive code on multiple cores, you must use multiple Python processes.
+        
+A Concurrent Hello World
+
+    The basic API of threading and multiprocessing are similar, but implemented differently.
+        Multiprocessing has a larger API for handling the added complexity of multiprocessing.
+        ex: Communication between isolated processes through ShareableList.
+
+    Coroutines are driven by an application-level event loop that managers a queue of pending coroutines.
+        Coroutines are driven one by one, events are triggered by I/O operations initiated by coroutines,
+            and then control is passed back to the coroutine after each event.
+        Time spent within a coroutine slows down the event loop.
+    
+    The Three Main Ways to Run Coroutines:
+        asyncio.run(coroutine()) - Called from a function to drive a coroutine object.
+            Typically used as the entry point for all asynchronous code in the program.
+
+        asyncio.create_task(coroutine()) - Called from a coroutine to schedule another coroutine to execute eventually.
+
+        await coroutine() - Called from a coroutine to transfer control to the coroutine object returned by coroutine().
+            This suspends the current coroutine until the body of coroutine() returns.
+
+    Differences and Similarities Between the The Supervisor Implementations:
+
+        asyncio.Task is roughly equivalent to threading.Thread
+        A Task drives a coroutine object, a Thread invokes a Callable.
+        A coroutine yield control explicitly with the await keyword.
+        You don't instantiate Task objects yourself. You get them by passing a coroutine to asyncio.create_task(...)
+        When asyncio.create_task(...) returns a Task object, it is already scheduled to run.
+            A Thread instance must be explicitly told to run with the start method.
+        In the threaded supervisor, 'slow' is a plain function directly invoked.
+            In asynchronous, slow is a coroutine driven by await.
+        There's no API to terminate a thread from the outside, you MUST send a signal like 'done'.
+            For tasks, Task.cancel() raises a CancelledError at the await expression where the body is suspended.
+        The supervisor coroutine must be started with asyncio.run in the main function.
+
+        Threading must hold locks to prevent it's interruption from the scheduler.
+        Coroutines protect against interruption by default.
+
+The Real Impact of the GIL
+
+    See examples.ipynb for the is_prime() function .
+
+    Quiz Questions and My Answers (Assuming that running is_prime(n=5_000_111_000_222_021) takes 3.3 Seconds)
+    
+        1Q. In the process based spinner example, what happens when we replace time.sleep(3) with is_prime(n)?
+            1A. The program waits another 0.3 Seconds to finish.
+        
+        2Q. In the threads based spinner example, what happens when we replace time.sleep(3) with is_prime(n)?
+            2A. The program waits another 0.3 Seconds to finish.
+        
+        3Q. In the async based spinner  example, what happens when we replace asyncio.sleep(3) with is_prime(n)?
+            3A. The event loop is frozen on slow() until is_prime(n) returns, and spinning is frozen.
+
+    The Book's Answers:
+        1A. I answered correctly.
+        2A. I answered correctly, but for the wrong reasons.
+            Threading is controlled by the GIL. Since the GIL releases every 5 ms, the thread running 
+                slow is continuously suspended for other threads to take over, iterate once, then return
+                after reaching the wait method within the done event. slow() then continues for another 5 ms.
+        3A. I answered correctly. 
+
+A Homegrown Process Protocol
+
+    To show the use of multiple processors for CPU-intensive tasks, and common patterns of using queues to
+        distribute tasks and collect results.
+    The results are show in three columns: the number to check, if P is prime - else blank, Elapsed time. 
+
+
+
+Python in the Multi-Core World
+
+    System Administration
+        Standard Library: concurrent.futures
+        Extended Libraries: Ansible, Salt, Fabric, AsyncIO
+    
+    Data Science
+        Project Jupyter - Allows the potential for document analytics code running remotely.
+        TensorFlow and PyTorch - Deep Learning Frameworks.
+        Dask - Parallel Computing to farm work to local processors or machine clusters.
+    
+    Server Side Web and Mobile Development
+        Application Caches: memcached. Redis, Varnish
+        Relational Databases: PostgreSQL, MySQL
+        Document Databases: Apache CouchDB, MongoDB
+        Full-Text Indexes: Elasticsearch, Apache Solr
+        Message Queues: RabbitMQ, Redis
+        WSGI Application Servers: mod_wsgi, uWSGI, Gunicorn, NGINX Unit
+    
+    Distributed Task Queues
+        Celery and RQ

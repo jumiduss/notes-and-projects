@@ -1,0 +1,89 @@
+Operator Overloading
+
+    Operator overloading allows user-defined objects to interoperate with infix operators --
+        like + and |, or unary operators like - and ~.
+
+    Function invocation () , attribute access . , and item access/slicing [] are also operators,
+        but this chapter only focuses on the infix and unary operators.
+
+    Python Operating Overloading Features:
+        Cannot change the meaning of operators for built-in types.
+        Cannot create new operators, only overload existing operators.
+        Selective Operator Overloading:
+            Can Be Overloaded - &, |, ~
+            Cannot Be Overloaded - is, and, or, not
+
+Unary Operators
+
+    - - Implemented by __neg__ - Arithmetic unary negation
+        ex: if x = -2, -x = 2
+    + - Implemented by __pos__ - Arithmetic unary plus.
+        ex: Usually seen as x == +x with some exceptions.
+        Note: +x MAY NOT be equal to itself in cases where significant digits
+            are different between operations.
+    ~ - Implemented by __invert__ - Bitwise note, or bitwise inverse of an integer.
+        ex: ~x == -(x+1) 
+            if x = 2, ~x == -3
+
+    Support for unary operations only requires the implementation of a few special methods.
+        ex: Adding unary operations to the vector class from chapter 12
+
+            def __abs__(self):
+                return math.hypot(*self)
+
+            def __neg__(self):
+                return Vector(-x for x in self)
+            
+            def __pos__(self):
+                return Vector(self)
+
+Overloading + for Vector Addition
+
+    See examples.ipynb
+
+
+Overloading * for Scalar Multiplication
+
+    See examples.ipynb
+
+Using @ as an Infix Operator
+
+    See examples.ipynb
+
+Methods Needed For Arithmetic Operations:
+    +           __add__
+    -           __sub__
+    *           __mul__
+    /           __truediv__
+    //          __floordiv__
+    %           __mod__
+    divmod()    __divmod__
+    **, pow()   __pow__
+    @           __matmul__
+    &           __and__
+    |           __or__
+    ^           __xor__
+    <<          __lshift__
+    >>          __rshift__
+    NOTE: 
+        The Reverse of each operation adds an r prefix to the operation name.
+            ex: __radd__ for __add__
+        The In-Place of each operation adds an i prefix to the operation name.
+            ex: __iadd__ for __add__
+
+Rich Comparison Operations
+
+    Equality
+        a == b  a.__eq__(b) b.__eq__(a) Return id(a) == id(b)
+        a != b  a.__ne__(b) b.__ne__(a) Return not (a == b)
+    
+    Ordering
+        a > b   a.__gt__(b) b.__lt__(a) Raise TypeError
+        a < b   a.__lt__(b) b.__gt__(a) Raise TypeError
+        a >= b  a.__ge__(b) b.__le__(a) Raise TypeError
+        a <= b  a.__le__(b) b.__ge__(a) Raise TypeError
+
+Augmented Assignment Operations 
+
+    If a class does not implement the in place operators listed in 'Methods Needed for Arithmetic Operations",
+        Python will create a new instance of the object if it's base method is implemented.

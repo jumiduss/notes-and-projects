@@ -1,0 +1,237 @@
+Overview of Data Class Builders
+
+    
+    Boilerplate class __init__ becomes old fast, and doesn't allow for proper __eq__ checks.
+        It compares the object IDs.
+
+    See examples.ipynb
+        class-based, namedtuple, and typing implementations
+
+    Sub-Classing typing.NamedTuple
+
+        defines init variables as name: type lines
+        explicitly defines the string to return.
+        See examples.ipynb
+
+    Sub-Classing dataclasses.dataclass
+
+        Just like typing.NamedTuple, but you can define decorators before the class definition.
+
+    Main Features - namedtuple
+        construct dict - x._asdict()
+        get field names - x._fields
+        get defaults - x._field_defaults
+        new instance with changes - x._replace(...)
+        new class at runtime - namedtuple(...)
+    
+    Main Features - NamedTuple
+        class statement syntax 
+        construct dict - x._asdict()
+        get field names - x._fields
+        get defaults - x._field_defaults
+        get field types - x.__annotations__
+        new instance with changes - x._replace(...)
+        new class at runtime - namedtuple(...)
+
+    Main Features - dataclass
+        mutable instances
+        class statement syntax 
+        construct dict - dataclasses.asdict(x)
+        get field names - [f.name for f in dataclasses.fields(x)]
+        get defaults - [f.default for f in dataclasses.fields(x)]
+        get field types - x.__annotations__
+        new instance with changes - dataclasses.replace(x, ...)
+        new class at runtime - dataclasses.make_dataclass(...)
+
+Classic Named Tuples
+
+    A factory that builds subclasses of tuple, enhanced with:
+        field names
+        a class name
+        an informative __repr__ .
+    
+    Can be used anywhere tuples are.
+
+Type Hints 101
+
+    Type Hints/Annotations are ways to declare the expected type of:
+        function arguments
+        return values
+        variables
+        attributes
+
+    Type hints are not enforced by the Python compiler and interpreter.
+
+    No Runtime Effect - there are no performance hits on the actual code running. 
+
+    Variable Annotation Syntax - typing.NamedTuple, and @dataclass use variable annotation syntax.
+        var_name: some_type
+    
+    Acceptable Type Hints
+        A concrete class:                str or FrenchDeck
+        A parameterized collection type: list[int], tuple[str, float]
+        typing.Optional:                 Optional[str] - declares a field that can be str or None.
+        Variable Initialization:         var_name: some_type = a_value
+
+    Python does build an __annotations__ dictionary that typing.NamedTuple and @dataclass use
+        to enhance the class object.
+
+        See examples.ipynb
+
+    typing.NamedTuple
+        Adds __doc__ class
+        'a' and b are "Descriptors" aka. setters and getters.
+            Functionally making a and b read only instance attributes.
+        'a' and b are set as class attributes.
+        c is a class attribute with the value of spam
+
+        See examples.ipynb
+
+    @dataclass Decorator
+        'a' isn't referenced as an attribute, and only exists after being set in instances, it
+            then is defined as a public attribute that we can use get and set on (unless frozen).
+        b and c are class attributes.
+        b holds a default value for instances
+        c is a default value referenced in instances.
+        @dataclass's are mutable, and not type checked at runtime.
+    
+*** Regular Python instances can have their own attributes that don't appear in the original class.
+
+More about @dataclass
+
+    Decorators can accept keyword arguments. The default format of the dataclass decorator is:
+
+        @dataclass(*, init=True, repr=True, eq=True, order=False, 
+                      unsafe_hash=False, frozen=False)
+
+    Parameters accepted by the dataclass decorator:
+        init - generate __init__           - Default: True  - Ignored if implemented by user.
+        repr - generate __repr__           - Default: True  - Ignored if implemented by user.
+        eq -   generate __eq__             - Default: True  - Ignored if implemented by user.
+        order  generate __lt__,            - Default: False - If true, raises exceptions if eq=False, or
+               __le__, __gt__,                                  if any comparison methods are 
+               __ge__                                           already defined or generated.
+        unsafe_hash - generate __hash__    - Default: False - Look at documentation, very complex.
+        frozen - makes instances immutable - Default: False - Instances are "safer" from change,
+                                                                but not explicitly immutable.
+
+    You're most likely to change frozen, and order.
+
+    Field Options
+
+        Default Values - The most common and basic field option. Become parameters within __init__.
+            from dataclasses import dataclass
+            a_name: b_type 
+
+            Mutable default values are common bug sources for new developers.
+                They become easily corrupted when one function mutates the default, which effects
+                    all references to the default value.
+            
+            Class attributes are most commonly used as default attribute values for instances.
+            
+            @dataclass uses the default values in type hints to generate parameters with
+                defaults for the __init__method.
+            
+            By default, @dataclass rejects mutable type hints
+    
+            See examples.ipynb
+
+        Field Functions
+
+            default_factory - Enables you to provide a function, class, or callable.
+                from dataclasses import dataclass
+                a_name: b_type = field(default_factory = b_type)          # ex: an empty list
+                or
+                a_name: b_type[c_types] = field(default_factory = b_type) # ex: a list of strings
+            
+            default - Default value for the field - Default: _MISSING_TYPE
+                Exists because 'field' takes the place of the default value in the field annotation.
+                See examples.ipynb
+            
+            init - 0-parameter function used to produce default - Default: _MISSING_TYPE
+            repr - include field in __repr__ - Default: True
+            compare - Use field in comparison methods __eq__, __lt__, etc... - Default: True
+            hash - Include field in __hash__ calculation - Default: None
+            metadata - Mapping with user-defined data; ignored by the @dataclass - Default: None
+
+    Post-init Processing
+
+        __post_init__ method allows further initialization of an instance after __init__ is called.
+        
+        Commonly used for data validation and computing field values based on other parameters.
+
+        See examples.ipynb        
+
+    Typed Class Attributes
+        
+        To code a type hint for a class variable needs a pseudotype typing.ClassVar[].
+        If we want to make @dataclass happy, we should use:
+            a_name: ClassVar[set[str]] = set() 
+            This states: 
+                a_name is a class attribute
+                a_name has type set-of-str
+                a_name has an empty set as it's default value
+        
+        @dataclass only cares about the type in two instances:
+
+            If the type is ClassVar, and instance field will not be generated for the attribute.
+            If the field type is relevant to @dataclass when declaring init-only variables.
+
+    Initialization Variables That Are Not Fields
+        
+        "init-only variables" - use a pseudotype InitVar, with syntax like ClassVar.
+
+Data Class as a Code Smell
+
+    Data classes can signal that your code needs to be refactored.
+    Classes that fields, get, set, and nothing else, are manipulated by other classes 
+        with too much detail.
+
+    What is a Smell
+        Something quick to spot.
+            ex. A long method i.e, more than a dozen lines.
+
+        Doesn't always signify that there is a problem.
+
+    Refactoring Basics
+
+        Data classes and external functions.
+        Classes with self contained methods.
+        Fully segregated class modules.
+
+    Data Class as Intermediate Representation
+
+        Data classes can be used to build records about to be exported as a specific data type.
+
+        They can provide all methods and contain all information to handle the export operation for you.
+    
+Pattern Matching Class Instances
+
+    match x:
+        case float():
+            do_something_with(x)
+
+    float is seen by Python as a variable, so it can return any subject.
+
+    The pattern syntax of float(x) is special case shared with 8 other items in pattern matches.
+        bytes, dict, float, frozenset, int, list, set, str, tuple
+    
+    The variable (x) is bound to the whole subject instance, or the part of that subject 
+        that matches a sub-pattern; i.e. str(a_name)
+    
+    If the class is not one of the 9 built-ins mentioned above, then argument-like variables
+        represent patterns to be matched against attributes of an instance of the class.
+
+
+    Keyword Class Patterns
+
+        See examples.ipynb
+
+    Positional Class Patterns
+
+        The presence of and automatically created special class attribute called  "__match_args__"
+            enables us to match index positions of variables.
+
+        Note: Keyboard and positional arguments can be combined in pattern matching classes.
+            You may need both argument types to correctly filter class attributes. 
+

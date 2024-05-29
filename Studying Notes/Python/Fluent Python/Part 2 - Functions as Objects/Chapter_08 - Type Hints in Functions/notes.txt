@@ -1,0 +1,274 @@
+Gradual Typing
+
+    Annotations are always optional.
+
+    Type errors are not caught at runtime.
+    
+    Too many annotations look like you're trying to hit a metric.
+
+    Common type checkers:
+
+        pytype - Google
+        Pyright - Microsoft
+        Pyre - Facebook
+        Mypy - Best know type checker, and used for the examples.
+
+    See messages.py, messages_test.py in addition to the following notes.
+    ex: in conda environment projects, this terminal command runs the mypy check on the file.
+        mypy messages.py 
+            returns no errors with 
+        
+        mypy --disallow-untyped-defs messages.py
+            returns multiple errors for the functions without any annotations.
+
+        mypy --disallow-incomplete-defs messages_test.py
+            returns no errors since no annotations were started.
+
+        # Type annotation for show_count is added.
+        def show_count(count, word) -> str:
+            ...
+        
+        mypy --disallow-incomplete-defs messages_test.py
+            still returns an error because both arguments aren't type defined.
+
+        # Type annotation on show_count arguments
+        def show_count(count: int, word: str) -> str:
+
+        mypy --disallow-incomplete-defs messages_test.py
+            returns no errors.
+        
+    ex: using messages_test.py with examples.ipynb
+
+        Trying to use show_count with three-argument raises a Too many arguments error.
+            Fix by adding a plural argument to messages.show_count.
+        
+        mypy --disallow-incomplete-defs messages_test.py
+            returns no errors.
+
+    mypy will not catch why an improper type setting failed.
+        ex: color=str - sets the default value of color to str 
+            versus 
+            color: str - sets the type of color to str.
+
+    Tools like flake8 and blue help you format Python code neatly.
+        ex. arguments without type setting should have no spaces for default variable.
+            def name_of_function(a_name: type = a_value):
+            versus
+            def name_of_function(a_name=a_value):
+
+    If the default parameter is a mutable object, None is generally the best default value.
+
+Types Are Defined by Supported Operations
+
+    Define the type based on the set of supporting operations it provides.
+    ex: 
+        def double(x):
+            return x * 2
+        # This can apply to numeric, AND sequence operations.
+        # Defining this with:
+        def double(x: abc.Sequence):
+            return x * 2
+            # raises an error because sequence.ABC doesn't meet the requirement of 
+            #    having the __mul__ method at runtime.
+
+    We must use two different types of annotations:
+
+        Duck Typing
+
+            The declared type of the object doesn't matter, only what operations it supports.
+            Only enforced at runtime.
+            More flexible than nominal typing.
+
+        Nominal Typing
+
+            Enforced before runtime.
+            Only considers variables.
+                Objects only exist after runtime.
+            Only reads source code, doesn't run anything.
+            see examples.ipynb
+            Will sometimes find errors that doesn't exist at runtime.
+
+ 
+Types Usable in Annotations
+
+    Any Types - typing.Any
+
+        The dynamic type.
+        
+        The default type assumed when a function is not typed by the coder.
+            Except in instances where objects are used.
+        
+        General types have narrower interfaces (supported operations).
+        
+        Subtype-Of - When these two rules apply:
+            When an object of type 2 can substitute an object of type 1 anywhere
+            The program still runs correctly once substituted.
+
+        Consistent-With - When these three rules apply:
+            Given type 1 and subtype 2, then subtype 2 is consistent with type 1.
+            Every type is consistent with Any.
+            Any is consistent with every type.
+
+    Simple Types and Classes
+        Types like: int, float, complex, str, bytes, concrete classes, and user defined classes.
+
+    Optional and Union Types - typing.Optional and typing.Union
+        Shorthand for the union of two types.
+        Typically used for, str else None.
+        No longer needs to be imported from Python 3.10 onward.
+            Substitute Union or Optional with the syntax: a_name: a_type | b_type = a_value
+        ord - a built in that accepts str or bytes, but may return str or float.
+        Avoid union returns when possible.
+        Nested unions have the same effect as flat unions.
+
+    Generic Collections 
+
+        Generic types can be declared with a type parameter.
+            Since Python 3.9, this means tokenize returns a list where every item is of a_type.
+
+        "stuff: list" is the same as "stuff: list[Any]"
+
+        Simple-Generic Type Hint Collections:
+            list, set, frozenset, collections.deque, abc.Sequence, abs.MutableSequence,
+                abc.Container, abc.Set, abc.MutableSet, abc.Collection
+
+        Note: There is currently no good way to define array.array types.
+
+    Tuple Types
+
+        As Records
+            tuple[a_type, b_type, ...]
+
+        As Records With Named Fields
+            Use a subclass of typing.NamedTuple:
+            class A_Class(NamedTuple):
+                a_name: a_type
+                ...
+            def a_function(a_argument: A_Class) -> a_output_type:
+                ...
+        
+        As Immutable Sequences
+            "tuple[a_type, ...]" - The three dots mean a sequence of values of type a_type.
+        
+    Generic Mappings
+        MappingType[KeyType, ValueType]
+
+    Abstract Base Classes
+        "Be conservative in what you send, liberal in what you accept."
+
+        Ideally, functions should accept arguments from:
+            list, set, frozenset, collections.deque, collections.abc.MutableSequence, 
+            collections.abc.Sequence, collections.abc.Set, collections.abc.MutableSet
+
+        It's generally better to use abc.Mapping or abc.MutableMapping in parameter type hints,
+            instead of dict, or typing.Dict.
+        
+        The Numeric Tower:
+            Number > Complex > Real > Rational > Integer
+
+            Runtime supported, unsupported by static type checking.
+                Note: int is Consistent-With complex.
+            
+            Options for Annotating Arguments for Static Type Checking:
+                1. Use a concrete type: int, float, complex.
+                2. Declare a union type: Union[float, Decimal, Fraction].
+                3. Numeric Protocols: SupportsFloat
+        
+    Generic Iterables
+
+        ex: def fsum(__seq: Iterable[float]) -> float:
+        
+        Typeshed is a project that has special source files with function annotation for
+            Python source code.
+
+        Iterables are too general to return as a type.
+
+    Parameterized Generics and TypeVar
+
+        TypeVar allows you to specify a type as a variable.
+            This variable is set on the function's start.
+        
+        A restricted type variable will be set to one of the types named in the TypeVar declaration.
+
+        A bounded type variable will be set to the inferred type of the expression as long as the 
+            inferred type is consistent-with the boundary.
+
+        TypeVar includes the type 'AnyStr' by default.
+
+        ex:
+            import TypeVar
+            import Sequence
+            a_type_name = TypeVar('a_type_name')
+            def a_function(a_name: Sequence[a_type_name]) -> list[a_type_name]:
+        ex:
+            from collections.abc import Iterable
+            from typing import TypeVar
+            T = TypeVar('T')
+            def a_function(a_argument: Iterable[T]) -> T:
+        ex:
+            a_type_name = TypeVar('a_type_name', float, Decimal, Fraction)
+            def a_function(a_argument: Iterable[a_type_name]) -> a_type_name: 
+
+    Static Protocols - typing.Protocol
+
+        Protocol Type - Defined by specifying one or more methods where the type checker
+            verifies that those methods are implemented where that a protocol type is required.
+        
+        Although the definition of a protocol is a subclass of typing.protocol, classes that
+            implement the protocol type do not need to be a subclass of typing.Protocol.
+    
+            See examples.ipynb
+        
+        A type 'T' is consistent with Protocol if 'T' implements all the methods defined
+            in Protocol with matching signatures.
+        
+        We can restrict Protocol types by creating a TypeVar based on a class with methods
+            we want our types to have
+
+            We don't need to explicitly include all types needed, we can include 
+                explicitly those that implement __lt__, which includes every
+                type that could possibly work inside our function.
+
+            See top_test.py and run mypy on it.
+
+    Callable - typing.Callable
+
+        def a_fun_name (Callable[[a_param_type, b_param_type], a_return_param_type]) -> None:
+        
+        In normal usage, repl uses the built in read expressions from the user. 
+            
+        In automated testing and integration, repl accepts optional input_fn parameters.
+            This is a callable with the same parameter and return types as 'input'.
+
+        ex: 
+            def input(__prompt: Any = ...) -> str: ...
+            is equivalent to:
+            Callable[[Any], str]
+        
+        For optional keyword arguments
+            Callable[..., ReturnType]
+        
+        NOTE: You can return an int to an expected float return because 
+            int can be used anywhere a float is accepted, AKA int is consistent with float. 
+
+            Callable[[], int] is a subtype of Callable[[], float]
+            while
+            Callable[[int], None] is not a subtype of Callable[[float], None]
+
+        Callable is 'contravariant' on declared parameter types. 
+
+        see examples.ipynb
+
+    No Return - typing.NoReturn
+
+        ex: def exit(__status: object = ...) -> NoReturn: ...
+
+Annotating Positional Only and Variadic Parameters
+
+    You can also type hint veridically by using *, /, and ** in the proper locations.
+
+Imperfect Typing and Strong Testing
+
+    Type checkers lag behind releases of Python.
+    Some handy features can't be statically checked.
+    Meta-programming is poorly supported.

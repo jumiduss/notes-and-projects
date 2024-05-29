@@ -1,0 +1,30 @@
+Vector: A User-Defined Sequence Type
+
+    Vector will used for composition, not inheritance.
+    We store components into an array of floats.
+    
+    Vector Space Model - A vector with a set of component vectors that represent information in
+        an n-dimensional space.
+
+Vector Take #1: Vector2d Compatible
+
+    Note: When a Vector has more than 6 components, the string produced by repr() is 
+        abbreviated with '...'.
+
+    See examples.ipynb
+
+Vector Take #2: A Sliceable Sequence
+
+    'indices' exposes the logic implemented in the built-in sequences to handle missing or negative indices.
+
+Vector Take #3: Dynamic Attribute Access
+
+    super() allows us to access attributes of super-classes dynamically.
+
+Vector Take #4: Hashing and Faster ==
+
+    functools.reduce creates a hashable object based of a group of hashable objects.
+        This is the same as using the ^ (xor) operator to the hashes of every component in succession.
+
+    The mapping step produces one hash for each component, then a reduction aggregates all hashes with xor.
+Vector Take #5: Formatting

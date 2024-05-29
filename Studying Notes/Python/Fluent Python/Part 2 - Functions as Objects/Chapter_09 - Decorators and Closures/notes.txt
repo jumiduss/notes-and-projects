@@ -1,0 +1,135 @@
+Decorators 101
+
+    Decorator - a callable that takes another function as an argument
+        AKA the decorator function.
+    
+    Decorators can perform some processing by returning a function or replacing a function
+        with another: function or callable object.
+
+    Decorators allow cleaner looking syntax and save lines of code.
+
+    Decorator Summary:
+        1. A decorator is a function or another callable.
+        2. A decorator may replace the decorated function with a different one.
+        3. Decorators are executed immediately when a module is loaded.
+
+When Python Executes Decorators
+    See examples.ipynb
+
+Registration Decorators
+
+    Decorators are usually defined in module 1, and applied to functions in module 2.
+    Most decorators define an inner function and return it.
+    Most decorators change the decorated function.
+
+Variable Scope Rules
+
+    Global Scopes apply to all values outside of any class or function block.
+
+Closures
+
+    Often confused with anonymous functions.
+
+    A closure is a function with an extended scope that encompasses variables referenced in
+        it's own body that are not global, or local variables.
+        This means that variables come from the local scope of a function that holds the closure.
+    
+    It doesn't matter if the closure function is anonymous, only that it accesses
+        non-local and non-global variables.
+    
+    A closure is a function that retains the bindings of free variables that exist
+        when a function is defined, so that they can be used later when the function is 
+        invoked and the defining scope is no longer available.
+
+    NOTE: This ONLY happens when functions are nested.
+
+The nonlocal Declaration
+
+    nonlocal is like the 'global' statement so use of += operations doesn't 
+        result in UnboundLocalError.
+
+    Variable Lookup Logic - The rules for how the compiler determines fetching a variable:
+        1. If 'global x'  --   x comes from and is assigned to the global variable module.
+        2. If 'nonlocal x'  --  x comes from and is assigned to the local variable of the
+                                    nearest surrounding function that x is defined within.\
+        3. If x is a parameter of a function's body, then x is the local variable.
+        4. If x is referenced but not used AND not a parameter:
+            a. x will be looked up in the nonlocal scopes.
+            b. If not found, x will be read from global.
+            c. If not found, x will be read from __builtins__.__dict__.
+            
+Implementing a Simple Decorator
+
+    Looking at simple_decorator.py
+        Decorators can dynamically attach responsibilities to objects dynamically.
+        Using @ clocked calls any function with the clock wrapping it.
+        Every nested factorial call is wrapped with a clock call.
+    
+    Looking at better_decorator.py
+        functools.wraps provides a nested decorator that allows positional and keyword arguments
+            to the decorated function.
+
+Decorators in the Standard Library
+    
+    NOTE: Remember you can also stack decorators together.
+    
+    There are three builtin decorators in the standard library.
+
+    Memoization with functools.cache
+
+        Used for implementing "memorization": used for optimization by saving previous results
+            of a function call that can be taxing.
+            See examples.ipynb to see how cache halves the script's execution time.
+        
+        All arguments from the decorated function MUST be hashable to be saved by cache.
+
+        Cache is very useful for fetching data from remote API, and for small scripts
+            used in long processes.
+
+        This is a simple decorator for the functools.lru_cache function.
+
+    Using lru_cache
+
+        This contains a parameter that allows you to control the size of the cached data.
+        Two ways to use lru_cache:
+            @lru_cache
+            def costly_function(a, b):
+
+            @lru_cache(maxsize: int = 128, typed: bool = False)
+            def costly_function(a, b):
+
+        maxsize - the maximum number of entries to store.
+        typed - objects that __eq__ return True are stored as unique entries.
+            ex: print(8.0 == 8) # returns True 
+            
+    Single Dispatch Generic Functions
+
+        Allows for different modules to contribute to an overall solution to processing information.
+        
+        You can change or expand the support of data by generic functions.
+
+        Generic functions are a group of functions that perform the same operations
+            in different ways depending on the type.
+
+        Single dispatch changes the function wrapper based on the type of the first argument.
+
+Parameterized Decorators
+
+    Python takes a decorated function and passes it as the first argument to the decorator
+        function, decorator factories allow you to pass other arguments to return a 
+        specific decorator.
+
+    A Parameterized Registration Decorator
+
+        Allows you to easily enable or disable the function registration performed by 'register'.
+        See examples.ipynb
+
+    The Parameterized Clock Decorator
+
+        Allows you to specify parameters for your decorators.
+        See examples.ipynb
+
+    A Class Based Clock Decorator
+
+        Allows you to use a class to create decorators.
+            This can be used as a drop in replacement for "The Parameterized Clock Decorator."

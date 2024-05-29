@@ -1,0 +1,136 @@
+Variables Are Not Boxes
+
+    Variables are labels with names attached to objects.
+
+    Names can reference the same object, so changes through one name affect the 
+        return of the second. 
+
+    Another way to say this is, a and b are assigned to the same object, but the object is 
+        assigned to neither b or a.
+
+    ex: b = a Doesn't copy the box of a to b, but attaches the label of b to the object
+        that a is attached to.
+
+    See examples.ipynb
+
+Identity, Equality, and Aliases
+
+    Identity ( "is" or "is not" )
+        
+        If the ID of the object that two names reference are the same, the variables ARE the same.
+        
+        Also used when comparing the value of an object to a singleton (i.e. None, True, False,)
+            "is" can be faster than "==" because it cannot be overloaded, so Python doesn't have to
+                find a special method, then invoke it, then evaluate it. It immediately evaluates.
+
+        CPython uses the object ID to reference the memory location of the object.
+            The Python interpreter may reference it as something else.
+        
+        In practice, we rarely use the id function, " id() ", in programming because we can
+            call it more "Pythonically" by saying "is" or "is not". 
+        
+        Aliasing is when multiple names reference the same object.
+
+        ex. 
+            a is b  # returns True 
+            a is not None # returns False
+
+        See examples.ipynb
+
+    Equality ( "==" or "!=" )
+
+        If the VALUE of the objects that two names reference are the same, 
+            the variables are EQUAL, but not implicitly the same.
+
+        Used specifically when comparing values between objects.
+
+        The "==" and "!=" are the shorthands for a.__eq__(b) comparator.         
+
+        ex. a is b  # returns False
+            a == b  # returns True
+
+        See examples.ipynb
+
+    The Relative Immutability of Tuples
+
+        Tuples hold references to objects.
+
+        If the referenced object is mutable, then they can change while the tuple doesn't.
+
+        See examples.ipynb
+
+Copies Are Shallow by Default
+
+    Making Copies
+        b = list(a) - Deep Copy
+        b = a[:]    - Shallow Copy
+
+    Shallow copies are fine if the objects are immutable, otherwise use deep copy.
+        https://pythontutor.com/render.html#code=l1%20%3D%20%5B3,%20%5B66,%2055,%2044%5D,%20%287,%208,%209%29%5D%0Al2%20%3D%20list%28l1%29%0Al1.append%28100%29%0Al1%5B1%5D.remove%2855%29%0Aprint%28'l1%3A',%20l1%29%0Aprint%28'l2%3A',%20l2%29%0Al2%5B1%5D%20%2B%3D%20%5B33,%2022%5D%0Al2%5B2%5D%20%2B%3D%20%2810,%2011%29%0Aprint%28'l1%3A',%20l1%29%0Aprint%28'l2%3A',%20l2%29&cumulative=false&curInstr=10&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false
+
+
+    Deep and Shallow Copies of Arbitrary Objects
+
+        The 'copy' module provides the functions copy() and deepcopy() for consistent copying 
+            abstract objects like classes.
+        deepcopy also stops cyclic references that may be contained within objects.
+
+        See examples.ipynb
+
+Function Parameters as References
+
+    "Parameter Passing" in Python is referenced as "call by sharing".
+
+    Call by Sharing - each formal parameter of the function gets a copy of each referenced argument.
+        AKA each parameter inside the function becomes an alias of its' argument.
+
+        See examples.ipynb
+
+    Mutable Types as Parameter Defaults
+
+        Optional parameters with default values that are mutable create significant problems.
+            It justifies why None is typically used as a default value alongside
+                'if a_name is not None:'
+
+        See examples.ipynb
+
+    Defensive Programming with Mutable Parameters
+
+        When a function receives a mutable parameter, consider whether the caller expects 
+            the argument it passes to be changed.
+            ex: A function receives a dict, and needs to modify it while processing it.
+                Should the side effect be visible outside of the function?
+        
+        See examples.ipynb
+
+del and Garbage Collection
+
+    Objects are never explicitly destroyed.
+    When objects become unreachable, they may be garbage-collected.
+
+    del is not a function, it's a statement.
+    ex: To delete x - del x, not del(x)
+        Note: del(x) does work, but only because as an expression, x and (x) are the same in Python.
+
+    del deletes references, not objects.
+        Python's garbage-collector may decide to remove it from memory as a result, but it's
+            deletion is not implicit by using the del statement.
+
+    The __del__ method should NOT be called in your code, it is a special function 
+        for the interpreter to clean up an object instance before removal.
+
+    In CPython, once an object's refcount reaches zero, it is immediately destroyed.
+
+    Weak references do not stop objects from being garbage-collected.
+
+Tricks Python Plays with Immutables
+
+    For tuple, str, bytes: t[:] makes a reference to the same object, not a copy. 
+        Since frozenset is not a sequence, fs[:] doesn't work,
+            but fs.copy() would product the same results as t[:] for tuples.
+
+    Interning - the sharing of string literals in optimization.
+        Interning cannot be relied upon, use comparators to check string equality, not "is" or "is not".
+
+        Interning saves memory and "look like" a copy.
+            Since these apply only to immutable types, they effectively can be trusted as copies.

@@ -1,0 +1,70 @@
+The super() Function
+
+    Used when a subclass needs to overwrite a method of a superclass. 
+
+    The overriding method needs to call the method of the corresponding class.
+
+Subclassing Built-In Types Is Tricky
+
+    See examples.ipynb
+
+Multiple Inheritance and Method Resolution Order
+
+    See examples.ipynb
+
+Mixin Classes
+
+    Mixin Classes are designed to be subclassed together with at least one other subclass
+        within a multi-inheritance arrangement.
+
+    Case-Insensitive Mappings
+
+        Note: It's better to pass a docstring for an empty class body than using 'pass'.
+
+        See examples.ipynb
+
+Multiple Inheritance and Mixed Resolution Order
+
+    Django Generic Views Mixins
+
+        A view is a callable object that takes a request argument, and returns an http response object.
+
+        View is the base class of all views, and could be considered an ABC.
+        
+        RedirectView inherits solely from view.
+            Concrete subclasses of view need to implement handler methods, and 
+                aren't included by default so you can enable specific handlers you want.
+        
+        TemplateView is used only to display content, and only implements get.
+            If a post request is sent to the TemplateView, it must be included as a method to not HTTP405 error.
+
+        ListView is an aggregate class with no code except a docstring.
+            It has an object_list instance attribute that templates can use to show page contents.
+            Functionality is provided by a MultipleObjectMixin.
+
+Coping with Inheritance
+
+    Favoring composition leads to more flexible designs.
+
+    Understand why subclassing is done:
+        Inheritance of interface create subtypes, which imply a 'is-a' relationship through ABCs.
+        Inheritance of implementation avoids code duplication. Mixins can help with this.
+    
+    Make interfaces explicit with ABCs.
+    
+    Use explicit mixins for code reuse.
+        Mixins are used for implementing multiple unrelated subclasses without implying the 'is-a' relationship.
+        Each mixin should provide a specific behavior.
+    
+    Provide aggregate classes to users.
+        A class that is constructed primarily by inheriting from mixins and doesn't add its own structure 
+            or behavior.
+    
+    Subclass only classes designed for subclassing.
+        Subclassing any complex class and overriding its methods is error prone.
+            This is because the superclass methods may ignore the subclass overrides unexpectedly.
+        Avoid overriding methods, or make subclasses that can easily be extended.
+        Extend subclasses in the ways they were meant to be extended.
+    
+    Avoid subclassing from concrete classes.
+        The code intended for reuse, if you MUST use it, should be a mixin of ABCs.

@@ -1,0 +1,85 @@
+Case Study: Refactoring Strategy
+
+    A design pattern is a general recipe for solving common design problems.
+
+    Classic Strategy
+
+        1. Define a family of algorithms.
+        2. Encapsulate each algorithm.
+        3. Make each algorithm interchangeable.
+        4. Strategy lets algorithms vary independently from clients that use them.
+
+        ex: An online store with the following discount rules:
+            1. Customers with 1,000 or more fidelity points get a global 5% discount per order.
+            2. A 10% discount is applied to each line item with 20 or more units in the same order.
+            3. Orders with at least 10 items get a 7% global discount.
+            (We are assuming only one discount can be applied per order)
+        
+            Context:
+                We provide a service by delegating computation to interchangeable components 
+                    that implement alternative algorithms.
+                Our order's context is the promotional discount rate applied to a customer's order.
+
+            Strategy:
+                The interface common to the components that implement different algorithms.
+                Our example's role uses the abstract class "Promotion"
+            
+            Concrete Strategy:
+                A concrete subclass of Strategy.
+                Our example uses FidelityPromo, BulkPromo, and LargeOrderPromo.
+            
+            See classic_strategy.py for the code implementation of the example.
+            See examples.ipynb for usage with classic_strategy.py
+
+    Function Oriented Strategy
+
+        Takes the classic strategy, and replaces classes with functions
+            when applicable.
+
+    Choosing the Best Strategy: Simple Approach
+        
+        Depends on the use case. 
+        In our example, finding the biggest discount in the least amount of
+            code is the best strategy.
+        
+        Note: This strategy fails if we try to add more promotional discounts.
+
+    Finding Strategies in a Module
+
+        Python modules are also 'first class objects'.
+        
+        globals() - returns dictionary with the current global symbol table.
+
+Decorator Enhanced Strategy Pattern
+
+    Adds a decorator to each function.
+
+    In our example, we create a decorator off of a callable object.
+    The decorator allows us to add additional promotions by
+        using @promotions, and all other operations need no modification
+        for each additional promotion.
+
+    See decorator_strategy.py
+
+The Command Pattern
+
+    Another design pattern that can be simplified by functions
+        passed as arguments.
+
+    Command Patterns decouple an object that invokes an operation from the
+        the provider object that implements it.
+        AKA, separates the invoker from the receiver.
+
+    We do this by putting a Command object between the both objects.
+    
+    This object acts as an interface with the execute method.
+        This method calls on a receiver to perform the desired operation.
+    
+    Callable instances can keep whichever state that's necessary.
+    
+    Closure can be introduced to keep internal states between calls.
+
+    We can give the invoker a function instead of a command instance.
+        See command_strategy.py
+
+    

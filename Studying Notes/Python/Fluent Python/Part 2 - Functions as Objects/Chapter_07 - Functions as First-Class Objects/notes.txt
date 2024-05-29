@@ -1,0 +1,104 @@
+First Class Object:
+    Created at runtime.
+    Assigned to a variable or element in a data structure.
+    Passed as an argument to a function.
+    Returned as a result of a function.
+
+    Can be:
+        Integers, strings, dictionaries, (and functions).
+
+Treating a Function Like and Object
+
+    See examples.ipynb
+
+Higher Order Functions
+
+    Higher Order Functions - Functions that take functions as arguments.
+        map is an example of a higher order function.
+            Any one argument function can be listed as a key.
+
+        Note: filter in Python returns generators.
+        See examples.ipynb
+
+    List comprehensions replace map.
+
+    sum - replaces 'reduce' and 'add'.
+    
+    all(iterable) - Returns True if there are no false elements in the iterable. 
+        all([]) - returns True
+    
+    any(iterable) - Returns True if any element in the iterable is truthy.
+        any([]) - returns False
+
+Anonymous Functions
+
+    lambda functions are anonymous functions within Python.
+    
+    The body of the functions cannot contain other python statements like:
+        while, try, etc...
+    
+    You also cannot assign variables within lambda functions.
+
+    You can walrus assign within lambda functions, but only if needed.
+        If you need to assign, your expression could be too
+            complicated for lambda functions.
+
+    Anonymous functions are best used for argument lists for higher order functions.
+
+        See examples.ipynb
+
+    lambda Refactoring Recipe:
+        Write a comment explaining what the lambda does.
+        Study the comment for a while, and think of a name that captures the 
+            gist of the comment.
+        Convert the lambda to a def statement with the name. 
+        Remove the comment. 
+
+Outside of limited contexts, higher order functions, and lambda/anonymous functions
+    are rarely useful in Python.
+
+The Nine Flavors of Callable Objects
+
+    User-Defined Functions - lambda or def.
+    Built-In Functions - A function implemented in C, like len, or time.strftime.
+    Build-In Methods - Methods implemented in C, like dict.get.
+    Methods - Functions defined in the body of a class.
+    Classes - When invoked, a class runs its __new__ method to create an instance,
+        then __init__ to initialize itself, then returned to the caller. 
+        Creating a class is like calling a function because there's no new operator.
+    Class Instances - If a class defines a __call__ method, then its instances may
+        be invoked as functions.
+    Generator Functions - Functions or methods that use yield in their body. When
+        they return a generator object.
+    Native Coroutine Functions - Functions or methods defined with async def, that
+        return a coroutine object.
+    Asynchronous Generator Functions - Functions defined with async def that have
+        yield in their body. They return an asynchronous generator when called, for
+        use with async for.  
+
+User-Defined Callable Types
+    
+    Objects with a __call__ instance method can behave like functions.
+
+        See examples.ipynb
+
+From Positional to Keyword-Only Parameters
+
+    See examples.ipynb
+
+    Keyword only arguments cannot be captured by unnamed positional arguments.
+        ex of a keyword only argument is the class_ parameter 
+    
+    Keyword only arguments are any arguments defined after
+        the argument defined with *.
+
+    see examples.ipynb
+
+    Positional Only Parameters
+
+        All arguments left of the / argument are required positional arguments.
+            Arguments after continue as normal.
+
+Packages for Functional Programming
+
+    Skipped because these are for special use cases.

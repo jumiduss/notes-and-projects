@@ -1,0 +1,56 @@
+Context Managers and with Blocks
+
+    Context manager objects exist to control a with statement.
+
+    with was designed to simplify some common uses of try/finally, which guaranteed some operations
+        performed after a block of code, even if the block terminated by 
+        a return statement, raised exception, or a sys.exit() call.
+
+    Some new and creating uses of context managers:
+        Managing transactions in sqlite3.
+        Safely handling locks, conditions, and semaphores.
+        Setting up custom environments for arithmetic operations with Decimal objects.
+        Patching objects for testing.
+
+    Python 3.10 introduced the ability to write parenthesized context managers:
+        ex:
+            with (
+                managerA() as nameA,
+                managerB() as nameB,
+                managerC() as nameC,
+            ):
+
+    The contextlib Utilities 
+    
+        redirect_stdout         - replaces stdout with a file-like object.
+        suppress                - temporarily ignores exceptions given as arguments.
+        nullcontext             - created to do nothing by simplifying conditional logic around objects
+                                     that may not or haven't yet implemented a suitable context manager.
+        @contextmanager         - a decorator that lets you build a context manager from a simple generator function.
+                                    As opposed to creating it from a class, then implementing the interface.
+        AbstractContextManager  - an ABC that formalized the context manager interface, making creation easier. 
+        ContextDecorator        - a bass class for defining class-based context managers that can also be
+                                    used as function decorators, running the entire function within a managed context.
+        ExitStack               - lets you enter a variable number of context managers.
+                                    When the block ends, ExitStack calls the stacked context manager's __exit__
+                                        methods in LIFO order.
+                                    Used specifically when you have an unknown number of context managers to use.
+
+    Using @contextmanager
+
+        Brings together function decorators, generators, and with statements.
+        Reduces overhead to create custom context managers.
+        Yield splits the body of the function into two parts:
+            Prior yield is executed at the beginning of the with block when the interpreter calls enter.
+            Post yield is called when __exit__ is called at the end of the block.
+
+        See examples.ipynb
+
+            Having a try/except/finally (or a with block) around the yield statement is unavoidable
+                price to pay for using the @contextmanager decorator.
+
+Do This, Then That: else Blocks Beyond if
+
+    for - the else block runs only if and when the for loop runs to completion.
+    while - the else block runs only if and when the while loop exits because the ***condition*** becomes falsey.
+    try - the else block runs only if no exception is raised in the try block.

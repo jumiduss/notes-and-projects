@@ -1,11 +1,59 @@
 
 Chapter 2:
-'A very deep iterable and type match with extraction' by Guido van Rossum
-'Pattern Matching in lis.py: A Case Study' Page 669 (lis.py by Peter Norvig)
-'python cookbook' by David Beazley and Brian Jones 
-'Sorting HOW TO' in Python official documentation.
-'Pattern Matching with Sequences' by Carol Willing
-'Less copies in python with the buffer protocol and memoryview' by Eli Bendersky
-'Python Data Science Handbook' by Jake VanderPlas
-'Python for Data Analysis' by Wes McKinney
-'From Python to Numpy' by Nicolas Rougier
+    'A very deep iterable and type match with extraction' - Guido van Rossum
+    'Pattern Matching in lis.py: A Case Study' Page 669 (lis.py by Peter Norvig)
+    'The Python Cookbook' - David Beazley 
+    'Sorting HOW TO' in Python official documentation.
+    'Pattern Matching with Sequences' - Carol Willing
+    'Less copies in python with the buffer protocol and memoryview' - Eli Bendersky
+    'Python Data Science Handbook' - Jake VanderPlas
+    'Python for Data Analysis' - Wes McKinney
+    'From Python to Numpy' - Nicolas Rougier
+
+Chapter 4:
+    'Chardet - The universal character encoding detector" documentation
+
+Chapter 5:
+    'Refactoring' - Martin Fowler
+    'Ultimate Guide to Data Classes' - Arne @ RealPython.com
+    'attrs' - project documentation
+    'cluegen' - Dave Beazley
+
+Chapter 6:
+    "Core Python" series - Wesley Chun
+    "Python Developers Guide" - Pablo Galindo
+
+Chapter 8:
+    "The state of type hints in Python" - Bernat Gabor
+    "Hypermeter Python" - Claudio Jolowicz
+    "The Hitchhiker's Guide to Python" - Kenneth Reitz
+
+Chapter 10:
+    "Design Patterns: Elements of Reusable Object-Oriented Software" - Addison-Wesley
+    "Design Patterns in Dynamic Languages" - Peter Norvig
+
+Chapter 11:
+    "A Pattern Language" - Christopher Alexander
+
+Chapter 12:
+    "Python in a Nutshell" - Alex Martelli
+
+Chapter 19:
+    "Full Stack Python" - This book's author
+    "High Performance Python" - This book's author
+    "Parallel Programming with Python" - This book's author
+    "Distributed Computing with Python" - Francesco Pierfederici 
+    "Architecture Patterns with Python: Enabling Test-Driven Development, Domain-Driven Design, and Event-Driven Microservices" - Harry Percival, Bob Gregory.
+
+Chapter 21:
+    "Using Asyncio in Python" - Caleb Hattingh
+    "Developing with asyncio" - Official Documentation
+    "Asynchronous Python for the Complete Beginner" - PyCon 2017
+    "Demystifying Python's Async and Await Keywords" - Michael Kennedy
+    "Learn Python's AsyncIO Series" - Lukasz Langa 
+
+Afterward:
+    "A Pythonic Aesthetic: Beauty and Why I Python" - Brandon Rhodes
+    "Transforming Code into Beautiful, Idiomatic Python" - Raymond Hettinger
+    "The Evolution of Style Guides" - Ian Lee
+    "PEP 3099 -- Things that will Not Change in Python 3000" - Python Documentation

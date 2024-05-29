@@ -1,0 +1,202 @@
+Character Issues
+
+    A string is a sequence of characters.
+    A character is "a unicode character":
+        A character ID, aka "code point", is a number from 0 to 1,113,111 (base 10).
+        4-6 hex digits with a U+ prefix.
+    
+    The actual bytes that represent these characters change on the encoding used.
+        ex: A (U+0041) is encoded as a single byte \x41 in UTF-8, or bytes \x41\x00 in UTF-16LE.
+        
+    Converting code points to bytes is called encoding. 
+    Converting from bytes to code points is called decoding.
+
+Byte Essentials
+
+    Two types of basic built in byte sequences:
+        bytes - Immutable
+        bytearray - Mutable
+
+    Byte type objects have an integer value from 0-255.
+    Slicing either object produces a new sequence of the same type.
+    
+    The notations used to represent byte objects:
+
+        Decimal values 32 -> 126 - (blank space) to ~ - The literal ASCII character is used.
+        Decimal values for tab, newline, carriage return, and \ - \t, \n, \r, \\ (respectively).
+        When ' and " are both in the sequence, the whole sequence is delimited by '
+            and any ' inside of it are escaped as \'
+        All other byte values - hex-escaped sequence - ex: \x00 is the null byte.
+        
+    Binary sequences have the fromhex method not given to str types. 
+
+    Can build byte types by calling their constructors:
+        A str and an encoding keyword argument
+        An iterable providing items with values from 0-255
+        An object that implements the buffer protocol that copies bytes from the source
+            to the new binary sequence.
+
+Understanding Encode/Decode Problems
+
+    Python bundles over 100 codecs and their aliases.
+
+    Errors are usually specified to be encoding or decoding.
+    Errors typically are raised when the character doesn't exist in the encoding you wish to switch to.
+
+    Syntax errors typically occur after creating a file in windows cp1252 then opening on GNU/macos systems UTF-8.
+
+    You cannot ask for the encoding type of a string. You must be told explicitly, or guess.
+        ex: UTF-8 escape sequences never use ASCII, therefor random data is hardly valid
+            by accident if any is correct after being decoded in  UTF-8.
+
+        ex: When b'\x00' are common, it most likely implies UTF-16 or UTF-32, and not an 8-bit scheme.
+
+    BOM: A Useful Gremlin
+
+        BOM - Byte Order Marking. Used in a variety of encodings to establish big or little endian byte order. 
+            ex: b'\xff\xfe' - big endian
+                'E' - little endian
+
+Handling Text Files  
+
+    Best way to handle text files is with a unicode sandwich:
+
+        bytes -> str - Decode bytes on input.
+            Should be done as soon as text is needed to be used.
+        100% str     - Process only text.
+            Where the majority of processing should take place.
+        str -> bytes - Encode text on output.
+            As late as possible in the text processing.
+
+        Do NOT decode or encode while processing data. This can result in multiple bugs.
+            Errors can result from differing locales or operating systems.
+            See examples.ipynb
+        
+        Code running on multiple machines should ALWAYS explicitly state the decoding/encoding settings.
+
+    Beware of Encoding Defaults
+
+        Encoding defaults are what standard Python installations force you to use, unless specified.
+
+        If you omit the encoding argument, the default will be used by 
+            locale.getprefferedencoding()
+            sys.getdefaultencoding()
+            sys.getfilesystemencoding()
+
+
+        Windows has multiple encoding implementations depending on your usage.
+            They also have encoding versions with different additional supported characters.
+                ex: 'cp850' vs 'cp1252'
+
+        Support for UTF-8 depends on the program, OS version, and supported characters.
+
+        For instance, just because a character is recognized in windows doesn't mean that it's
+            able to be displayed by the console.
+
+    *** AVOID DEFAULT ENCODING ***
+
+Normalizing Unicode for Reliable Comparisons
+
+    String comparisons are complicated by Unicode's implementation of processing complex characters.
+
+        Diacritics (things that go above / below a word) are attached the preceding character to
+            appear as one.        
+
+        These are called canonical equivalents.
+            Although applications should treat them the same, python sees two different code sequences.
+
+        See examples.ipynb
+
+        This is resolved with unicodedata.normalize() which has four values for the first argument:
+            NFC - Normalization Form C - Composes code to the shortest equivalent string.
+                Keyboards are NFC by default, and is recommended by the W3C Organization.
+                NFKC - A stronger form of NFC with increased compatibility.
+            NFD - Normalization Form D - Decomposes code into it's base characters while
+                                             separating combining characters.
+                NFKD - A stronger form of NFD with increased compatibility.
+
+    Case Folding
+
+        Converting all text to lowercase, with some additional transformations.
+        
+        Any string containing only latin1 characters is equal to the .lower() function.
+        Greek lowercase mu, and the German' Eszett become 'ss'.
+    
+    Utility Functions for Normalized Text Matching
+
+        NFC and NFD are safe for unicode comparisons.
+            NFC is the best normalized form for most applications.
+        str.casefold() should be used for case insensitive applications.
+    
+    Extreme Normalization: Taking Out Diacritics
+
+        Although sometimes used, removing diacritics is not a proper form of normalization.
+            It can often change the meaning of some words, and will produce false positives.
+            It can also account for lazy users who don't input the correct characters.
+        
+        Removing diacritics makes reading urls significantly easier.
+            ex: URL for the Wikipedia article about the city of São Paulo
+                https://en.wikipedia.org/wiki/S%C3%A3o_Paulo
+    
+        See examples.ipynb
+    
+Sorting Unicode Text
+
+    For anyone using non-ASCII characters, comparing strings fails.
+
+        See examples.ipynb
+
+        A standard way to sort ASCII in Python is with locale.strxfrm.
+        
+        You must set a suitable locale for the application, and pray your OS supports it.
+
+        You must call setlocale(LC_COLLATE, <<your_locale>>) before using locale.strxfrm
+
+        The Caveats:
+
+            Calling setlocale in the library is not recommended because the setting is global.
+            The locale must be installed on the OS, otherwise locale.ERROR is raised.
+            You must know how to spell the locale name.
+            The locale must be implemented correctly by the OS creators. 
+
+    Sorting with the Unicode Collation Algorithm
+
+        The pyuca library provides an implementation of the UCA without taking into account
+            the host systems locale.
+            
+        Also look at pyicu for a pyuca package that respects language specific alphabet sorting.  
+        
+        See examples.ipynb
+        
+The Unicode Database
+
+    Finding Characters by Name
+
+        The module unicodedata can retrieve character metadata, like unicodedata.name()
+
+        See examples.ipynb
+            Another example, cat emoji name -> "GRINNING CAT FACE WITH SMILE EYES"
+
+    Numerical Meaning of Characters
+
+        The module unicodedata can check if a Unicode character represents a number.
+            If so, it can also interpret it to it's human-readable value.
+
+        See examples.ipynb
+
+Dual-Mode str and bytes APIs
+
+    str Versus bytes in Regular Expressions
+
+        If you build a regex with bytes, patterns like \d and \w only match ASCII characters.
+        If you build them through a str, they match Unicode digits, characters, or letters outside of ASCII. 
+
+    str Versus bytes in os Functions
+
+        All os module functions that accept filenames or path-names accept str or bytes arguments.
+
+        It will be automatically converted by sys.getfilesystemencoding(), and the OS
+            response will be decoded with the same codec.
+            You can pass bytes arguments for filenames that cannot be handled this way.
+
+            ex: 'digits-of-n.txt' -> b'digits-of-\xcf\x80.txt' (\xcf\x80 returns the pi symbol)

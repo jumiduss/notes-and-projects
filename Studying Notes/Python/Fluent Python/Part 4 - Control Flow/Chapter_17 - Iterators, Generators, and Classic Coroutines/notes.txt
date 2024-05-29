@@ -1,0 +1,186 @@
+A Sequence of Words
+
+    See examples.ipynb
+
+Why Sequences Are Iterable - The __iter__ function
+
+    The iter built-in function:
+        1. Checks if the object implements __iter__, then calls __iter__ for an iterator.
+        2. If not __iter__, but __getitem__, then iter() creates an iterator that tries to fetch items by index.
+        3. If that fails, TypeError is raised usually specifying "'C' object is not iterable" with 'C' the object class.
+        
+    See examples.ipynb
+
+
+Iterables Versus Iterators
+
+    Iterable:
+        Any object which the iter built-in function can obtain an iterator.
+        Objects that implement an __iter__ method returning an iterator, are iterable.
+        Sequences are always iterable.
+        Object are always iterable if they implement __getitem__ with a 0-based index.
+
+        The standard Python library has two built-in methods for iter()
+            __next__ - Returns the next item or StopIteration if no item exists.
+            __iter__ - Returns itself to allow iterators to be used where an iterable is expected.
+
+        See examples.ipynb
+
+    Iterator
+        A matter of protocol.
+        A large, and changing number of builtin types implement *some* flavor of iterator.
+
+Sentence Classes with __iter__
+
+    Sentence Take #2 A Class Iterator
+        See examples.ipynb
+
+    Don't Make the Iterable an Iterator for Itself
+        Iterables have: __iter__ method that instantiates a new iterator every time.
+        Iterators have: __next__ method that returns individual items
+                        __iter__ method that returns itself.
+    
+    Use The Iterator Pattern To:
+        To access an aggregate object's contents without exposing its internal representation.
+        To support multiple traversals of aggregate objects.
+        To provide a uniform interface for traversing different aggregate structures that support
+            polymorphic iteration.
+    
+    Sentence Take #3 A Generator Function
+        See examples.ipynb
+
+    How a Generator Works
+        A generator instance is a function object.
+        When invoked, it returns a generator object.
+        Generator objects implement the Iterator interface, so are iterable.
+        Using next(gen_obj) fetches the next item produced by yield.
+        When the generator function returns, it raises a StopIteration.
+
+        Generator Functions return Generators, Generators yield values, Generators return StopIteration.
+        
+Lazy Sentences
+    Sentence Tale #4 Lazy Generator
+        See examples.ipynb
+
+    Sentence Tale #5 Lazy Generator Expression
+        See examples.ipynb
+
+
+When to Use Generator Expressions
+
+    Use Generator Expressions when the syntax is shorter than using a Generator Function.
+    If the expression spans more than a couple lines, use a function for readability.
+
+    Note: When a genex is passed as a single argument to a function or constructor, 
+        you don't need to write a set of parenthesis for the function call of the genex call and expression.
+    
+        ex:
+        def __mul__(self, scalar):
+            if isinstance(scalar, numbers.Real):
+                return Vector(n * scalar for n in self) #### Here
+            else:
+                return NotImplemented
+    
+    Iterator vs Generator
+        Iterator - Designed to produced data designed for client code - 
+                 - to produce data that is consumed by client code    -
+                 - the code that drives the iterator via an iterative feature (i.e. a for loop)
+                by explicitly calling next(it)
+        Generator - A compiler-built iterator that uses yield to make a generator function -
+                  - Generator Functions are factories that produce Generator Objects       -
+                  - Generator Objects can also be created by generator expressions         -
+                  and provide the __next__ method to be iterators. 
+
+An Arithmetic Progression Generator
+
+    See examples.ipynb
+
+Generator Functions in the Standard Library
+
+    Filtering Generators
+
+        itertools   compress(it, selector_it)       - Consumes two iterables in parallel, yields items from 'it'
+                                                        when selector_it is truthy.
+        itertools   dropwhile(predicate, it)        - Consumes it, skips while predicate computes truthy,
+                                                        yields every remaining item without further checks.
+        (built-in)  filter(predicate, it)           - Applies predicate to each item of iterable, yielding the item
+                                                        if predicate(item) is truthy, if predicate is None,
+                                                        only truthy items are yielded.
+        itertools   filterfalse(predicate, it)      - Same as filter with predicate logic negated, aka when falsy 
+        itertools   islice(it, start, stop, step=1) - Yields items from slicing for any iterable type.
+        itertools   takewhile(predicate, it)        - Yields items while predicate truthy, 
+                                                        then stops without further checks.
+
+    Mapping Generators
+        
+        itertools   accumulate(it, [func])          - Yields accumulated sums, if func then yield func(first pair),
+                                                        then first result and next item
+        (built-in)  enumerate(iterable, start=0)    - Yields 2-tuples (index, item) where index counts from
+                                                        start, and item from iterable.
+        (built-in)  map(func, it1, [it2, ..., itN]) - Applies func to each it item, yielding result, func must
+                                                        take N iterables, and they will be consumed in parallel.
+        itertools   startmap(func, it)              - Applies func to each it item, yields result, the input
+                                                        iterable should yield iterable items iit, and
+                                                        func is applied as func(*iit)
+
+    Merge Generators
+
+        itertools   chain(it1, ..., itN)                       - Yields all items seamlessly
+        itertools   chain.from_iterable(it)                    - Yields all items produced by it like chain
+        itertools   product(it1, ..., itN, repeat=1)           - Cartesian product that combines items from iterables.
+        (built-in)  zip(it1, ..., itN, fillvalue=None)         - Yields tuples from items in iterables until first exhausted.
+        itertools   zip_longest(it1, ..., itN, fillvalue=None) - Like zip but stops when the last iterable is exhausted.
+
+    Expansion Generators
+        
+        itertools   combinations(it, out_len)                   - Yields combinations of out_len from items yielded by it. 
+        itertools   combinations_with_replacement(it,out_len)   - Like combinations with combinations with repeated items.
+        itertools   count(start=0, step=1)                      - Yields numbers indefinitely from start increment by step.
+        itertools   cycle(it)                                   - Yields from it, storing a copy, then yields entire
+                                                                    sequence infinitely.
+        itertools   pairwise(it)                                - Yields successive overlapping pairs taken from input iterable.
+        itertools   permutations(it,m out_len=None)             - Yields permutations of out_len items from yielded it items.
+                                                                    default of out_len is len(list(it))
+        itertools   repeat(item, [times])                       - Yields the given item repeatedly, indefinitely unless [times].
+
+    Rearranging Generators
+        
+        itertools   groupby(it, key=None)   - Yields 2-tuples of the form (key, group)
+        (built-in)  reversed(seq)           - Yields items from seq in reverse order. 
+                                                seq must be sequence or use __reversed__.
+        itertools   tee(it, n=2)            - Yields a tuple of n generators, each yielding the items from 
+                                                the input iterable independently.
+
+Iterable Reducing Functions
+
+    (built-in)  all(it)                         - Returns True if all it items are truthy, otherwise False.
+    (built-in)  any(it)                         - Returns True if any it items are truthy, otherwise False.
+    (built-in)  max(it, [key=,], [default=])    - Returns the max val of the items in it, key is ordering function.
+    (built-in)  min(it, [key=,], [default=])    - Returns the min val of the items in it, key is ordering function.
+    functools   reduce(func, it, [initial])     - Returns the result of applying func to the first pair, then
+                                                    the result and third item, etc.
+    (built-in)  sum(it, start=0)                - The sum of all items in it, with optional start value.
+
+
+Sub-Generators with yield from
+
+    See examples.ipynb
+
+Generic Iterable Types
+
+    See examples.ipynb
+
+Classic Coroutines
+
+    Generators can be used as iterators, and ALSO as coroutines.
+    Coroutines are REALLY generator functions, created with yield in it's body.
+        A coroutine object is physically a generator object.
+    
+    Classic Coroutine Notes
+        Generators produce data for iteration.
+        Coroutines are consumers of data.
+        Don't mix coroutines and generators.
+        Coroutines are not related to iteration.
+        There is a use of having 'yield' produce a value in a coroutine, but it's not tied to an iteration.
+
+    See examples.ipynb  

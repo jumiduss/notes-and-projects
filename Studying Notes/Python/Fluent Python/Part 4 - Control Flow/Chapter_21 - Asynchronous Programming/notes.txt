@@ -1,0 +1,107 @@
+A Few Definitions
+
+    Native Coroutine: A coroutine defined with async def.
+        Using await delegates from a native coroutine to another native coroutine, like yield from.
+        async def ALWAYS defines a native coroutine, even if await is not used in its body.
+        await cannot be used outside of a native coroutine.
+    
+    Classic Coroutine: A generator function that consumes data sent to it via coroutine.send(data) calls,
+        and reads that data by using yield in an expression.
+        Classic coroutines can delegate to other classic coroutines using yield from.
+        Classic coroutines are not supported by asyncio.
+    
+    Generator-Based Coroutine: A generator function decorated with @types.coroutine.
+        This makes a generator compatible with await.
+
+    Asynchronous Generator: A generator function defined with async def and uses yield within its body.
+        It returns an asynchronous generator object that provides __anext__ to retrieve the next item.
+
+Probing Domains
+
+    Tricks for reading asynchronous code.
+        1. Pretend that async and await are not there.
+            You will see the async functions and coroutines are just like sequential programming.
+
+    See test_async.py
+
+New Concept: Awaitable
+
+    for works with iterables.
+    await works with awaitables.
+
+    Common Awaitables:
+        1. A native coroutine object, received by calling a native coroutine function.
+        2. An asyncio.Task, received by passing a coroutine object to asyncio.create_task()
+        3. An object with an __await__ method returns an iterator.
+        4. Objects written in other languages using the Python/C API with tp_as_async.am_await returning an iterator.
+
+    Can also be used for scheduling coroutines for concurrent execution without waiting for its return.
+
+Downloading with asyncio and HTTPX
+
+    asyncio supports TCP and UDP directly, and currently there are no asynchronous HTTP client/servers
+        within the standard library.
+
+    See test_async_flags.py
+
+    Humble Generators
+
+        Asynchronous programming has no visible send() calls or yield expressions.
+        The asyncio event loop makes the send calls for you, and your coroutines await on other coroutines.
+            The coroutines can even be from other libraries.
+        The await chain eventually reaches a low level awaitable that returns a generator.
+            This generator is driven to respond to events like timers or network I/O.
+        
+        asyncio.gather and asyncio.create_task can start multiple concurrent await channels that can
+            allow concurrent execution of multiple I/O operations.
+            All driven by a single event loop, on a single.
+        
+        You must rewrite all of your code so none of it blocks, else you're wasting compute time.
+
+Asynchronous Context Managers
+
+    async with start a context manager compatible with asynchronous functions.
+    This allows us to create pre and post processing of asynchronous code blocks.
+
+    See test_async_downloader.py
+
+Writing asyncio Servers
+
+    This example uses a TCP server with Unicode character search utility.
+        First using FastAPI, and then with asyncio only. 
+
+    Search logic is provided by the instructor in his repository.
+
+Asynchronous Iterations and Asynchronous Iterables
+
+    NOTE: You can run the Python console asynchronously by using 'python -m asyncio'.
+
+    Example from aiopg:
+
+        async def go():
+            pool = await aiopg.create_pool(dsn)
+            async with pool.acquire() as conn:
+                await cur.execute("SELECT 1)
+                ret = []
+                async for row in cur:
+                    ret.append(row)
+                assert ret == [(1,)]
+    
+    Asynchronous Generator Functions
+        Done by writing a class with __anext__ and __aiter__, or more simply with async def ... yield.
+
+    Curio
+        An asyncio runtime environment that provides a cleaner API
+
+How Async Works and How It Doesn't
+
+    1. Running Loops Around Blocking Functions.
+        A blocking function is a function that performs a file, or network I/O.
+    2. Systems are not I/O Bound, only functions.
+        Functions should cede to the event loop when waiting for I/O data.
+    3. How to Counter CPU-Bound Traps
+        a. Delegating the task to a Python Processing Pool.
+        b. Delegating the task to an external task queue.
+        c. Rewriting the relevant code in Cython, C, Rust, or some other language that compiles to machine code,
+            and interfaces with the Python/C API, and releases the GIL
+        d. Do nothing because you can accept the performance hit.

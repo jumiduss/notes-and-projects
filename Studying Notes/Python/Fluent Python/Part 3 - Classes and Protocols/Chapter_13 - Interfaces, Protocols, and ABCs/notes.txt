@@ -1,0 +1,385 @@
+The Type Mapping
+
+    Duck Typing
+        Used in Any Python Version.
+        For Checking During Runtime.
+        For Structural Types
+    Goose Typing
+        Used Since Python 2.6.
+        For Checking During Runtime.
+        For Nominal Types.
+    Static Duck Typing
+        Used Since Python 3.8 With PEP 554 typing.Protocol and External Type Checkers.
+        For Checking Before Runtime.
+        For Structural Types.
+    Static Typing
+        Used Since Python 3.5 With PEP 484 and External Type Checkers.
+        For Checking Before Runtime.
+        For Nominal Types.
+
+Two Kinds of Protocols
+
+    A protocol has an informal interface.
+    Most uses of 'protocol' in Python are referring to informal interfaces in Networking.
+
+    Protocols fall under two types:
+        Dynamic - The informal protocols Python has always had.
+            They are implicit, defined by convention, and described in the documentation.
+            The most important protocols are supported by the interpreter itself.
+        Static - Defined by PEP 554 as Structural Subtyping.
+            They have an explicit definition as a typing.Protocol subclass.
+
+    See examples.ipynb
+
+Programming Ducks
+
+    Python Digs Sequences
+
+        The Python Data Model's philosophy is to cooperate with essential dynamic protocols as much as possible.
+
+        Sequence -> Collection (Since Python 3.6)
+            __getitem__
+            __contains__
+            __iter__
+            __reversed__
+            index
+            count
+            
+        Collection -> Container, Iterable, Sized
+        
+        Container
+            __contains__
+        
+        Iterable
+            __iter__
+
+        Sized
+            __len__
+
+        Most ABCs in collections.abc exist to formalize interfaces that are implemented by built-in
+            objects, that are implemented by built-in objects and implicitly supported by the interpreter.
+
+            ex: All 'correct' subclasses of Sequence MUST implement __getitem__ and __len__.
+                All other methods of Sequence are concrete, so subclasses can inherit the methods,
+                    or create their own.
+
+        From the example in 'Two Kinds of Protocols', although there's no __iter__ method,
+            Vowels is able to iterate through it's property.
+        
+        Python is smart enough to know if there's a __getitem__ method, it can try to iterate over
+            an object starting at index 0.
+            It can also do this even when the __contains__ method is missing by a sequential scan.         
+
+    Monkey Patching: Implementing a Protocol at Runtime
+
+        Monkey Patching - dynamically changing a module, class, or function at runtime.
+            This is done to add features, or fix bugs.
+        
+        ex: Chapter 1's FrenchDeck class.
+
+            We can use random.shuffle to shuffle sequences in place.
+            FrenchDeck only implements the methods: __init__, __len__, __getitem__.
+                Trying to shuffle a FrenchDeck instance will return a type error.The Type Mapping
+
+        NOTE: When creating arguments in code for special methods, use the following argument names:
+            __a_special_function__(self, key, value): ...
+
+    Defensive Programming and "Fail Fast"
+
+        Defensive programming practices to enhance safety while faced with careless programmers.
+
+        In dynamically typed languages, "fail fast" is safer for "easier to maintain" programs.
+
+        ex:
+            def __init__(self, iterable):
+                self._balls = list(iterable)
+        
+            If the argument isn't iterable, the call will fail fast with a TypeError at initialization.
+                Achieved through list().
+
+        We can be more explicit by writing a try/except around iterable to customize the message.
+
+        We could also use a runtime check like 'isinstance' if the data is not meant to be copied.
+
+        We can also avoid infinite generators by calling len() on the argument.
+            This rejects iterators while safely dealing with tuples, arrays, and other Sequence interfaces.
+        
+        We can use iter(x) to explicitly check when an iterable is acceptable.
+
+        
+        ex: Emulating exception handling of field names in collections.namedtuple with Duck Typing
+
+            try:
+                field_names = field_names.replace(',', ' ').split() # We have to use since there's no replace like a str
+            except AttributeError:
+                pass
+            
+            field_names = tuple(field_names) 
+            if not all(s.isidentifier() for s in field_names):
+                raise ValueError('field_names must all be valid identifiers')
+
+        ex: Duck Typing can be More Expressive than Static Type Hints
+            def namedtuple(
+                typename: str
+                field_names: Union[str, Iterable[str]],
+                *,
+            )
+
+Goose Typing
+
+    Python doesn't have an keyword for interface.
+        We use ABCs for defining interfaces for explicit type checking at runtime.
+        This is also supported by static type checkers.
+
+        ABCs complement duck typing by providing ways to define interfaces when other 
+            techniques like hasattr() would be un-Pythonic, or wrong.
+        
+        ABCs also produce virtual subclasses, which are classes that don't inherit from
+            a class, but are still recognized by isinstance() and issubclass().
+
+    Waterfowl and ABCs
+
+        Duck Typing is simply the avoidance of using isinstance().
+        Goose Typing is using isinstance(obj, cls) as a supplement ONLY when cls is an ABC.
+            It also makes your implementation of a previously defined interface EXPLICIT.
+            It enables runtime Type Checking with ABCs instead of concrete classes.
+                Using isinstance and issubclass.
+                    
+    Subclassing an ABC
+
+        In our example we implement abc.MutableSequence, which requires a __delitem__ method for the abc.
+        Python checks the implementation of the ABC at runtime, NOT import.
+
+        Methods Apart of the MutableSequence Inheritance Superclasses
+            MutableSequence < Sequence
+                __setitem__
+                __delitem__
+                insert
+                append
+                reverse
+                extend
+                pop
+                remove
+                __iadd__
+
+            Sequence < Collection
+                __getitem__
+                __contains__
+                __iter__
+                __reversed__
+                index
+                count
+
+            Collection < Container, Iterable, Sized
+                Container - __contains__
+                Iterable - __iter__
+                Sized - __len__
+        
+        To inherit from MutableSequence, FrenchDeck2 had to implement:
+            __delitem__
+            insert
+
+            Once it implemented these 11 Methods
+                from sequence:
+                    __contains__
+                    __iter__
+                    __reversed__
+                    index
+                    count
+        
+                from MutableSequence:
+                    append
+                    reverse
+                    extend
+                    pop
+                    remove
+                    __iadd__
+
+    ABCs in the Standard Library
+
+        These  are the ABCs defined in the standard library under collections.abc:
+
+
+            Callable - Not a collection but included in collections for organizing ABCs.
+                callable(obj) is easier to use than isinstance(obj, Callable)
+            Hashable - Not a collection but included in collections for organizing ABCs.
+                        hashable(obj) is easier to use than isinstance(obj, Hashable)
+                        isinstance(obj, Hashable) can also return false positives.
+                            This can happen when a hashable object holds un-hashable items.
+
+            Sized - Supports len() with __len__
+                Mapping View - Only ValuesView can be implemented without Set.
+                    Values View - Uses .values().
+
+            Container - Supports the 'in' operator with __contains__
+            Iterable
+                Iterator
+            (Iterable, Container, Sized)
+                Collection - Has no methods of it's own, but allows easier subclassing from 
+                                Iterable, Container, and Sized. The subclasses of Collection are    
+                                immutable collections with mutable subclasses.
+                    
+                    Sequence
+                        MutableSequence
+                    Mapping 
+                        MutableMapping
+                    Set
+                        MutableSet
+
+                (Collection), (...Sized...)
+                    (Set), (MappingView) - Returns objects with .items(), .keys(), .values().
+                        KeysView
+                        ItemsView
+
+    Defining and Using an ABC
+
+        ABCs are tools for: building frameworks and static support for type hints.
+        
+        NOTE: It is okay to use concrete methods in ABCs as long as they depend on other methods within the interface.
+
+
+
+
+        Example of Creating an ABC:
+
+            Reason: We need a website advertisement to display a set of advertisements in 
+                a random order without repeating until all advertisements are shown.
+
+            Context: We are building a framework called ADAM that supports non-repeating
+                random-picking classes.
+            
+            Details of our Custom ABC:
+                Name: Tombola
+                Abstract Methods:
+                    load - Put items into a container.
+                    pick - Remove one item at random from the container, and return the item.
+                Concrete Methods:
+                    loaded - Returns True if there is at least one item in the container.
+                    inspect - Returns a tuple built from the items currently in the container.
+                                This is completed without changing the containers contents,
+                                    but ordering is not preserved.
+            UML Diagram: Unified Modeling Language Diagram
+
+            Tombola:
+                load
+                pick
+                loaded
+                inspect
+            BingoCage < Tombola:
+                __init__
+                load
+                pick
+                __call__
+            LotteryBlower < Tombola:
+                __init__
+                load
+                pick
+                loaded
+                inspect
+            <<virtual subclass>> TombolaList < Tombola:
+                load
+                pick
+                loaded
+                inspect
+            
+            See tombola.py for the coded implementation of this ABC: Tombola.
+
+    ABC Syntax Details
+
+        The general way to declare an abstract class method:
+        class MyABC(abc.ABC):
+            @classmethod
+            @abc.abstractmethod
+            def an_abstract_classmethod(cls, ...):
+                pass
+
+    Subclassing an ABC
+
+        See examples.ipynb for Tombola implementation.
+    
+    A Virtual Subclass of an ABC
+
+        Virtual Subclasses do not inherit methods from their registered classes, and are not checked for conformance.
+
+        See examples.ipynb for Tombola implementation.
+
+    Usage of a Register in Practice
+
+        It's more common to see the register as a function after a class definition than a class decorator.
+        This is because for some classes, certain registrations only happen after a module is imported.
+
+    Structural Typing with ABCs
+
+        Structural Typing looks at the structure of an object's pubic interface to determine it's type.
+        Subclass hooks are probably bad practice when writing our own code.
+
+Static Protocols
+
+    The Typed double Function
+
+        See examples.ipynb.
+
+    Runtime Checkable Static Protocols
+
+        typing implements seven ready to use protocols for static type checking
+
+    Limitations of Runtime Protocol Checks
+
+      isinstance and issubclass are not checked at runtime, like type hints.
+        They only look at the presence or absence of methods in an object.
+
+    Supporting a Static Protocol
+
+            We could add to our Vector2d a method that converts to and from the complex type.
+
+                def __complex__(self):
+                    return complex(self.x, self.y)
+                
+                @classmethod
+                def fromcomplex(cls, datum):
+                    return cls(datum.real, datum.imag) # Assuming that datum has the real and imag attributes.
+            
+            We can implement runtime type checking also.
+
+                def __abs__(self) -> float:
+                    return math.hypot(self.x, self.y)
+                
+                def __complex__(self) -> complex:
+                    return complex(self.x, self.y)
+                
+                @classmethod
+                def fromcomplex(cls, datum: SupportsComplex) -> Vector2d:
+                    c = complex(datum)
+                    return cls(c.real, c.imag)
+
+    Designing a Static Protocol
+
+        Single method protocols make static duck typing more useful and flexible.
+
+        See examples.ipynb
+
+    Best Practices for Protocol Design
+
+        1. Make Narrow Protocols - Aim for single method protocols, or maximum a few.
+        2. Define a protocol near the function that uses it.
+        3. Use plain names for protocols that represent a clear concept. ex: Iterator, Container, etc.
+        4. Use SupportsX for protocols that provide callable methods. ex: SupportsInt.
+        5. Use HasX for protocols that have readable and/or writeable attributes or getter/setter methods. 
+            ex: HasItems, HasFileno.
+
+    Extending a Protocol
+
+        It's better to derive a new protocol to extend it's usage rather than modifying the original.
+        
+        ex format:
+            from a_module import a_protocol
+
+            @runtime_checkable
+            class Extended_Protocol(a_protocol, Protocol):
+                def a_method_that_extends_a_protocol(self, a_argument) -> a_type: ...
+
+    The numbers ABCs and Numerical Protocols
+
+        The 'numbers' ABCs in are fine for runtime type checking, but unsuitable for static typing.
+        The numeric static protocols SupportsComplex, SupportsFloat, etc..., work well for static typing,
+            but are unreliable for runtime type checking with 'complex' types.
